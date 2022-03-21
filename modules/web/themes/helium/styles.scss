@@ -1,0 +1,11 @@
+@import "helium-defaults";
+@import "com.itk.finance/helium-ext-defaults";
+@import "app-components";
+@import "com.itk.finance/helium-ext";
+
+.helium {
+  // include auto-generated app components SCSS
+  @include app_components;
+
+  @include com_itk_finance-helium-ext;
+}

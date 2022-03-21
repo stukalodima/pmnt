@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
+        caption="msg://cashFlowItemBrowse.caption"
+        focusComponent="cashFlowItemsTable"
+        messagesPack="com.itk.finance.web.screens.cashflowitem">
+    <data readOnly="true">
+        <collection id="cashFlowItemsDc"
+                    class="com.itk.finance.entity.CashFlowItem">
+            <view extends="_local"/>
+            <loader id="cashFlowItemsDl">
+                <query>
+                    <![CDATA[select e from finance_CashFlowItem e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="cashFlowItemsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="cashFlowItemsTable"
+                dataLoader="cashFlowItemsDl">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="cashFlowItemsTable"
+                    width="100%"
+                    dataContainer="cashFlowItemsDc"
+                    multiselect="true"
+                    presentations="true">
+            <actions>
+                <action id="create" type="create"/>
+                <action id="edit" type="edit"/>
+                <action id="remove" type="remove"/>
+                <action id="refresh" type="refresh"/>
+                <action id="excel" type="excel"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+            </columns>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn" action="cashFlowItemsTable.create"/>
+                <button id="editBtn" action="cashFlowItemsTable.edit"/>
+                <button id="removeBtn" action="cashFlowItemsTable.remove"/>
+                <button id="refreshBtn" action="cashFlowItemsTable.refresh"/>
+                <button id="excelBtn" action="cashFlowItemsTable.excel"/>
+            </buttonsPanel>
+        </groupTable>
+        <hbox id="lookupActions" spacing="true" visible="false">
+            <button action="lookupSelectAction"/>
+            <button action="lookupCancelAction"/>
+        </hbox>
+    </layout>
+</window>

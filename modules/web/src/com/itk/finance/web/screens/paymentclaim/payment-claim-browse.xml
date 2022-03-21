@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
+        caption="msg://paymentClaimBrowse.caption"
+        focusComponent="paymentClaimsTable"
+        messagesPack="com.itk.finance.web.screens.paymentclaim">
+    <data readOnly="true">
+        <collection id="paymentClaimsDc"
+                    class="com.itk.finance.entity.PaymentClaim">
+            <view extends="_local">
+                <property name="business" view="_minimal"/>
+                <property name="company" view="_minimal"/>
+                <property name="client" view="_minimal"/>
+                <property name="cashFlowItem" view="_minimal"/>
+                <property name="paymentType" view="_minimal"/>
+                <property name="author" view="_minimal"/>
+            </view>
+            <loader id="paymentClaimsDl">
+                <query>
+                    <![CDATA[select e from finance_PaymentClaim e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="paymentClaimsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="paymentClaimsTable"
+                dataLoader="paymentClaimsDl">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="paymentClaimsTable"
+                    width="100%"
+                    dataContainer="paymentClaimsDc"
+                    multiselect="true"
+                    presentations="true">
+            <actions>
+                <action id="create" type="create"/>
+                <action id="edit" type="edit"/>
+                <action id="remove" type="remove"/>
+                <action id="refresh" type="refresh"/>
+                <action id="excel" type="excel"/>
+            </actions>
+            <columns>
+                <column id="onDate"/>
+                <column id="status"/>
+                <column id="business"/>
+                <column id="company"/>
+                <column id="client"/>
+                <column id="summ"/>
+                <column id="author"/>
+                <column id="planPaymentDate"/>
+                <column id="paymentPurpose" maxTextLength="100"/>
+                <column id="cashFlowItem"/>
+                <column id="paymentType"/>
+                <column id="comment" maxTextLength="100"/>
+            </columns>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn" action="paymentClaimsTable.create"/>
+                <button id="editBtn" action="paymentClaimsTable.edit"/>
+                <button id="removeBtn" action="paymentClaimsTable.remove"/>
+                <button id="refreshBtn" action="paymentClaimsTable.refresh"/>
+                <button id="excelBtn" action="paymentClaimsTable.excel"/>
+            </buttonsPanel>
+        </groupTable>
+        <hbox id="lookupActions" spacing="true" visible="false">
+            <button action="lookupSelectAction"/>
+            <button action="lookupCancelAction"/>
+        </hbox>
+    </layout>
+</window>

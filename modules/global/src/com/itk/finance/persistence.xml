@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+    <persistence-unit name="pmnt" transaction-type="RESOURCE_LOCAL">
+
+        <class>com.itk.finance.entity.Business</class>
+        <class>com.itk.finance.entity.Company</class>
+        <class>com.itk.finance.entity.Client</class>
+        <class>com.itk.finance.entity.CashFlowItem</class>
+        <class>com.itk.finance.entity.PaymentType</class>
+        <class>com.itk.finance.entity.PaymentClaim</class>
+        <class>com.itk.finance.entity.PaymentRegister</class>
+        <class>com.itk.finance.entity.PaymentRegisterDetail</class>
+        <class>com.itk.finance.entity.UserProperty</class>
+    </persistence-unit>
+</persistence>

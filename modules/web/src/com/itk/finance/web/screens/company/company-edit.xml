@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://companyEdit.caption"
+        focusComponent="form"
+        messagesPack="com.itk.finance.web.screens.company">
+    <data>
+        <instance id="companyDc"
+                  class="com.itk.finance.entity.Company">
+            <view extends="_local"/>
+            <loader/>
+        </instance>
+        <collection id="businessesDc" class="com.itk.finance.entity.Business">
+            <view extends="_local"/>
+            <loader id="businessesDl">
+                <query>
+                    <![CDATA[select e from finance_Business e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="AUTO"
+                width="AUTO"
+                modal="true"
+                forceDialog="true"/>
+    <layout expand="editActions" spacing="true">
+        <form id="form" dataContainer="companyDc">
+            <column width="400px">
+                <textField id="nameField" property="name"/>
+                <lookupPickerField id="businessField" property="business" optionsContainer="businessesDc">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"></action>
+                        <action id="open" type="picker_open"></action>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+            </column>
+        </form>
+        <hbox id="editActions" spacing="true">
+            <button id="commitAndCloseBtn" action="windowCommitAndClose"/>
+            <button id="commitBtn" action="windowCommit"/>
+            <button id="closeBtn" action="windowClose"/>
+        </hbox>
+    </layout>
+</window>

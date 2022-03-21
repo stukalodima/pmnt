@@ -1,0 +1,5 @@
+@import "helium-ext";
+
+@mixin com_itk_finance {
+  @include com_itk_finance-helium-ext;
+}

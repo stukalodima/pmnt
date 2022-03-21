@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
+        caption="msg://paymentRegisterDetailEdit.caption"
+        focusComponent="form"
+        messagesPack="com.itk.finance.web.screens.paymentregisterdetail">
+    <data>
+        <instance id="paymentRegisterDetailDc"
+                  class="com.itk.finance.entity.PaymentRegisterDetail">
+            <view extends="_local">
+                <property name="company" view="_minimal"/>
+                <property name="client" view="_minimal"/>
+                <property name="cashFlowItem" view="_minimal"/>
+                <property name="paymentType" view="_minimal"/>
+                <property name="paymentClaim" view="_minimal"/>
+                <property name="paymentRegister" view="_minimal"/>
+            </view>
+            <loader/>
+        </instance>
+        <collection id="companiesDc" class="com.itk.finance.entity.Company" view="_minimal">
+            <loader id="companiesDl">
+                <query>
+                    <![CDATA[select e from finance_Company e]]>
+                    <condition>
+                        <c:jpql>
+                            <c:where>e.business = :business</c:where>
+                        </c:jpql>
+                    </condition>
+                </query>
+            </loader>
+        </collection>
+        <collection id="clientsDc" class="com.itk.finance.entity.Client" view="_minimal">
+            <loader id="clientsDl">
+                <query>
+                    <![CDATA[select e from finance_Client e]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="cashFlowItemsDc" class="com.itk.finance.entity.CashFlowItem" view="_minimal">
+            <loader id="cashFlowItemsDl">
+                <query>
+                    <![CDATA[select e from finance_CashFlowItem e]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="paymentTypesDc" class="com.itk.finance.entity.PaymentType" view="_minimal">
+            <loader id="paymentTypesDl">
+                <query>
+                    <![CDATA[select e from finance_PaymentType e]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="paymentClaimsDc" class="com.itk.finance.entity.PaymentClaim">
+            <view extends="_local">
+                <property name="business" view="_minimal"/>
+                <property name="company" view="_minimal"/>
+                <property name="client" view="_minimal"/>
+                <property name="cashFlowItem" view="_minimal"/>
+                <property name="paymentType" view="_minimal"/>
+            </view>
+            <loader id="paymentClaimsDl">
+                <query>
+                    <![CDATA[select e from finance_PaymentClaim e]]>
+                    <condition>
+                        <and>
+                            <c:jpql>
+                                <c:where>e.business = :business</c:where>
+                            </c:jpql>
+                            <c:jpql>
+                                <c:where>e.company = :company</c:where>
+                            </c:jpql>
+                            <c:jpql>
+                                <c:where>e.status = :status</c:where>
+                            </c:jpql>
+                        </and>
+                    </condition>
+                </query>
+            </loader>
+        </collection>
+        <collection id="paymentRegistersDc" class="com.itk.finance.entity.PaymentRegister" view="_minimal">
+            <loader id="paymentRegistersDl">
+                <query>
+                    <![CDATA[select e from finance_PaymentRegister e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="AUTO"
+                width="AUTO"
+                modal="true"
+                forceDialog="true"/>
+    <layout expand="editActions" spacing="true">
+        <form id="form" dataContainer="paymentRegisterDetailDc">
+            <column width="400px">
+                <checkBox id="approvedField" property="approved"/>
+                <lookupPickerField id="companyField" optionsContainer="companiesDc" property="company">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <lookupPickerField id="paymentClaimField" optionsContainer="paymentClaimsDc" property="paymentClaim">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <lookupPickerField id="clientField" optionsContainer="clientsDc" property="client">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <textField id="summField" property="summ"/>
+                <textArea id="paymentPurposeField" property="paymentPurpose" rows="5"/>
+                <lookupPickerField id="cashFlowItemField" optionsContainer="cashFlowItemsDc" property="cashFlowItem">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <lookupPickerField id="paymentTypeField" optionsContainer="paymentTypesDc" property="paymentType">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <textArea id="commentField" property="comment" rows="5"/>
+                <lookupPickerField id="paymentRegisterField" optionsContainer="paymentRegistersDc"
+                                   property="paymentRegister" visible="false">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+            </column>
+        </form>
+        <hbox id="editActions" spacing="true">
+            <button id="commitAndCloseBtn" action="windowCommitAndClose"/>
+            <button id="commitBtn" action="windowCommit"/>
+            <button id="closeBtn" action="windowClose"/>
+        </hbox>
+    </layout>
+</window>

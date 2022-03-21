@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
+    <menu id="catalogs" caption="mainMsg://menu_config.catalogs" insertBefore="bpm">
+        <item screen="finance_Business.browse" caption="mainMsg://menu_config.finance_Business.browse"/>
+        <item screen="finance_Company.browse" caption="mainMsg://menu_config.finance_Company.browse"/>
+        <item screen="finance_Client.browse" caption="mainMsg://menu_config.finance_Client.browse"/>
+        <item screen="finance_CashFlowItem.browse" caption="mainMsg://menu_config.finance_CashFlowItem.browse"/>
+        <item screen="finance_PaymentType.browse" caption="mainMsg://menu_config.finance_PaymentType.browse"/>
+        <item screen="finance_UserProperty.browse" caption="mainMsg://menu_config.finance_UserProperty.browse"/>
+    </menu>
+    <menu id="documents" caption="mainMsg://menu_config.documents" insertBefore="bpm">
+        <item screen="finance_PaymentClaim.browse" caption="mainMsg://menu_config.finance_PaymentClaim.browse"/>
+        <item screen="finance_PaymentRegister.browse" caption="mainMsg://menu_config.finance_PaymentRegister.browse"/>
+    </menu>
+</menu-config>

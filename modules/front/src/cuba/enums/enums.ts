@@ -1,0 +1,8 @@
+export enum ClaimStatusEnum {
+  NEW = "NEW",
+  PREPARED = "PREPARED",
+  APPROVED_SH = "APPROVED_SH",
+  REJECTED_SH = "REJECTED_SH",
+  APPROVED_BN = "APPROVED_BN",
+  REJECTED_BN = "REJECTED_BN"
+}

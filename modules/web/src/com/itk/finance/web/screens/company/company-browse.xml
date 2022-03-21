@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
+        caption="msg://companyBrowse.caption"
+        focusComponent="companiesTable"
+        messagesPack="com.itk.finance.web.screens.company">
+    <data readOnly="true">
+        <collection id="companiesDc"
+                    class="com.itk.finance.entity.Company">
+            <view extends="_local">
+                <property name="business" view="_minimal"/>
+            </view>
+            <loader id="companiesDl">
+                <query>
+                    <![CDATA[select e from finance_Company e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="companiesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="companiesTable"
+                dataLoader="companiesDl">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="companiesTable"
+                    width="100%"
+                    dataContainer="companiesDc"
+                    multiselect="true"
+                    presentations="true">
+            <actions>
+                <action id="create" type="create"/>
+                <action id="edit" type="edit"/>
+                <action id="remove" type="remove"/>
+                <action id="refresh" type="refresh"/>
+                <action id="excel" type="excel"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="business"/>
+            </columns>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn" action="companiesTable.create"/>
+                <button id="editBtn" action="companiesTable.edit"/>
+                <button id="removeBtn" action="companiesTable.remove"/>
+                <button id="refreshBtn" action="companiesTable.refresh"/>
+                <button id="excelBtn" action="companiesTable.excel"/>
+            </buttonsPanel>
+        </groupTable>
+        <hbox id="lookupActions" spacing="true" visible="false">
+            <button action="lookupSelectAction"/>
+            <button action="lookupCancelAction"/>
+        </hbox>
+    </layout>
+</window>

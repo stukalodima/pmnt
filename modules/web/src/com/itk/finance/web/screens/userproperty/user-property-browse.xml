@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
+        caption="msg://userPropertyBrowse.caption"
+        focusComponent="userPropertiesTable"
+        messagesPack="com.itk.finance.web.screens.userproperty">
+    <data readOnly="true">
+        <collection id="userPropertiesDc"
+                    class="com.itk.finance.entity.UserProperty">
+            <view extends="_local">
+                <property name="business" view="_minimal"/>
+                <property name="company" view="_minimal"/>
+                <property name="user" view="_minimal"/>
+            </view>
+            <loader id="userPropertiesDl">
+                <query>
+                    <![CDATA[select e from finance_UserProperty e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="userPropertiesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="userPropertiesTable"
+                dataLoader="userPropertiesDl">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="userPropertiesTable"
+                    width="100%"
+                    dataContainer="userPropertiesDc"
+                    multiselect="true"
+                    presentations="true">
+            <actions>
+                <action id="create" type="create"/>
+                <action id="edit" type="edit"/>
+                <action id="remove" type="remove"/>
+                <action id="refresh" type="refresh"/>
+                <action id="excel" type="excel"/>
+            </actions>
+            <columns>
+                <column id="user"/>
+                <column id="business"/>
+                <column id="company"/>
+            </columns>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn" action="userPropertiesTable.create"/>
+                <button id="editBtn" action="userPropertiesTable.edit"/>
+                <button id="removeBtn" action="userPropertiesTable.remove"/>
+                <button id="refreshBtn" action="userPropertiesTable.refresh"/>
+                <button id="excelBtn" action="userPropertiesTable.excel"/>
+            </buttonsPanel>
+        </groupTable>
+        <hbox id="lookupActions" spacing="true" visible="false">
+            <button action="lookupSelectAction"/>
+            <button action="lookupCancelAction"/>
+        </hbox>
+    </layout>
+</window>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
+        caption="msg://businessBrowse.caption"
+        focusComponent="businessesTable"
+        messagesPack="com.itk.finance.web.screens.business">
+    <data readOnly="true">
+        <collection id="businessesDc"
+                    class="com.itk.finance.entity.Business">
+            <view extends="_local">
+                <property name="finControler" view="_minimal"/>
+                <property name="finDirector" view="_minimal"/>
+                <property name="genDirector" view="_minimal"/>
+                <property name="finControlerSH" view="_minimal"/>
+                <property name="finDirectorSH" view="_minimal"/>
+            </view>
+            <loader id="businessesDl">
+                <query>
+                    <![CDATA[select e from finance_Business e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="businessesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="businessesTable"
+                dataLoader="businessesDl">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="businessesTable"
+                    width="100%"
+                    dataContainer="businessesDc"
+                    multiselect="true"
+                    presentations="true">
+            <actions>
+                <action id="create" type="create"/>
+                <action id="edit" type="edit"/>
+                <action id="remove" type="remove"/>
+                <action id="refresh" type="refresh"/>
+                <action id="excel" type="excel"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="finControler"/>
+                <column id="finDirector"/>
+                <column id="genDirector"/>
+                <column id="finControlerSH"/>
+                <column id="finDirectorSH"/>
+                <column id="usePaymantClaim"/>
+                <column id="usePaymentClaimApproval"/>
+            </columns>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn" action="businessesTable.create"/>
+                <button id="editBtn" action="businessesTable.edit"/>
+                <button id="removeBtn" action="businessesTable.remove"/>
+                <button id="refreshBtn" action="businessesTable.refresh"/>
+                <button id="excelBtn" action="businessesTable.excel"/>
+            </buttonsPanel>
+        </groupTable>
+        <hbox id="lookupActions" spacing="true" visible="false">
+            <button action="lookupSelectAction"/>
+            <button action="lookupCancelAction"/>
+        </hbox>
+    </layout>
+</window>

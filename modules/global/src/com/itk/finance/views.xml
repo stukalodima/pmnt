@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
+
+    <view entity="finance_UserProperty" name="userProperty.get.edit" extends="_local">
+        <property name="user" view="_minimal"/>
+        <property name="business" fetch="AUTO" view="_local"/>
+        <property name="company" fetch="AUTO" view="_local"/>
+    </view>
+    <view entity="finance_Business" name="business.getEdit" extends="_local">
+        <property name="finControler" fetch="AUTO" view="_minimal"/>
+        <property name="finDirector" fetch="AUTO" view="_minimal"/>
+        <property name="genDirector" fetch="AUTO" view="_minimal"/>
+    </view>
+    <view entity="finance_PaymentClaim" name="paymentClaim.getEdit" extends="_local">
+        <property name="business" fetch="AUTO" view="_minimal"/>
+        <property name="company" fetch="AUTO" view="_minimal"/>
+        <property name="client" fetch="AUTO" view="_minimal"/>
+        <property name="cashFlowItem" fetch="AUTO" view="_minimal"/>
+        <property name="paymentType" fetch="AUTO" view="_minimal"/>
+        <property name="author" fetch="AUTO" view="_minimal"/>
+    </view>
+</views>

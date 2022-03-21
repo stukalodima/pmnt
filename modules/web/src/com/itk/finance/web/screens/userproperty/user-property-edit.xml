@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
+        caption="msg://userPropertyEdit.caption"
+        focusComponent="form"
+        messagesPack="com.itk.finance.web.screens.userproperty">
+    <data>
+        <instance id="userPropertyDc"
+                  class="com.itk.finance.entity.UserProperty">
+            <view extends="_local">
+                <property name="business" view="_minimal"/>
+                <property name="company" view="_minimal"/>
+                <property name="user" view="_minimal"/>
+            </view>
+            <loader/>
+        </instance>
+        <collection id="businessesDc" class="com.itk.finance.entity.Business" view="_minimal">
+            <loader id="businessesDl">
+                <query>
+                    <![CDATA[select e from finance_Business e]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="companiesDc" class="com.itk.finance.entity.Company" view="_minimal">
+            <loader id="companiesDl">
+                <query>
+                    <![CDATA[select e from finance_Company e]]>
+                    <condition>
+                        <c:jpql>
+                            <c:where>e.business = :business</c:where>
+                        </c:jpql>
+                    </condition>
+                </query>
+            </loader>
+        </collection>
+        <collection id="usersDc" class="com.haulmont.cuba.security.entity.User">
+            <view extends="_local"/>
+            <loader id="usersDl">
+                <query>
+                    <![CDATA[select e from sec$User e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="AUTO"
+                width="AUTO"
+                modal="true"
+                forceDialog="true"/>
+    <layout expand="editActions" spacing="true">
+        <form id="form" dataContainer="userPropertyDc">
+            <column width="400px">
+                <lookupField id="userField" property="user" optionsContainer="usersDc"/>
+                <lookupPickerField id="businessField" optionsContainer="businessesDc" property="business">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <lookupPickerField id="companyField" optionsContainer="companiesDc" property="company">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+            </column>
+        </form>
+        <hbox id="editActions" spacing="true">
+            <button id="commitAndCloseBtn" action="windowCommitAndClose"/>
+            <button id="commitBtn" action="windowCommit"/>
+            <button id="closeBtn" action="windowClose"/>
+        </hbox>
+    </layout>
+</window>
