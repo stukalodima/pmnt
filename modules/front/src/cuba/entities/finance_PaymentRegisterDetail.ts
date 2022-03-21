@@ -3,6 +3,7 @@ import { Company } from "./finance_Company";
 import { Client } from "./finance_Client";
 import { CashFlowItem } from "./finance_CashFlowItem";
 import { PaymentType } from "./finance_PaymentType";
+import { PaymentClaim } from "./finance_PaymentClaim";
 import { PaymentRegister } from "./finance_PaymentRegister";
 export class PaymentRegisterDetail extends StandardEntity {
   static NAME = "finance_PaymentRegisterDetail";
@@ -14,6 +15,7 @@ export class PaymentRegisterDetail extends StandardEntity {
   cashFlowItem?: CashFlowItem | null;
   paymentType?: PaymentType | null;
   comment?: string | null;
+  paymentClaim?: PaymentClaim | null;
   paymentRegister?: PaymentRegister | null;
 }
 export type PaymentRegisterDetailViewName = "_base" | "_local" | "_minimal";
