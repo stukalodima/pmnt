@@ -4,10 +4,13 @@ import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.UserSessionSource;
 import com.itk.finance.entity.Business;
 import com.itk.finance.entity.Company;
+import com.itk.finance.entity.ManagementCompany;
 import com.itk.finance.entity.UserProperty;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.List;
+import java.util.Objects;
 
 @Service(UserPropertyService.NAME)
 public class UserPropertyServiceBean implements UserPropertyService {
@@ -18,36 +21,46 @@ public class UserPropertyServiceBean implements UserPropertyService {
     private UserSessionSource userSessionSource;
 
     private UserProperty getUserProperty() {
-        UserProperty userProperty;
-        try {
-            userProperty = dataManager.load(UserProperty.class)
-                    .query("e.user = :user")
-                    .parameter("user", userSessionSource.getUserSession().getUser()).
-                    one();
-            userProperty = dataManager.reload(userProperty, "userProperty.get.edit");
-        } catch (IllegalStateException e) {
-            userProperty = null;
+        UserProperty userProperty = null;
+        List<UserProperty> userPropertyList = dataManager.load(UserProperty.class)
+                .query("select e from finance_UserProperty e where e.user = :user")
+                .parameter("user", userSessionSource.getUserSession().getUser())
+                .view("userProperty.get.edit")
+                .list();
+        if (userPropertyList.size() > 0) {
+            userProperty = userPropertyList.get(0);
         }
         return userProperty;
     }
 
     @Override
-    public Business getDefaulBusiness() {
-        UserProperty userProperty = getUserProperty();
-        Business business = null;
-        if (userProperty != null) {
-            business = userProperty.getBusiness();
-        }
-        return business;
+    public ManagementCompany getDefaultManagementCompany() {
+        return (ManagementCompany) getEntityFromUserProperty(ManagementCompany.class.getSimpleName(), getUserProperty());
     }
 
     @Override
-    public Company getDefaulCompany() {
-        UserProperty userProperty = getUserProperty();
-        Company company = null;
-        if (userProperty != null) {
-            company = userProperty.getCompany();
+    public Business getDefaultBusiness() {
+        return (Business) getEntityFromUserProperty(Business.class.getSimpleName(), getUserProperty());
+    }
+
+    @Override
+    public Company getDefaultCompany() {
+        return (Company) getEntityFromUserProperty(Company.class.getSimpleName(), getUserProperty());
+    }
+
+    private Object getEntityFromUserProperty(String propertyName, UserProperty userProperty) {
+        Object result = null;
+        switch (propertyName) {
+            case "Business":
+                result = Objects.isNull(userProperty) ? null : userProperty.getBusiness();
+                break;
+            case "Company":
+                result = Objects.isNull(userProperty) ? null : userProperty.getCompany();
+                break;
+            case "ManagementCompany":
+                result = Objects.isNull(userProperty) ? null : userProperty.getManagementCompany();
+                break;
         }
-        return company;
+        return result;
     }
 }

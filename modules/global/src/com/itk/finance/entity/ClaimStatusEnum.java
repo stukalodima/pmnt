@@ -8,11 +8,9 @@ import javax.annotation.Nullable;
 public enum ClaimStatusEnum implements EnumClass<String> {
 
     NEW("NEW"),
-    PREPARED("PREPARED"),
-    APPROVED_SH("APPROVED_SH"),
-    REJECTED_SH("REJECTED_SH"),
     APPROVED_BN("APPROVED_BN"),
-    REJECTED_BN("REJECTED_BN");
+    APPROVED_SH("APPROVED_SH"),
+    REJECTED_SH("REJECTED_SH");
 
     private String id;
 

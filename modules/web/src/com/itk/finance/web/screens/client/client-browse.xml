@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
-        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
         caption="msg://clientBrowse.caption"
         focusComponent="clientsTable"
         messagesPack="com.itk.finance.web.screens.client">
@@ -35,9 +34,16 @@
                 <action id="remove" type="remove"/>
                 <action id="refresh" type="refresh"/>
                 <action id="excel" type="excel"/>
+                <action id="getClientListFromEdr" caption="msg://getClientListFromEdr.caption"/>
             </actions>
             <columns>
-                <column id="name"/>
+                <column id="shortName"/>
+                <column id="clientType"/>
+                <column id="stan"/>
+                <column id="edrpou"/>
+                <column id="address"/>
+                <column id="kved"/>
+                <column id="boss"/>
             </columns>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"
@@ -47,6 +53,7 @@
                 <button id="removeBtn" action="clientsTable.remove"/>
                 <button id="refreshBtn" action="clientsTable.refresh"/>
                 <button id="excelBtn" action="clientsTable.excel"/>
+                <button id="clientsTableGetClientListFromEdrBtn" action="clientsTable.getClientListFromEdr"/>
             </buttonsPanel>
         </groupTable>
         <hbox id="lookupActions" spacing="true" visible="false">

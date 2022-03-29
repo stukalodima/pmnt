@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://accountEdit.caption"
+        focusComponent="form"
+        messagesPack="com.itk.finance.web.screens.account">
+    <data>
+        <instance id="accountDc"
+                  class="com.itk.finance.entity.Account">
+            <view extends="_local">
+                <property name="currency" view="_minimal"/>
+                <property name="bank" view="_minimal"/>
+                <property name="company" view="_minimal"/>
+            </view>
+            <loader/>
+        </instance>
+        <collection id="currenciesDc" class="com.itk.finance.entity.Currency" view="_minimal">
+            <loader id="currenciesDl">
+                <query>
+                    <![CDATA[select e from finance_Currency e]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="banksDc" class="com.itk.finance.entity.Bank" view="_minimal">
+            <loader id="banksDl">
+                <query>
+                    <![CDATA[select e from finance_Bank e]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="companiesDc" class="com.itk.finance.entity.Company">
+            <view extends="_local"/>
+            <loader id="companiesDl">
+                <query>
+                    <![CDATA[select e from finance_Company e]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="AUTO"
+                width="AUTO"
+                modal="true"
+                forceDialog="true"/>
+    <layout expand="editActions" spacing="true">
+        <form id="form" dataContainer="accountDc">
+            <column width="400px">
+                <textField id="nameField" property="name"/>
+                <lookupPickerField id="companyField" property="company" optionsContainer="companiesDc">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <lookupPickerField id="currencyField" optionsContainer="currenciesDc" property="currency">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <textField id="ibanField" property="iban"/>
+                <lookupPickerField id="bankField" optionsContainer="banksDc" property="bank">
+                    <actions>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+            </column>
+        </form>
+        <hbox id="editActions" spacing="true">
+            <button id="commitAndCloseBtn" action="windowCommitAndClose"/>
+            <button id="commitBtn" action="windowCommit"/>
+            <button id="closeBtn" action="windowClose"/>
+        </hbox>
+    </layout>
+</window>

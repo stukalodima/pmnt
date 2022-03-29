@@ -20,7 +20,7 @@
                 </property>
                 <property name="author" view="_minimal"/>
             </view>
-            <loader/>
+            <loader id="paymentRegisterDl"/>
             <collection id="paymentRegistersDc" property="paymentRegisters"/>
         </instance>
         <collection id="businessesDc" class="com.itk.finance.entity.Business" view="_minimal">
@@ -46,10 +46,7 @@
     <layout expand="paymentRegistersBox" spacing="true" width="100%">
         <form id="form" dataContainer="paymentRegisterDc" width="100%">
             <column width="50%">
-                <dateField id="onDateField" property="onDate" width="100%"/>
-                <lookupField id="authorField" property="author" width="100%" optionsContainer="usersDc"/>
-            </column>
-            <column width="50%">
+                <textField id="numberField" property="number" width="100%" editable="false"/>
                 <lookupPickerField id="businessField" optionsContainer="businessesDc" property="business" width="100%">
                     <actions>
                         <action id="lookup" type="picker_lookup"/>
@@ -57,6 +54,11 @@
                         <action id="clear" type="picker_clear"/>
                     </actions>
                 </lookupPickerField>
+                <lookupField id="authorField" property="author" width="100%" optionsContainer="usersDc"/>
+
+            </column>
+            <column width="50%">
+                <dateField id="onDateField" property="onDate" width="100%"/>
                 <lookupField id="statusField" property="status" editable="false" width="100%"/>
             </column>
         </form>
@@ -70,23 +72,18 @@
                       frozenColumnCount="4"
                       responsive="true">
                 <actions>
-                    <action id="create" type="create"/>
-                    <action id="remove" type="remove"/>
-                    <action id="refresh" type="refresh"/>
-                    <action id="excel" type="excel"/>
-                    <action id="fillPaymentClaims" caption="msg://fillPaymentClaims.caption"/>
-                    <action id="addLine" caption="msg://addLine.caption"/>
                     <action id="approve" caption="msg://approve.caption"/>
                     <action id="reject" caption="msg://reject.caption"/>
+                    <action id="determinate" caption="msg://determinate.caption"/>
+                    <action id="excel" type="excel"/>
+                    <action id="fillPaymentClaims" caption="msg://fillPaymentClaims.caption"/>
                 </actions>
                 <buttonsPanel>
                     <button id="paymentRegistersDetailTableApproveBtn" action="paymentRegistersDetailTable.approve"/>
+                    <button id="paymentRegistersDetailTableDeterminateBtn"
+                            action="paymentRegistersDetailTable.determinate"/>
                     <button id="paymentRegistersDetailTableRejectBtn" action="paymentRegistersDetailTable.reject"/>
-                    <button id="paymentRegistersDetailTableCreateBtn" action="paymentRegistersDetailTable.create"/>
-                    <button id="paymentRegistersDetailTableAddLineBtn" action="paymentRegistersDetailTable.addLine"/>
-                    <button id="paymentRegistersDetailTableRemoveBtn" action="paymentRegistersDetailTable.remove"/>
                     <button id="paymentRegistersDetailTableExcelBtn" action="paymentRegistersDetailTable.excel"/>
-                    <button id="paymentRegistersDetailTableRefreshBtn" action="paymentRegistersDetailTable.refresh"/>
                     <button id="paymentRegistersDetailTableFillPaymentClaimsBtn"
                             action="paymentRegistersDetailTable.fillPaymentClaims"/>
                 </buttonsPanel>
@@ -109,10 +106,18 @@
                 <rowsCount/>
             </dataGrid>
         </groupBox>
+        <groupBox id="procActionsBox"
+                  caption="msg://process"
+                  width="100%"
+                  orientation="vertical">
+            <fragment id="procActionsFragment" width="100%"
+                      screen="bpm_ProcActionsFragment"/>
+        </groupBox>
         <hbox id="editActions" spacing="true">
             <button id="commitAndCloseBtn" action="windowCommitAndClose"/>
             <button id="commitBtn" action="windowCommit"/>
             <button id="closeBtn" action="windowClose"/>
+            <button id="sendApprovedBtn" />
         </hbox>
     </layout>
 </window>

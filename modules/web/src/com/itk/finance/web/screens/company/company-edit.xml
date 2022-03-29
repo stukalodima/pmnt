@@ -6,7 +6,9 @@
     <data>
         <instance id="companyDc"
                   class="com.itk.finance.entity.Company">
-            <view extends="_local"/>
+            <view extends="_local">
+                <property name="business" view="_minimal"/>
+            </view>
             <loader/>
         </instance>
         <collection id="businessesDc" class="com.itk.finance.entity.Business">
@@ -14,6 +16,14 @@
             <loader id="businessesDl">
                 <query>
                     <![CDATA[select e from finance_Business e]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="usersDc" class="com.haulmont.cuba.security.entity.User">
+            <view extends="_local"/>
+            <loader id="usersDl">
+                <query>
+                    <![CDATA[select e from sec$User e]]>
                 </query>
             </loader>
         </collection>
@@ -25,11 +35,13 @@
     <layout expand="editActions" spacing="true">
         <form id="form" dataContainer="companyDc">
             <column width="400px">
+                <textField id="shortNameField" property="shortName"/>
                 <textField id="nameField" property="name"/>
+                <textField id="edrpouField" property="edrpou"/>
                 <lookupPickerField id="businessField" property="business" optionsContainer="businessesDc">
                     <actions>
-                        <action id="lookup" type="picker_lookup"></action>
-                        <action id="open" type="picker_open"></action>
+                        <action id="lookup" type="picker_lookup"/>
+                        <action id="open" type="picker_open"/>
                         <action id="clear" type="picker_clear"/>
                     </actions>
                 </lookupPickerField>

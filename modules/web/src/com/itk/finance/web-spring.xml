@@ -12,6 +12,14 @@
         <property name="remoteServices">
             <map>
                 <entry key="finance_UserPropertyService" value="com.itk.finance.service.UserPropertyService"/>
+                <entry key="finance_XmlReaderService" value="com.itk.finance.service.XmlReaderService"/>
+                <entry key="finance_ClientService" value="com.itk.finance.service.ClientService"/>
+                <entry key="finance_CompanyService" value="com.itk.finance.service.CompanyService"/>
+                <entry key="finance_ProcPropertyService" value="com.itk.finance.service.ProcPropertyService"/>
+                <entry key="finance_PaymentClaimService" value="com.itk.finance.service.PaymentClaimService"/>
+                <entry key="finance_CashFlowItemsBusinessService"
+                       value="com.itk.finance.service.CashFlowItemsBusinessService"/>
+                <entry key="finance_RestClientService" value="com.itk.finance.service.RestClientService"/>
             </map>
         </property>
     </bean>

@@ -20,6 +20,9 @@ import java.util.List;
 public class PaymentRegister extends StandardEntity {
     private static final long serialVersionUID = 244328380356450374L;
 
+    @Column(name = "NUMBER_")
+    private Long number;
+
     @Temporal(TemporalType.DATE)
     @NotNull
     @Column(name = "ON_DATE", nullable = false)
@@ -43,6 +46,14 @@ public class PaymentRegister extends StandardEntity {
     @OnDelete(DeletePolicy.CASCADE)
     @OneToMany(mappedBy = "paymentRegister")
     private List<PaymentRegisterDetail> paymentRegisters;
+
+    public void setNumber(Long number) {
+        this.number = number;
+    }
+
+    public Long getNumber() {
+        return number;
+    }
 
     public User getAuthor() {
         return author;

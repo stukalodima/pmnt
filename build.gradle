@@ -1,4 +1,3 @@
-
 buildscript {
     ext.cubaVersion = '7.2.18'
     repositories {
@@ -8,10 +7,6 @@ buildscript {
                 username(rootProject.hasProperty('repoUser') ? rootProject['repoUser'] : 'cuba')
                 password(rootProject.hasProperty('repoPass') ? rootProject['repoPass'] : 'cuba123')
             }
-        }
-
-        maven {
-            url 'trial_repository'
         }
     }
     dependencies {
@@ -45,7 +40,7 @@ dependencies {
     appComponent("com.haulmont.bpm:bpm-global:$cubaVersion")
 }
 
-def hsql = 'org.hsqldb:hsqldb:2.4.1'
+def postgres = 'org.postgresql:postgresql:42.2.9'
 
 configure([globalModule, coreModule, webModule]) {
     apply(plugin: 'java')
@@ -53,10 +48,10 @@ configure([globalModule, coreModule, webModule]) {
     apply(plugin: 'cuba')
 
     dependencies {
-            testCompile('org.junit.jupiter:junit-jupiter-api:5.5.2')
-            testCompile('org.junit.jupiter:junit-jupiter-engine:5.5.2')
-            testCompile('org.junit.vintage:junit-vintage-engine:5.5.2')  
-        }
+        testCompile('org.junit.jupiter:junit-jupiter-api:5.5.2')
+        testCompile('org.junit.jupiter:junit-jupiter-engine:5.5.2')
+        testCompile('org.junit.vintage:junit-vintage-engine:5.5.2')
+    }
 
     task sourceJar(type: Jar) {
         from file('src')
@@ -65,7 +60,7 @@ configure([globalModule, coreModule, webModule]) {
 
     artifacts {
         archives sourceJar
-    } 
+    }
     test {
         useJUnitPlatform()
     }
@@ -75,7 +70,6 @@ configure([globalModule, coreModule, webModule]) {
 configure(globalModule) {
     dependencies {
         if (!JavaVersion.current().isJava8()) {
-            runtime('javax.xml.bind:jaxb-api:2.3.1')
             runtime('org.glassfish.jaxb:jaxb-runtime:2.3.1')
         }
     }
@@ -97,8 +91,8 @@ configure(coreModule) {
     dependencies {
         compile(globalModule)
         compileOnly(servletApi)
-        jdbc(hsql)
-        testRuntime(hsql)
+        jdbc(postgres)
+        testRuntime(postgres)
     }
 
     task cleanConf(description: 'Cleans up conf directory', type: Delete) {
@@ -226,3 +220,8 @@ task restart(dependsOn: ['stop', ":${modulePrefix}-core:deploy", ":${modulePrefi
 }
 restart.finalizedBy start
 
+task buildUberJar(type: CubaUberJarBuilding) {
+    singleJar = true
+    appProperties = ['cuba.automaticDatabaseUpdate': true]
+    polymerBuildDir = '.'
+}

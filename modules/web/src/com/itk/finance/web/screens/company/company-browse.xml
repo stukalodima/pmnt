@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
-        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
         caption="msg://companyBrowse.caption"
         focusComponent="companiesTable"
         messagesPack="com.itk.finance.web.screens.company">
@@ -37,10 +36,12 @@
                 <action id="remove" type="remove"/>
                 <action id="refresh" type="refresh"/>
                 <action id="excel" type="excel"/>
+                <action id="getCompanyList" caption="msg://getCompanyList.caption"/>
             </actions>
             <columns>
-                <column id="name"/>
+                <column id="shortName"/>
                 <column id="business"/>
+                <column id="edrpou"/>
             </columns>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"
@@ -50,6 +51,7 @@
                 <button id="removeBtn" action="companiesTable.remove"/>
                 <button id="refreshBtn" action="companiesTable.refresh"/>
                 <button id="excelBtn" action="companiesTable.excel"/>
+                <button id="companiesTableGetCompanyListBtn" action="companiesTable.getCompanyList"/>
             </buttonsPanel>
         </groupTable>
         <hbox id="lookupActions" spacing="true" visible="false">

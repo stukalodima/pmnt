@@ -92,7 +92,7 @@
     <layout expand="editActions" spacing="true">
         <form id="form" dataContainer="paymentRegisterDetailDc">
             <column width="400px">
-                <checkBox id="approvedField" property="approved"/>
+                <lookupField id="approvedField" property="approved" width="AUTO"/>
                 <lookupPickerField id="companyField" optionsContainer="companiesDc" property="company">
                     <actions>
                         <action id="lookup" type="picker_lookup"/>

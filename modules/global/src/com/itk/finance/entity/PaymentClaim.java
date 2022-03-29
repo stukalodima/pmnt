@@ -16,6 +16,9 @@ import java.util.Date;
 public class PaymentClaim extends StandardEntity {
     private static final long serialVersionUID = 8918063338854500391L;
 
+    @Column(name = "NUMBER_")
+    private Long number;
+
     @Temporal(TemporalType.DATE)
     @NotNull
     @Column(name = "ON_DATE", nullable = false)
@@ -39,6 +42,18 @@ public class PaymentClaim extends StandardEntity {
     @JoinColumn(name = "CLIENT_ID")
     private Client client;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ACCOUNT_ID")
+    private Account account;
+
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "CURRENCY_ID")
+    private Currency currency;
+
     @NotNull
     @Column(name = "SUMM", nullable = false)
     private Double summ;
@@ -54,15 +69,20 @@ public class PaymentClaim extends StandardEntity {
     private String paymentPurpose;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CASH_FLOW_ITEM_ID")
+    @NotNull
     private CashFlowItem cashFlowItem;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CASH_FLOW_ITEM_BUSINESS_ID")
+    private CashFlowItemBusiness cashFlowItemBusiness;
+
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PAYMENT_TYPE_ID")
+    @NotNull
     private PaymentType paymentType;
 
     @Lob
@@ -78,6 +98,38 @@ public class PaymentClaim extends StandardEntity {
     @NotNull
     @Column(name = "STATUS", nullable = false)
     private String status;
+
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
+    public void setNumber(Long number) {
+        this.number = number;
+    }
+
+    public Long getNumber() {
+        return number;
+    }
+
+    public CashFlowItemBusiness getCashFlowItemBusiness() {
+        return cashFlowItemBusiness;
+    }
+
+    public void setCashFlowItemBusiness(CashFlowItemBusiness cashFlowItemBusiness) {
+        this.cashFlowItemBusiness = cashFlowItemBusiness;
+    }
 
     public User getAuthor() {
         return author;

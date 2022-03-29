@@ -17,7 +17,14 @@
     <layout expand="editActions" spacing="true">
         <form id="form" dataContainer="clientDc">
             <column width="400px">
-                <textField id="nameField" property="name"/>
+                <textField id="shortNameField" property="shortName"/>
+                <textArea id="nameField" property="name" rows="3"/>
+                <lookupField id="clientTypeField" property="clientType"/>
+                <textField id="edrpouField" property="edrpou"/>
+                <textArea id="kvedField" property="kved" rows="3"/>
+                <textArea id="addressField" property="address" rows="3"/>
+                <textField id="bossField" property="boss"/>
+                <textField id="stanField" property="stan"/>
             </column>
         </form>
         <hbox id="editActions" spacing="true">

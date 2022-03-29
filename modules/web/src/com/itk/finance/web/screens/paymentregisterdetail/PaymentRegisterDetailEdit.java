@@ -23,7 +23,7 @@ public class PaymentRegisterDetailEdit extends StandardEditor<PaymentRegisterDet
 
     @Subscribe
     public void onInitEntity(InitEntityEvent<PaymentRegisterDetail> event) {
-        event.getEntity().setCompany(userPropertyService.getDefaulCompany());
+        event.getEntity().setCompany(userPropertyService.getDefaultCompany());
     }
 
     @Subscribe

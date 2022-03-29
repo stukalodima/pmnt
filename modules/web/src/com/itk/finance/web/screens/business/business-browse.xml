@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
-        xmlns:c="http://schemas.haulmont.com/cuba/screen/jpql_condition.xsd"
         caption="msg://businessBrowse.caption"
         focusComponent="businessesTable"
         messagesPack="com.itk.finance.web.screens.business">
@@ -8,11 +7,8 @@
         <collection id="businessesDc"
                     class="com.itk.finance.entity.Business">
             <view extends="_local">
-                <property name="finControler" view="_minimal"/>
                 <property name="finDirector" view="_minimal"/>
-                <property name="genDirector" view="_minimal"/>
-                <property name="finControlerSH" view="_minimal"/>
-                <property name="finDirectorSH" view="_minimal"/>
+                <property name="managementCompany" view="_minimal"/>
             </view>
             <loader id="businessesDl">
                 <query>
@@ -34,7 +30,7 @@
                     width="100%"
                     dataContainer="businessesDc"
                     multiselect="true"
-                    presentations="true">
+                    presentations="true" editable="true">
             <actions>
                 <action id="create" type="create"/>
                 <action id="edit" type="edit"/>
@@ -44,13 +40,8 @@
             </actions>
             <columns>
                 <column id="name"/>
-                <column id="finControler"/>
                 <column id="finDirector"/>
-                <column id="genDirector"/>
-                <column id="finControlerSH"/>
-                <column id="finDirectorSH"/>
-                <column id="usePaymantClaim"/>
-                <column id="usePaymentClaimApproval"/>
+                <column id="managementCompany"/>
             </columns>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"

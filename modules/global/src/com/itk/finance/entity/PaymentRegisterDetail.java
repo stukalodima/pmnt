@@ -15,7 +15,7 @@ public class PaymentRegisterDetail extends StandardEntity {
     private static final long serialVersionUID = -2688930667796502490L;
 
     @Column(name = "APPROVED")
-    private Boolean approved;
+    private String approved;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
@@ -64,20 +64,20 @@ public class PaymentRegisterDetail extends StandardEntity {
     @JoinColumn(name = "PAYMENT_REGISTER_ID")
     private PaymentRegister paymentRegister;
 
+    public void setApproved(PaymentRegisterDetailStatusEnum approved) {
+        this.approved = approved == null ? null : approved.getId();
+    }
+
+    public PaymentRegisterDetailStatusEnum getApproved() {
+        return approved == null ? null : PaymentRegisterDetailStatusEnum.fromId(approved);
+    }
+
     public PaymentClaim getPaymentClaim() {
         return paymentClaim;
     }
 
     public void setPaymentClaim(PaymentClaim paymentClaim) {
         this.paymentClaim = paymentClaim;
-    }
-
-    public Boolean getApproved() {
-        return approved;
-    }
-
-    public void setApproved(Boolean approved) {
-        this.approved = approved;
     }
 
     public PaymentRegister getPaymentRegister() {

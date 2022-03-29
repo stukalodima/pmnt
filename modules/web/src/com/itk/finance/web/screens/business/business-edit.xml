@@ -7,11 +7,8 @@
         <instance id="businessDc"
                   class="com.itk.finance.entity.Business">
             <view extends="_local">
-                <property name="finControler" view="_minimal"/>
                 <property name="finDirector" view="_minimal"/>
-                <property name="genDirector" view="_minimal"/>
-                <property name="finControlerSH" view="_minimal"/>
-                <property name="finDirectorSH" view="_minimal"/>
+                <property name="managementCompany" view="_minimal"/>
             </view>
             <loader/>
         </instance>
@@ -24,6 +21,14 @@
                 </query>
             </loader>
         </collection>
+        <collection id="managementCompaniesDc" class="com.itk.finance.entity.ManagementCompany">
+            <view extends="_local"/>
+            <loader id="managementCompaniesDl">
+                <query>
+                    <![CDATA[select e from finance_ManagementCompany e]]>
+                </query>
+            </loader>
+        </collection>
     </data>
     <dialogMode height="AUTO"
                 width="AUTO"
@@ -33,13 +38,15 @@
         <form id="form" dataContainer="businessDc">
             <column width="400px">
                 <textField id="nameField" property="name"/>
-                <lookupField id="finControlerField" property="finControler" optionsContainer="userDC"/>
                 <lookupField id="finDirectorField" property="finDirector" optionsContainer="userDC"/>
-                <lookupField id="genDirectorField" property="genDirector" optionsContainer="userDC"/>
-                <lookupField id="finControlerSHField" property="finControlerSH" optionsContainer="userDC"/>
-                <lookupField id="finDirectorSHField" property="finDirectorSH" optionsContainer="userDC"/>
-                <checkBox id="usePatmantClaimField" property="usePaymantClaim"/>
-                <checkBox id="usePaymentClaimApprovalField" property="usePaymentClaimApproval" editable="false"/>
+                <lookupPickerField id="managementCompanyField" property="managementCompany"
+                                   optionsContainer="managementCompaniesDc">
+                    <actions>
+                        <action id="picker_lookup" type="picker_lookup"/>
+                        <action id="picker_open" type="picker_open"/>
+                        <action id="picker_clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
             </column>
         </form>
         <hbox id="editActions" spacing="true">

@@ -1,9 +1,8 @@
 package com.itk.finance.web.screens.business;
 
-import com.haulmont.cuba.gui.components.CheckBox;
-import com.haulmont.cuba.gui.components.HasValue;
 import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.Business;
+import com.itk.finance.service.UserPropertyService;
 
 import javax.inject.Inject;
 
@@ -13,13 +12,11 @@ import javax.inject.Inject;
 @LoadDataBeforeShow
 public class BusinessEdit extends StandardEditor<Business> {
     @Inject
-    private CheckBox usePaymentClaimApprovalField;
+    private UserPropertyService userPropertyService;
 
-    @Subscribe("usePatmantClaimField")
-    public void onUsePatmantClaimFieldValueChange(HasValue.ValueChangeEvent<Boolean> event) {
-        usePaymentClaimApprovalField.setEditable(Boolean.TRUE.equals(event.getValue()));
-        if (Boolean.FALSE.equals(event.getValue())){
-            usePaymentClaimApprovalField.setValue(event.getValue());
-        }
+    @Subscribe
+    public void onInitEntity(InitEntityEvent<Business> event) {
+        event.getEntity().setManagementCompany(userPropertyService.getDefaultManagementCompany());
     }
+
 }

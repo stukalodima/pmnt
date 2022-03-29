@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
     <menu id="catalogs" caption="mainMsg://menu_config.catalogs" insertBefore="bpm">
+        <item screen="finance_ManagementCompany.browse"
+              caption="mainMsg://menu_config.finance_ManagementCompany.browse"/>
         <item screen="finance_Business.browse" caption="mainMsg://menu_config.finance_Business.browse"/>
         <item screen="finance_Company.browse" caption="mainMsg://menu_config.finance_Company.browse"/>
+        <separator/>
         <item screen="finance_Client.browse" caption="mainMsg://menu_config.finance_Client.browse"/>
+        <separator/>
+        <item screen="finance_Currency.browse" caption="mainMsg://menu_config.finance_Currency.browse"/>
+        <item screen="finance_Bank.browse" caption="mainMsg://menu_config.finance_Bank.browse"/>
+        <item screen="finance_Account.browse" caption="mainMsg://menu_config.finance_Account.browse"/>
+        <separator/>
         <item screen="finance_CashFlowItem.browse" caption="mainMsg://menu_config.finance_CashFlowItem.browse"/>
+        <item screen="finance_CashFlowItemBusiness.browse"
+              caption="mainMsg://menu_config.finance_CashFlowItemBusiness.browse"/>
+        <separator/>
         <item screen="finance_PaymentType.browse" caption="mainMsg://menu_config.finance_PaymentType.browse"/>
+        <separator/>
         <item screen="finance_UserProperty.browse" caption="mainMsg://menu_config.finance_UserProperty.browse"/>
     </menu>
     <menu id="documents" caption="mainMsg://menu_config.documents" insertBefore="bpm">

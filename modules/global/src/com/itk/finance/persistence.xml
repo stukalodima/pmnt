@@ -11,5 +11,10 @@
         <class>com.itk.finance.entity.PaymentRegister</class>
         <class>com.itk.finance.entity.PaymentRegisterDetail</class>
         <class>com.itk.finance.entity.UserProperty</class>
+        <class>com.itk.finance.entity.ManagementCompany</class>
+        <class>com.itk.finance.entity.CashFlowItemBusiness</class>
+        <class>com.itk.finance.entity.Bank</class>
+        <class>com.itk.finance.entity.Currency</class>
+        <class>com.itk.finance.entity.Account</class>
     </persistence-unit>
 </persistence>

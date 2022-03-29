@@ -8,12 +8,15 @@
         <instance id="paymentClaimDc"
                   class="com.itk.finance.entity.PaymentClaim">
             <view extends="_local">
-                <property name="business" view="_local"/>
+                <property name="business" view="_minimal"/>
                 <property name="company" view="_minimal"/>
                 <property name="client" view="_minimal"/>
                 <property name="cashFlowItem" view="_minimal"/>
                 <property name="paymentType" view="_minimal"/>
                 <property name="author" view="_minimal"/>
+                <property name="cashFlowItemBusiness" view="_minimal"/>
+                <property name="account" view="_minimal"/>
+                <property name="currency" view="_minimal"/>
             </view>
             <loader id="paymentClaimDl"/>
         </instance>
@@ -22,11 +25,6 @@
             <loader id="businessesDl">
                 <query>
                     <![CDATA[select e from finance_Business e]]>
-                    <condition>
-                        <c:jpql>
-                            <c:where>e.usePaymantClaim = :usePaymantClaim</c:where>
-                        </c:jpql>
-                    </condition>
                 </query>
             </loader>
         </collection>
@@ -63,15 +61,6 @@
                 </query>
             </loader>
         </collection>
-        <collection id="procAttachmentsDc" class="com.haulmont.bpm.entity.ProcAttachment">
-            <view extends="procAttachment-browse"/>
-            <loader id="procAttachmentsDl">
-                <query><![CDATA[select e from bpm$ProcAttachment e
-                                where e.procInstance.entity.entityId  = :entityId
-                                order by e.createTs]]>
-                </query>
-            </loader>
-        </collection>
         <collection id="usersDc" class="com.haulmont.cuba.security.entity.User">
             <view extends="_local"/>
             <loader id="usersDl">
@@ -80,101 +69,119 @@
                 </query>
             </loader>
         </collection>
+        <collection id="cashFlowItemBusinessesDc" class="com.itk.finance.entity.CashFlowItemBusiness">
+            <view extends="_local">
+                <property name="company" view="_minimal"/>
+                <property name="cashFlowItem" view="_minimal"/>
+            </view>
+            <loader id="cashFlowItemBusinessesDl">
+                <query>
+                    <![CDATA[select e from finance_CashFlowItemBusiness e]]>
+                </query>
+            </loader>
+        </collection>
+        <collection id="accountsDc" class="com.itk.finance.entity.Account">
+            <view extends="_local">
+                <property name="company" view="_minimal"/>
+                <property name="currency" view="_minimal"/>
+                <property name="bank" view="_minimal"/>
+            </view>
+            <loader id="accountsDl">
+                <query>
+                    <![CDATA[select e from finance_Account e]]>
+                    <condition>
+                        <c:jpql>
+                            <c:where>e.company = :company</c:where>
+                        </c:jpql>
+                    </condition>
+                </query>
+            </loader>
+        </collection>
+        <collection id="currenciesDc" class="com.itk.finance.entity.Currency">
+            <view extends="_local"/>
+            <loader id="currenciesDl">
+                <query>
+                    <![CDATA[select e from finance_Currency e]]>
+                </query>
+            </loader>
+        </collection>
     </data>
-    <dialogMode height="100%"
-                width="75%"
-                modal="true"
-                forceDialog="true" resizable="true"/>
-    <layout expand="tabSheet" spacing="true" width="100%">
-        <tabSheet id="tabSheet" width="100%">
-            <tab id="tabBase" caption="msg://tab.caption" margin="true" spacing="true">
-                <form id="form" dataContainer="paymentClaimDc" width="100%">
-                    <column width="50%">
-                        <dateField id="onDateField" property="onDate" width="100%"/>
-                        <lookupPickerField id="businessField" optionsContainer="businessesDc" property="business"
-                                           width="100%">
-                            <actions>
-                                <action id="open" type="picker_open"/>
-                                <action id="clear" type="picker_clear"/>
-                            </actions>
-                        </lookupPickerField>
-                        <lookupPickerField id="clientField" optionsContainer="clientsDc" property="client" width="100%">
-                            <actions>
-                                <action id="open" type="picker_open"/>
-                                <action id="clear" type="picker_clear"/>
-                            </actions>
-                        </lookupPickerField>
-                        <lookupPickerField id="cashFlowItemField" optionsContainer="cashFlowItemsDc"
-                                           property="cashFlowItem" width="100%">
-                            <actions>
-                                <action id="open" type="picker_open"/>
-                                <action id="clear" type="picker_clear"/>
-                            </actions>
-                        </lookupPickerField>
-                        <textArea id="paymentPurposeField" property="paymentPurpose" rows="3" width="100%"/>
-                        <lookupField id="authorField" property="author" optionsContainer="usersDc" width="100%"/>
-                    </column>
-                    <column width="50%">
-                        <dateField id="planPaymentDateField" property="planPaymentDate" width="100%"/>
-                        <lookupPickerField id="companyField" optionsContainer="companiesDc" property="company"
-                                           width="100%">
-                            <actions>
-                                <action id="open" type="picker_open"/>
-                                <action id="clear" type="picker_clear"/>
-                            </actions>
-                        </lookupPickerField>
-                        <textField id="summField" property="summ" width="100%"/>
-                        <lookupPickerField id="paymentTypeField" optionsContainer="paymentTypesDc"
-                                           property="paymentType" width="100%">
-                            <actions>
-                                <action id="open" type="picker_open"/>
-                                <action id="clear" type="picker_clear"/>
-                            </actions>
-                        </lookupPickerField>
-                        <textArea id="commentField" property="comment" rows="3" width="100%"/>
-                        <lookupField id="statusField" property="status" width="100%" editable="false"/>
-                    </column>
-                </form>
-                <groupBox id="procActionsBox"
-                          caption="msg://process"
-                          width="100%"
-                          orientation="vertical">
-                    <fragment id="procActionsFragment" width="100%"
-                              screen="bpm_ProcActionsFragment"/>
-                </groupBox>
-            </tab>
-            <tab id="tabAttachments" caption="msg://tabAttachments.caption" spacing="true" margin="true">
-                <table id="attachmentsTable"
-                       dataContainer="procAttachmentsDc"
-                       height="100%"
-                       width="100%">
-                    <columns>
-                        <column id="file.name"/>
-                        <column id="author"/>
-                        <column id="type"/>
-                        <column id="comment"
-                                maxTextLength="100"/>
-                        <column id="file"/>
-                    </columns>
-                    <buttonsPanel>
-                        <button id="attachmentsTableRefreshBtn" action="attachmentsTable.refresh"/>
-                        <button id="attachmentsTableExcelBtn" action="attachmentsTable.excel"/>
-                    </buttonsPanel>
+    <dialogMode
+            modal="true"
+            forceDialog="true" resizable="true" width="75%"/>
+    <layout expand="editActions" spacing="true" width="100%">
+        <form id="form" dataContainer="paymentClaimDc" width="100%">
+            <column width="50%">
+                <textField id="numberField" property="number" width="100%" editable="false"/>
+                <dateField id="onDateField" property="onDate" width="100%"/>
+                <lookupPickerField id="businessField" optionsContainer="businessesDc" property="business"
+                                   width="100%">
                     <actions>
-                        <action id="refresh" type="refresh"/>
-                        <action id="excel" type="excel"/>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
                     </actions>
-                </table>
-            </tab>
-            <tab id="tabProcTask" caption="msg://tabProcTask.caption">
-                <fragment id="procTaskFragment" screen="procTasksFrame" width="100%" height="100%"/>
-            </tab>
-        </tabSheet>
+                </lookupPickerField>
+                <lookupPickerField id="clientField" optionsContainer="clientsDc" property="client" width="100%">
+                    <actions>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <lookupPickerField id="currencyField" property="currency" optionsContainer="currenciesDc" width="100%">
+                    <actions>
+                        <action id="picker_open" type="picker_open"/>
+                        <action id="picker_clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <lookupPickerField id="cashFlowItemField" optionsContainer="cashFlowItemsDc"
+                                   property="cashFlowItem" width="100%">
+                    <actions>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <textArea id="paymentPurposeField" property="paymentPurpose" rows="3" width="100%"/>
+                <lookupPickerField id="paymentTypeField" optionsContainer="paymentTypesDc"
+                                   property="paymentType" width="100%">
+                    <actions>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+
+            </column>
+            <column width="50%">
+                <lookupField id="statusField" property="status" width="100%" editable="false"/>
+                <dateField id="planPaymentDateField" property="planPaymentDate" width="100%"/>
+                <lookupPickerField id="companyField" optionsContainer="companiesDc" property="company"
+                                   width="100%">
+                    <actions>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <lookupPickerField id="accountField" property="account" optionsContainer="accountsDc" width="100%">
+                    <actions>
+                        <action id="picker_open" type="picker_open"/>
+                        <action id="picker_clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <textField id="summField" property="summ" width="100%"/>
+                <lookupPickerField id="cashFlowItemBusinessField" property="cashFlowItemBusiness"
+                                   optionsContainer="cashFlowItemBusinessesDc" width="100%">
+                    <actions>
+                        <action id="open" type="picker_open"/>
+                        <action id="clear" type="picker_clear"/>
+                    </actions>
+                </lookupPickerField>
+                <textArea id="commentField" property="comment" rows="3" width="100%"/>
+                <lookupField id="authorField" property="author" optionsContainer="usersDc" width="100%"/>
+            </column>
+        </form>
         <hbox id="editActions" spacing="true">
             <button id="commitAndCloseBtn" action="windowCommitAndClose"/>
             <button id="commitBtn" action="windowCommit"/>
             <button id="closeBtn" action="windowClose"/>
-            <button id="sendApprovedBtn" caption="msg://sendApprovedBtn.caption"/>
         </hbox>
     </layout>
 </window>
