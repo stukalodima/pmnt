@@ -1,4 +1,3 @@
-import { PaymentClaimManagement } from "./app/paymentclaim/PaymentClaimManagement";
 import { getMenuItems } from "@cuba-platform/react-core";
 
 export const menuItems = getMenuItems();
@@ -21,10 +20,3 @@ const userSettingsSubMenu = {
 // Add sub menu item to menu config
 menuItems.push(userSettingsSubMenu);
 */
-
-menuItems.push({
-  pathPattern: "/paymentClaimManagement/:entityId?",
-  menuLink: "/paymentClaimManagement",
-  component: PaymentClaimManagement,
-  caption: "PaymentClaimManagement"
-});

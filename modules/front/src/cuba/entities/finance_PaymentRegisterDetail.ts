@@ -1,4 +1,5 @@
 import { StandardEntity } from "./base/sys$StandardEntity";
+import { PaymentRegisterDetailStatusEnum } from "../enums/enums";
 import { Company } from "./finance_Company";
 import { Client } from "./finance_Client";
 import { CashFlowItem } from "./finance_CashFlowItem";
@@ -7,7 +8,7 @@ import { PaymentClaim } from "./finance_PaymentClaim";
 import { PaymentRegister } from "./finance_PaymentRegister";
 export class PaymentRegisterDetail extends StandardEntity {
   static NAME = "finance_PaymentRegisterDetail";
-  approved?: boolean | null;
+  approved?: PaymentRegisterDetailStatusEnum | null;
   company?: Company | null;
   client?: Client | null;
   summ?: any | null;

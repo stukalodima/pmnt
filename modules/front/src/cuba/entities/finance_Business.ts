@@ -1,42 +1,23 @@
 import { StandardEntity } from "./base/sys$StandardEntity";
 import { User } from "./base/sec$User";
+import { ManagementCompany } from "./finance_ManagementCompany";
 export class Business extends StandardEntity {
   static NAME = "finance_Business";
   name?: string | null;
-  finControler?: User | null;
   finDirector?: User | null;
-  genDirector?: User | null;
-  finControlerSH?: User | null;
-  finDirectorSH?: User | null;
-  usePaymantClaim?: boolean | null;
-  usePaymentClaimApproval?: boolean | null;
+  managementCompany?: ManagementCompany | null;
 }
 export type BusinessViewName =
   | "_base"
   | "_local"
   | "_minimal"
-  | "business.getEdit";
+  | "business-all-property";
 export type BusinessView<V extends BusinessViewName> = V extends "_base"
-  ? Pick<
-      Business,
-      "id" | "name" | "usePaymantClaim" | "usePaymentClaimApproval"
-    >
+  ? Pick<Business, "id" | "name">
   : V extends "_local"
-  ? Pick<
-      Business,
-      "id" | "name" | "usePaymantClaim" | "usePaymentClaimApproval"
-    >
+  ? Pick<Business, "id" | "name">
   : V extends "_minimal"
   ? Pick<Business, "id" | "name">
-  : V extends "business.getEdit"
-  ? Pick<
-      Business,
-      | "id"
-      | "name"
-      | "usePaymantClaim"
-      | "usePaymentClaimApproval"
-      | "finControler"
-      | "finDirector"
-      | "genDirector"
-    >
+  : V extends "business-all-property"
+  ? Pick<Business, "id" | "name" | "finDirector" | "managementCompany">
   : never;
