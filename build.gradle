@@ -31,6 +31,12 @@ cuba {
         version = '0.1'
         isSnapshot = true
     }
+    tomcat {
+        port = '7080'
+        ajpPort = '7009'
+        shutdownPort = '7005'
+        debugPort = '7787'
+    }
 }
 
 dependencies {
@@ -222,6 +228,16 @@ restart.finalizedBy start
 
 task buildUberJar(type: CubaUberJarBuilding) {
     singleJar = true
-    appProperties = ['cuba.automaticDatabaseUpdate': true]
+    appProperties = ['cuba.automaticDatabaseUpdate': true,
+                     'cuba.dataSource.username'    : 'postgres',
+                     'cuba.dataSource.password'    : 'postgres',
+                     'cuba.dataSource.dbName'      : 'finance-pmnt',
+                     'cuba.dataSource.host'        : 'localhost',
+                     'cuba.dataSource.port'        : '',
+                     'cuba.dataSourceProvider'     : 'application']
     polymerBuildDir = '.'
+    logbackConfigurationFile = 'etc/uber-jar-logback.xml'
+    coreJettyEnvPath = 'modules/core/web/META-INF/jetty-env.xml'
+    webJettyConfPath = 'jetty.xml'
+    webPort = 7080
 }
