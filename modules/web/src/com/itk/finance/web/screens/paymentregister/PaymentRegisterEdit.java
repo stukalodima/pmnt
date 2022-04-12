@@ -10,6 +10,7 @@ import com.haulmont.cuba.core.app.UniqueNumbersService;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.components.Action;
+import com.haulmont.cuba.gui.components.Button;
 import com.haulmont.cuba.gui.components.DataGrid;
 import com.haulmont.cuba.gui.components.GroupBoxLayout;
 import com.haulmont.cuba.gui.model.CollectionPropertyContainer;
@@ -223,5 +224,15 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         initiatorProcActor.setProcRole(initiatorProcRole);
         initiatorProcActor.setProcInstance(procInstance);
         return initiatorProcActor;
+    }
+
+    @Subscribe("approved")
+    public void onApprovedClick(Button.ClickEvent event) {
+        closeWithCommit();
+    }
+
+    @Subscribe("rejected")
+    public void onRejectedClick(Button.ClickEvent event) {
+        closeWithCommit();
     }
 }
