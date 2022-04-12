@@ -4,12 +4,20 @@ import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.cuba.core.entity.annotation.PublishEntityChangedEvents;
+import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.core.global.DataManager;
+import com.haulmont.cuba.core.global.Metadata;
+import com.haulmont.cuba.core.global.UserSessionSource;
 import com.haulmont.cuba.security.entity.User;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.UUID;
 
+@PublishEntityChangedEvents
 @Table(name = "FINANCE_PAYMENT_CLAIM")
 @Entity(name = "finance_PaymentClaim")
 @NamePattern("%s %s %s|onDate,client,summ")
@@ -25,7 +33,6 @@ public class PaymentClaim extends StandardEntity {
     private Date onDate;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "BUSINESS_ID")
     private Business business;
@@ -54,8 +61,7 @@ public class PaymentClaim extends StandardEntity {
     @JoinColumn(name = "CURRENCY_ID")
     private Currency currency;
 
-    @NotNull
-    @Column(name = "SUMM", nullable = false)
+    @Column(name = "SUMM")
     private Double summ;
 
     @Temporal(TemporalType.DATE)
@@ -92,10 +98,8 @@ public class PaymentClaim extends StandardEntity {
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "AUTHOR_ID")
-    @NotNull
     private User author;
 
-    @NotNull
     @Column(name = "STATUS", nullable = false)
     private String status;
 
@@ -225,5 +229,14 @@ public class PaymentClaim extends StandardEntity {
 
     public void setOnDate(Date onDate) {
         this.onDate = onDate;
+    }
+
+    @PostConstruct
+    public void initEntity(Metadata metadata) {
+        UserSessionSource userSessionSource = AppBeans.get(UserSessionSource.class);
+        DataManager dataManager = AppBeans.get(DataManager.class);
+        author = userSessionSource.getUserSession().getUser();
+        business = dataManager.getReference(Business.class, UUID.fromString("c3307b59-0d82-6a6b-7ca4-bfb0d11ba028"));
+        status = ClaimStatusEnum.NEW.getId();
     }
 }

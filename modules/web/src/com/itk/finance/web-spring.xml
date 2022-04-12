@@ -1,27 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:gui="http://schemas.haulmont.com/cuba/spring/cuba-gui.xsd">
-
-    <!-- Annotation-based beans -->
-    <context:component-scan base-package="com.itk.finance"/>
-    
-    <gui:screens base-packages="com.itk.finance.web"/>
-    <bean id="finance_proxyCreator" class="com.haulmont.cuba.web.sys.remoting.WebRemoteProxyBeanCreator">
-        <property name="serverSelector" ref="cuba_ServerSelector"/>
-        <property name="remoteServices">
-            <map>
-                <entry key="finance_UserPropertyService" value="com.itk.finance.service.UserPropertyService"/>
-                <entry key="finance_XmlReaderService" value="com.itk.finance.service.XmlReaderService"/>
-                <entry key="finance_ClientService" value="com.itk.finance.service.ClientService"/>
-                <entry key="finance_CompanyService" value="com.itk.finance.service.CompanyService"/>
-                <entry key="finance_ProcPropertyService" value="com.itk.finance.service.ProcPropertyService"/>
-                <entry key="finance_PaymentClaimService" value="com.itk.finance.service.PaymentClaimService"/>
-                <entry key="finance_CashFlowItemsBusinessService"
-                       value="com.itk.finance.service.CashFlowItemsBusinessService"/>
-                <entry key="finance_RestClientService" value="com.itk.finance.service.RestClientService"/>
-            </map>
-        </property>
-    </bean>
-
-</beans>
+version https://git-lfs.github.com/spec/v1
+oid sha256:236c78c83ae25885c33018845f8e097751e0c6e4806001ae3e49dfa074dcda8b
+size 1614

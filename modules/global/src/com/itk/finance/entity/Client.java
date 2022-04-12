@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Table(name = "FINANCE_CLIENT")
 @Entity(name = "finance_Client")
-@NamePattern("%s [%s]|name,edrpou")
+@NamePattern("%s [%s]|shortName,edrpou")
 public class Client extends StandardEntity {
     private static final long serialVersionUID = 7519661033370406506L;
 

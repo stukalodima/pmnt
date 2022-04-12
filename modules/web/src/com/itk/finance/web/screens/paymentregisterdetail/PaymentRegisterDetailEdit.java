@@ -32,7 +32,7 @@ public class PaymentRegisterDetailEdit extends StandardEditor<PaymentRegisterDet
     }
 
     private void initDataLoader(Business business, Company company) {
-        paymentClaimsDl.setParameter("status", ClaimStatusEnum.APPROVED_BN);
+        paymentClaimsDl.setParameter("status", ClaimStatusEnum.NEW);
         if (business != null){
             companiesDl.setParameter("business", business);
             paymentClaimsDl.setParameter("business", business);

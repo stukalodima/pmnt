@@ -64,6 +64,9 @@ public class PaymentRegisterDetail extends StandardEntity {
     @JoinColumn(name = "PAYMENT_REGISTER_ID")
     private PaymentRegister paymentRegister;
 
+    @Column(name = "PAYMENT_STATUS_ROW")
+    private String paymentStatusRow;
+
     public void setApproved(PaymentRegisterDetailStatusEnum approved) {
         this.approved = approved == null ? null : approved.getId();
     }
@@ -142,5 +145,13 @@ public class PaymentRegisterDetail extends StandardEntity {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public ClaimStatusEnum getPaymentStatusRow() {
+        return paymentStatusRow == null ? null : ClaimStatusEnum.fromId(paymentStatusRow);
+    }
+
+    public void setPaymentStatusRow(ClaimStatusEnum paymentStatusRow) {
+        this.paymentStatusRow = paymentStatusRow == null ? null : paymentStatusRow.getId();
     }
 }

@@ -1,8 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans">
-
-    <!-- Override existing beans or define new bean definitions required for tests -->
-
-    <!-- <bean id="cuba_Emailer" class="com.haulmont.cuba.testsupport.TestEmailer"/> -->
-
-</beans>
+version https://git-lfs.github.com/spec/v1
+oid sha256:6164f085c8628255ba6eb12b09dda078fc18f8fc7833c89b3dec3fe811aa1f85
+size 286

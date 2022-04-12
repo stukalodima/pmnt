@@ -1,5 +1,5 @@
 buildscript {
-    ext.cubaVersion = '7.2.18'
+    ext.cubaVersion = '7.2.19'
     repositories {
         maven {
             url 'https://repo.cuba-platform.com/content/groups/work'
@@ -44,9 +44,10 @@ dependencies {
     appComponent('com.haulmont.addon.helium:helium-global:0.4.0')
     appComponent('com.haulmont.addon.restapi:restapi-global:7.2.4')
     appComponent("com.haulmont.bpm:bpm-global:$cubaVersion")
+    appComponent('de.diedavids.cuba.dataimport:dataimport-global:0.14.1')
 }
 
-def postgres = 'org.postgresql:postgresql:42.2.9'
+def hsql = 'org.hsqldb:hsqldb:2.4.1'
 
 configure([globalModule, coreModule, webModule]) {
     apply(plugin: 'java')
@@ -97,8 +98,8 @@ configure(coreModule) {
     dependencies {
         compile(globalModule)
         compileOnly(servletApi)
-        jdbc(postgres)
-        testRuntime(postgres)
+        jdbc(hsql)
+        testRuntime(hsql)
     }
 
     task cleanConf(description: 'Cleans up conf directory', type: Delete) {

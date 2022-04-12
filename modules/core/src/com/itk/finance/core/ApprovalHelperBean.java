@@ -5,6 +5,7 @@ import com.haulmont.cuba.core.Transaction;
 import com.itk.finance.entity.ClaimStatusEnum;
 import com.itk.finance.entity.PaymentClaim;
 import com.itk.finance.entity.PaymentRegister;
+import com.itk.finance.entity.PaymentRegisterDetail;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -31,6 +32,11 @@ public class ApprovalHelperBean {
             PaymentRegister paymentRegister = persistence.getEntityManager().find(PaymentRegister.class, entityId);
             if (paymentRegister != null) {
                 paymentRegister.setStatus(ClaimStatusEnum.fromId(state));
+                for (PaymentRegisterDetail paymentRegisterDetail:
+                     paymentRegister.getPaymentRegisters()) {
+                    paymentRegisterDetail.setPaymentStatusRow(ClaimStatusEnum.fromId(state));
+                }
+
             }
             tx.commit();
         }

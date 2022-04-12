@@ -1,29 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
-        caption="msg://paymentTypeEdit.caption"
-        focusComponent="form"
-        messagesPack="com.itk.finance.web.screens.paymenttype">
-    <data>
-        <instance id="paymentTypeDc"
-                  class="com.itk.finance.entity.PaymentType">
-            <view extends="_local"/>
-            <loader/>
-        </instance>
-    </data>
-    <dialogMode height="AUTO"
-                width="AUTO"
-                modal="true"
-                forceDialog="true"/>
-    <layout expand="editActions" spacing="true">
-        <form id="form" dataContainer="paymentTypeDc">
-            <column width="400px">
-                <textField id="nameField" property="name"/>
-            </column>
-        </form>
-        <hbox id="editActions" spacing="true">
-            <button id="commitAndCloseBtn" action="windowCommitAndClose"/>
-            <button id="commitBtn" action="windowCommit"/>
-            <button id="closeBtn" action="windowClose"/>
-        </hbox>
-    </layout>
-</window>
+version https://git-lfs.github.com/spec/v1
+oid sha256:2278a24e32d444ea04a180a39bc05c1fc1fd8ecb49de82cd521f799b62c39d01
+size 1178

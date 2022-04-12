@@ -1,6 +1,3 @@
-<Context>
-
-    <!-- Switch off session serialization -->
-    <Manager pathname=""/>
-
-</Context>
+version https://git-lfs.github.com/spec/v1
+oid sha256:d42c11b52e70e3766c867a16ca1faac80e3a6a6ac6daf2636081e3cd4c42d817
+size 100

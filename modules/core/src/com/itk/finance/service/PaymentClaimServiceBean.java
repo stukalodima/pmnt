@@ -109,7 +109,7 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
         paymentClaim.setOnDate(onDate);
         paymentClaim.setPlanPaymentDate(planPaymentDate);
         paymentClaim.setSumm((Double) paymentClaimMap.get("summ"));
-        paymentClaim.setStatus(ClaimStatusEnum.APPROVED_BN);
+        paymentClaim.setStatus(ClaimStatusEnum.NEW);
         paymentClaim.setCompany(company);
         paymentClaim.setBusiness(company.getBusiness());
         paymentClaim.setClient(client);

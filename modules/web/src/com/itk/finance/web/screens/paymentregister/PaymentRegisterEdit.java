@@ -10,8 +10,8 @@ import com.haulmont.cuba.core.app.UniqueNumbersService;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.components.Action;
-import com.haulmont.cuba.gui.components.Button;
 import com.haulmont.cuba.gui.components.DataGrid;
+import com.haulmont.cuba.gui.components.GroupBoxLayout;
 import com.haulmont.cuba.gui.model.CollectionPropertyContainer;
 import com.haulmont.cuba.gui.model.InstanceLoader;
 import com.haulmont.cuba.gui.screen.*;
@@ -22,14 +22,15 @@ import com.itk.finance.entity.*;
 import com.itk.finance.service.UserPropertyService;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @UiController("finance_PaymentRegister.edit")
 @UiDescriptor("payment-register-edit.xml")
 @EditedEntityContainer("paymentRegisterDc")
 @LoadDataBeforeShow
 public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
-    private static final String PROCESS_CODE = "paymentregisterapproval";
+    private static final String PROCESS_CODE = "pmntRegister";
     @Inject
     private InstanceLoader<PaymentRegister> paymentRegisterDl;
     @Inject
@@ -60,13 +61,12 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private UserSession userSession;
     @Inject
     private UniqueNumbersService uniqueNumbersService;
+    @Inject
+    private GroupBoxLayout procActionsBox;
 
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
-        paymentRegisterDl.load();
-        procActionsFragment.initializer()
-                .standard()
-                .init(PROCESS_CODE, getEditedEntity());
+       initProcActionsFragment();
     }
 
     @Subscribe
@@ -82,8 +82,8 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         if (commitChanges().getStatus() == OperationResult.Status.SUCCESS) {
             List<PaymentClaim> paymentClaimList = dataManager.load(PaymentClaim.class)
                     .query("select e from finance_PaymentClaim e where e.status = :status " +
-                            "and e.business = :business")
-                    .parameter("status", ClaimStatusEnum.APPROVED_BN)
+                            "and e.business = :business ")
+                    .parameter("status", ClaimStatusEnum.NEW)
                     .parameter("business", getEditedEntity().getBusiness())
                     .view("paymentClaim.getEdit")
                     .list();
@@ -146,15 +146,18 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         }
     }
 
-    @Subscribe("sendApprovedBtn")
-    public void onSendApprovedBtnClick(Button.ClickEvent event) {
-//        if (commitChanges().getStatus() == OperationResult.Status.SUCCESS) {
+    @Subscribe
+    public void onAfterCommitChanges(AfterCommitChangesEvent event) {
+//        paymentRegisterDl.load();
+//        procActionsFragment.initializer()
+//                .standard()
+//                .init(PROCESS_CODE, getEditedEntity());
+//        if (Objects.equals(getEditedEntity().getStatus(), ClaimStatusEnum.NEW) && getEditedEntity().getPaymentRegisters().size() > 0) {
 //            Business business = dataManager.reload(getEditedEntity().getBusiness(), "business-all-property");
 //            /*The ProcInstanceDetails object is used for describing a ProcInstance to be created with its proc actors*/
 //            BpmEntitiesService.ProcInstanceDetails procInstanceDetails = new BpmEntitiesService.ProcInstanceDetails(PROCESS_CODE)
-//                    .addProcActor("FinControlerBN", business.getFinControler())
-//                    .addProcActor("FinDirectorBN", business.getFinDirector())
-//                    .addProcActor("GenDirectorBN", business.getGenDirector())
+//                    .addProcActor("finControler", business.getManagementCompany().getFinControler())
+//                    .addProcActor("finDirector", business.getManagementCompany().getFinDirector())
 //                    .setEntity(getEditedEntity());
 //
 //            /*The created ProcInstance will have two proc actors. None of the entities is persisted yet.*/
@@ -173,41 +176,44 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
 //
 //            /*refresh the procActionsFragment to display complete tasks buttons (if a process task appears for the current user after the process is started)*/
 //            initProcActionsFragment();
-//            getEditedEntity().setStatus(ClaimStatusEnum.PREPARED);
-//            commitChanges();
+////            getEditedEntity().setStatus(ClaimStatusEnum.PREPARED);
+////            commitChanges();
 //            this.close(WINDOW_COMMIT_AND_CLOSE_ACTION);
 //        }
     }
 
     private void initProcActionsFragment() {
-//        procActionsFragment.initializer()
-//                .standard()
-//                .setBeforeStartProcessPredicate(() -> {
-//                    /*the predicate creates process actors and sets them to the process instance created by the ProcActionsFragment*/
-//                    if (commitChanges().getStatus() == OperationResult.Status.SUCCESS) {
-//                        ProcInstance procInstance = procActionsFragment.getProcInstance();
-//                        Business business = dataManager.reload(getEditedEntity().getBusiness(), "business-all-property");
-//                        ProcActor finControlerBN = createProcActor("FinControlerBN", procInstance
-//                                , business.getFinControler());
-//                        ProcActor finDirectorBN = createProcActor("FinDirectorBN", procInstance
-//                                , business.getFinDirector());
-//                        ProcActor GenDirectorBN = createProcActor("GenDirectorBN", procInstance
-//                                , business.getGenDirector());
-//                        Set<ProcActor> procActors = new HashSet<>();
-//                        procActors.add(finControlerBN);
-//                        procActors.add(finDirectorBN);
-//                        procActors.add(GenDirectorBN);
-//                        procInstance.setProcActors(procActors);
-//                        return true;
-//                    }
-//                    return false;
-//                })
-//                .setAfterCompleteTaskListener(() -> {
-//                    initProcActionsFragment();
-//                    paymentRegisterDl.setEntityId(getEditedEntity().getId());
-//                    paymentRegisterDl.load();
-//                })
-//                .init(PROCESS_CODE, getEditedEntity());
+        if (getEditedEntity().getStatus().equals(ClaimStatusEnum.APPROVED_FIN_DIR) ||
+                getEditedEntity().getStatus().equals(ClaimStatusEnum.REJECTED_FIN_DIR)
+        ) {
+            procActionsBox.setVisible(false);
+        }
+        paymentRegisterDl.load();
+        procActionsFragment.initializer()
+                .standard()
+                .setClaimTaskEnabled(true)
+                .setTaskInfoEnabled(true)
+                .setAfterStartProcessListener(() -> {
+                    if (getEditedEntity().getStatus().equals(ClaimStatusEnum.APPROVED_FIN_DIR) ||
+                            getEditedEntity().getStatus().equals(ClaimStatusEnum.REJECTED_FIN_DIR)
+                    ) {
+                        procActionsBox.setVisible(false);
+                    }
+                    initProcActionsFragment();
+                    paymentRegisterDl.setEntityId(getEditedEntity().getId());
+                    paymentRegisterDl.load();
+                })
+                .setAfterCompleteTaskListener(() -> {
+                    if (getEditedEntity().getStatus().equals(ClaimStatusEnum.APPROVED_FIN_DIR) ||
+                            getEditedEntity().getStatus().equals(ClaimStatusEnum.REJECTED_FIN_DIR)
+                    ) {
+                        procActionsBox.setVisible(false);
+                    }
+                    initProcActionsFragment();
+                    paymentRegisterDl.setEntityId(getEditedEntity().getId());
+                    paymentRegisterDl.load();
+                })
+                .init(PROCESS_CODE, getEditedEntity());
     }
 
     private ProcActor createProcActor(String procRoleCode, ProcInstance procInstance, User user) {

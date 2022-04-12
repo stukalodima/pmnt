@@ -18,11 +18,23 @@ public class CashFlowItem extends StandardEntity {
     @Column(name = "NAME", nullable = false)
     private String name;
 
+    @NotNull
+    @Column(name="NUMBER", nullable = false)
+    private Integer number;
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getNumber() {
+        return number;
+    }
+
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 }

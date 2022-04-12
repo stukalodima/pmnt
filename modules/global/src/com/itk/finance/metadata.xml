@@ -1,6 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<metadata xmlns="http://schemas.haulmont.com/cuba/metadata.xsd">
-
-    <metadata-model root-package="com.itk.finance" namespace="finance"/>
-
-</metadata>
+version https://git-lfs.github.com/spec/v1
+oid sha256:055e5cb0ce6213e09e829d629409977dc3d580e792226b16f5bce0f276f06cfe
+size 211
