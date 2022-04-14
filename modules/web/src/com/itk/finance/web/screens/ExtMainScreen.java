@@ -15,6 +15,7 @@ import com.vaadin.server.Sizeable;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.Locale;
 
 
 @UiController("extMainScreen")
@@ -30,6 +31,7 @@ public class ExtMainScreen extends MainScreen implements Window.HasFoldersPane {
     private WebConfig webConfig;
 
     public ExtMainScreen() {
+        Locale.setDefault(Locale.US);
         addInitListener(this::initLayout);
     }
 

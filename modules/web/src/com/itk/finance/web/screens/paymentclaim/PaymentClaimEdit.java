@@ -3,6 +3,7 @@ package com.itk.finance.web.screens.paymentclaim;
 import com.haulmont.cuba.core.app.UniqueNumbersService;
 import com.haulmont.cuba.core.global.EntityStates;
 import com.haulmont.cuba.core.global.TimeSource;
+import com.haulmont.cuba.gui.components.Button;
 import com.haulmont.cuba.gui.components.HasValue;
 import com.haulmont.cuba.gui.components.LookupPickerField;
 import com.haulmont.cuba.gui.model.CollectionLoader;
@@ -97,5 +98,10 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
         companiesDl.load();
         accountsDl.setParameter("company", company);
         accountsDl.load();
+    }
+
+    @Subscribe("sendToApprove")
+    public void onSendToApproveClick(Button.ClickEvent event) {
+        
     }
 }

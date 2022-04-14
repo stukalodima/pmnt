@@ -30,7 +30,7 @@ create table FINANCE_CLIENT (
     SHORT_NAME varchar(255) not null,
     NAME longvarchar not null,
     CLIENT_TYPE varchar(50) not null,
-    EDRPOU varchar(10) not null,
+    EDRPOU varchar(20) not null,
     ADDRESS longvarchar,
     KVED longvarchar,
     BOSS varchar(255),
@@ -107,7 +107,6 @@ create table FINANCE_BANK (
     --
     NAME varchar(255) not null,
     MFO varchar(6) not null,
-    EDRPOU varchar(10) not null,
     --
     primary key (ID)
 )^
@@ -227,6 +226,7 @@ create table FINANCE_CASH_FLOW_ITEM (
     --
     NAME varchar(255) not null,
     NUMBER integer not null,
+    PAYMENT_REGISTER_TYPE_ID varchar(36) not null,
     --
     primary key (ID)
 )^
@@ -252,9 +252,9 @@ create table FINANCE_PAYMENT_CLAIM (
     SUMM double precision,
     PLAN_PAYMENT_DATE date not null,
     PAYMENT_PURPOSE longvarchar not null,
-    CASH_FLOW_ITEM_ID varchar(36),
+    CASH_FLOW_ITEM_ID varchar(36) not null,
     CASH_FLOW_ITEM_BUSINESS_ID varchar(36),
-    PAYMENT_TYPE_ID varchar(36),
+    PAYMENT_TYPE_ID varchar(36) not null,
     COMMENT_ longvarchar,
     AUTHOR_ID varchar(36) not null,
     STATUS varchar(50) not null,

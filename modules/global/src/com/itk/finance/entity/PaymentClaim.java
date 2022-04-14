@@ -75,7 +75,7 @@ public class PaymentClaim extends StandardEntity {
     private String paymentPurpose;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "CASH_FLOW_ITEM_ID")
     @NotNull
     private CashFlowItem cashFlowItem;
@@ -86,7 +86,7 @@ public class PaymentClaim extends StandardEntity {
     private CashFlowItemBusiness cashFlowItemBusiness;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "PAYMENT_TYPE_ID")
     @NotNull
     private PaymentType paymentType;

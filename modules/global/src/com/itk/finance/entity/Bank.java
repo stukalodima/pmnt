@@ -22,18 +22,6 @@ public class Bank extends StandardEntity {
     @Column(name = "MFO", nullable = false, length = 6)
     private String mfo;
 
-    @NotNull
-    @Column(name = "EDRPOU", nullable = false, length = 10)
-    private String edrpou;
-
-    public String getEdrpou() {
-        return edrpou;
-    }
-
-    public void setEdrpou(String edrpou) {
-        this.edrpou = edrpou;
-    }
-
     public String getMfo() {
         return mfo;
     }

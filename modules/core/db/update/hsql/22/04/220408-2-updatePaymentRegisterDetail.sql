@@ -1,1 +1,0 @@
-alter table FINANCE_PAYMENT_REGISTER_DETAIL add column PAYMENT_STATUS_ROW varchar(50) ;

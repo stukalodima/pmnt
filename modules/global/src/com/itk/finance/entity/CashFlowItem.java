@@ -3,9 +3,7 @@ package com.itk.finance.entity;
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Table(name = "FINANCE_CASH_FLOW_ITEM")
@@ -19,7 +17,7 @@ public class CashFlowItem extends StandardEntity {
     private String name;
 
     @NotNull
-    @Column(name="NUMBER", nullable = false)
+    @Column(name = "NUMBER", nullable = false)
     private Integer number;
 
     public String getName() {

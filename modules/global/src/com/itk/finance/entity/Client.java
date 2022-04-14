@@ -29,7 +29,7 @@ public class Client extends StandardEntity {
     private String clientType;
 
     @NotNull
-    @Column(name = "EDRPOU", nullable = false, length = 10)
+    @Column(name = "EDRPOU", nullable = false, length = 20)
     private String edrpou;
 
     @Lob

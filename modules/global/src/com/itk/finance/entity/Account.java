@@ -35,9 +35,9 @@ public class Account extends StandardEntity {
     private String iban;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "BANK_ID")
+    @NotNull
     private Bank bank;
 
     public Company getCompany() {
