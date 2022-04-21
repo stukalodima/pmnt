@@ -35,6 +35,7 @@ public class ApprovalHelperBean {
                 for (PaymentRegisterDetail paymentRegisterDetail:
                      paymentRegister.getPaymentRegisters()) {
                     paymentRegisterDetail.setPaymentStatusRow(ClaimStatusEnum.fromId(state));
+                    paymentRegisterDetail.getPaymentClaim().setStatus(ClaimStatusEnum.fromId(state));
                 }
 
             }

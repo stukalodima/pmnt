@@ -1,18 +1,19 @@
 package com.itk.finance.web.screens.paymentregister;
 
+import com.haulmont.bpm.BpmConstants;
 import com.haulmont.bpm.entity.ProcActor;
 import com.haulmont.bpm.entity.ProcInstance;
 import com.haulmont.bpm.entity.ProcRole;
+import com.haulmont.bpm.entity.ProcTask;
+import com.haulmont.bpm.gui.action.ClaimProcTaskAction;
 import com.haulmont.bpm.gui.procactionsfragment.ProcActionsFragment;
 import com.haulmont.bpm.service.BpmEntitiesService;
 import com.haulmont.bpm.service.ProcessRuntimeService;
 import com.haulmont.cuba.core.app.UniqueNumbersService;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Notifications;
-import com.haulmont.cuba.gui.components.Action;
-import com.haulmont.cuba.gui.components.Button;
-import com.haulmont.cuba.gui.components.DataGrid;
-import com.haulmont.cuba.gui.components.GroupBoxLayout;
+import com.haulmont.cuba.gui.UiComponents;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.model.CollectionPropertyContainer;
 import com.haulmont.cuba.gui.model.InstanceLoader;
 import com.haulmont.cuba.gui.screen.*;
@@ -23,8 +24,7 @@ import com.itk.finance.entity.*;
 import com.itk.finance.service.UserPropertyService;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @UiController("finance_PaymentRegister.edit")
 @UiDescriptor("payment-register-edit.xml")
@@ -64,10 +64,50 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private UniqueNumbersService uniqueNumbersService;
     @Inject
     private GroupBoxLayout procActionsBox;
+    @Inject
+    private Button sendToApprove;
+    @Inject
+    private Button approved;
+    @Inject
+    private Button rejected;
+    @Inject
+    private Messages messages;
+    protected ProcTask procTask;
+    protected ClaimProcTaskAction claimProcTaskAction;
+    @Inject
+    private UiComponents uiComponents;
+    @Inject
+    private HBoxLayout editActions;
 
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
        initProcActionsFragment();
+       updateVisible();
+//       initProcAction(procActionsFragment.getProcInstance());
+    }
+
+    private void initProcAction(ProcInstance procInstance) {
+        List<ProcTask> procTasks = bpmEntitiesService.findActiveProcTasksForCurrentUser(procInstance, BpmConstants.Views.PROC_TASK_COMPLETE);
+        procTask = procTasks.isEmpty() ? null : procTasks.get(0);
+        if (procTask == null) {
+
+        } else if (procTask.getProcActor() != null) {
+            initClaimTaskUI();
+        }
+    }
+
+    private void initClaimTaskUI() {
+       Button claimTaskBtn = uiComponents.create(Button.class);
+        claimTaskBtn.setWidth("100");
+        claimProcTaskAction = new ClaimProcTaskAction(procTask);
+        claimTaskBtn.setAction(claimProcTaskAction);
+        editActions.add(claimTaskBtn);
+    }
+
+    private void updateVisible() {
+        sendToApprove.setVisible(getEditedEntity().getStatus() == ClaimStatusEnum.NEW);
+        approved.setVisible(getEditedEntity().getStatus() != ClaimStatusEnum.NEW);
+        rejected.setVisible(getEditedEntity().getStatus() != ClaimStatusEnum.NEW);
     }
 
     @Subscribe
@@ -147,72 +187,31 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         }
     }
 
-    @Subscribe
-    public void onAfterCommitChanges(AfterCommitChangesEvent event) {
-//        paymentRegisterDl.load();
-//        procActionsFragment.initializer()
-//                .standard()
-//                .init(PROCESS_CODE, getEditedEntity());
-//        if (Objects.equals(getEditedEntity().getStatus(), ClaimStatusEnum.NEW) && getEditedEntity().getPaymentRegisters().size() > 0) {
-//            Business business = dataManager.reload(getEditedEntity().getBusiness(), "business-all-property");
-//            /*The ProcInstanceDetails object is used for describing a ProcInstance to be created with its proc actors*/
-//            BpmEntitiesService.ProcInstanceDetails procInstanceDetails = new BpmEntitiesService.ProcInstanceDetails(PROCESS_CODE)
-//                    .addProcActor("finControler", business.getManagementCompany().getFinControler())
-//                    .addProcActor("finDirector", business.getManagementCompany().getFinDirector())
-//                    .setEntity(getEditedEntity());
-//
-//            /*The created ProcInstance will have two proc actors. None of the entities is persisted yet.*/
-//            ProcInstance procInstance = bpmEntitiesService.createProcInstance(procInstanceDetails);
-//
-//            /*A map with process variables that must be passed to the Activiti process instance when it is started. This variable is used in the model to make a decision for one of gateways.*/
-//            HashMap<String, Object> processVariables = new HashMap<>();
-//            //processVariables.put("acceptanceRequired", getEditedEntity().getAcceptanceRequired());
-//
-//            /*Starts the process. The "startProcess" method automatically persists the passed procInstance with its actors*/
-//            processRuntimeService.startProcess(procInstance, "Process started programmatically", processVariables);
-//            notifications.create()
-//                    .withCaption(messageBundle.getMessage("processStarted"))
-//                    .withType(Notifications.NotificationType.HUMANIZED)
-//                    .show();
-//
-//            /*refresh the procActionsFragment to display complete tasks buttons (if a process task appears for the current user after the process is started)*/
-//            initProcActionsFragment();
-////            getEditedEntity().setStatus(ClaimStatusEnum.PREPARED);
-////            commitChanges();
-//            this.close(WINDOW_COMMIT_AND_CLOSE_ACTION);
-//        }
-    }
-
     private void initProcActionsFragment() {
-        if (getEditedEntity().getStatus().equals(ClaimStatusEnum.APPROVED_FIN_DIR) ||
-                getEditedEntity().getStatus().equals(ClaimStatusEnum.REJECTED_FIN_DIR)
-        ) {
-            procActionsBox.setVisible(false);
-        }
-        paymentRegisterDl.load();
         procActionsFragment.initializer()
                 .standard()
-                .setClaimTaskEnabled(true)
-                .setTaskInfoEnabled(true)
-                .setAfterStartProcessListener(() -> {
-                    if (getEditedEntity().getStatus().equals(ClaimStatusEnum.APPROVED_FIN_DIR) ||
-                            getEditedEntity().getStatus().equals(ClaimStatusEnum.REJECTED_FIN_DIR)
-                    ) {
-                        procActionsBox.setVisible(false);
+                .setBeforeStartProcessPredicate(() -> {
+                    /*the predicate creates process actors and sets them to the process instance created by the ProcActionsFragment*/
+                    if (commitChanges().getStatus() == OperationResult.Status.SUCCESS) {
+                        ProcInstance procInstance = procActionsFragment.getProcInstance();
+                        Business business = dataManager.reload(getEditedEntity().getBusiness(), "business-all-property");
+                        ProcActor initiatorProcActor = createProcActor("finControler", procInstance, business.getManagementCompany().getFinControler());
+                        ProcActor executorProcActor = createProcActor("finDirector", procInstance, business.getManagementCompany().getFinDirector());
+                        ProcActor finDirBN = createProcActor("finDirectorBN", procInstance, business.getFinDirector());
+                        Set<ProcActor> procActors = new HashSet<>();
+                        procActors.add(initiatorProcActor);
+                        procActors.add(executorProcActor);
+                        procActors.add(finDirBN);
+                        procInstance.setProcActors(procActors);
+                        return true;
                     }
-                    initProcActionsFragment();
-                    paymentRegisterDl.setEntityId(getEditedEntity().getId());
-                    paymentRegisterDl.load();
+                    return false;
+                })
+                .setAfterStartProcessListener(() -> {
+                    closeWithCommit();
                 })
                 .setAfterCompleteTaskListener(() -> {
-                    if (getEditedEntity().getStatus().equals(ClaimStatusEnum.APPROVED_FIN_DIR) ||
-                            getEditedEntity().getStatus().equals(ClaimStatusEnum.REJECTED_FIN_DIR)
-                    ) {
-                        procActionsBox.setVisible(false);
-                    }
-                    initProcActionsFragment();
-                    paymentRegisterDl.setEntityId(getEditedEntity().getId());
-                    paymentRegisterDl.load();
+                    closeWithCommit();
                 })
                 .init(PROCESS_CODE, getEditedEntity());
     }
@@ -234,5 +233,48 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     @Subscribe("rejected")
     public void onRejectedClick(Button.ClickEvent event) {
         closeWithCommit();
+    }
+
+    @Subscribe("sendToApprove")
+    public void onSendToApproveClick(Button.ClickEvent event) {
+        paymentRegisterDl.load();
+        procActionsFragment.initializer()
+                .standard()
+                .init(PROCESS_CODE, getEditedEntity());
+        if (getEditedEntity().getStatus() == ClaimStatusEnum.NEW && !Objects.isNull(getEditedEntity().getPaymentRegisters())) {
+            Business business = dataManager.reload(getEditedEntity().getBusiness(), "business-all-property");
+            /*The ProcInstanceDetails object is used for describing a ProcInstance to be created with its proc actors*/
+            BpmEntitiesService.ProcInstanceDetails procInstanceDetails = new BpmEntitiesService.ProcInstanceDetails(PROCESS_CODE)
+                    .addProcActor("finControler", business.getManagementCompany().getFinControler())
+                    .addProcActor("finDirector", business.getManagementCompany().getFinDirector())
+                    .addProcActor("finDirectorBN", business.getFinDirector())
+                    .setEntity(getEditedEntity());
+
+            /*The created ProcInstance will have two proc actors. None of the entities is persisted yet.*/
+            ProcInstance procInstance = bpmEntitiesService.createProcInstance(procInstanceDetails);
+
+            /*A map with process variables that must be passed to the Activiti process instance when it is started. This variable is used in the model to make a decision for one of gateways.*/
+            HashMap<String, Object> processVariables = new HashMap<>();
+            //processVariables.put("acceptanceRequired", getEditedEntity().getAcceptanceRequired());
+
+            /*Starts the process. The "startProcess" method automatically persists the passed procInstance with its actors*/
+            processRuntimeService.startProcess(procInstance, "Process started programmatically", processVariables);
+            notifications.create()
+                    .withCaption(messageBundle.getMessage("processStarted"))
+                    .withType(Notifications.NotificationType.HUMANIZED)
+                    .show();
+
+            /*refresh the procActionsFragment to display complete tasks buttons (if a process task appears for the current user after the process is started)*/
+            initProcActionsFragment();
+//            for (PaymentRegisterDetail paymentRegisterDetail:getEditedEntity().getPaymentRegisters()
+//                 ) {
+//                PaymentClaim paymentClaim = paymentRegisterDetail.getPaymentClaim();
+//                paymentClaim.setStatus(ClaimStatusEnum.IN_APPROVE);
+//                dataManager.commit(paymentClaim);
+//            }
+//            getEditedEntity().setStatus(ClaimStatusEnum.PREPARED);
+//            commitChanges();
+            closeWithCommit();
+        }
     }
 }

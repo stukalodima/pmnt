@@ -99,9 +99,4 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
         accountsDl.setParameter("company", company);
         accountsDl.load();
     }
-
-    @Subscribe("sendToApprove")
-    public void onSendToApproveClick(Button.ClickEvent event) {
-        
-    }
 }
