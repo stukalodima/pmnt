@@ -1,0 +1,1 @@
+alter table finance_account_remains_detail rename to FINANCE_ACCOUNT_REMAINS_DETAIL__U41072 ;

@@ -7,6 +7,7 @@ import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Table(name = "FINANCE_ACCOUNT")
 @Entity(name = "finance_Account")
@@ -31,7 +32,7 @@ public class Account extends StandardEntity {
     private Currency currency;
 
     @NotNull
-    @Column(name = "IBAN", nullable = false, length = 29)
+    @Column(name = "IBAN", nullable = false, length = 50)
     private String iban;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
@@ -39,6 +40,52 @@ public class Account extends StandardEntity {
     @JoinColumn(name = "BANK_ID")
     @NotNull
     private Bank bank;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "START_DATE")
+    private Date startDate;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "END_DATE")
+    private Date endDate;
+
+    @Column(name = "LOCK_")
+    private Boolean lock;
+
+    @Column(name = "CLOSE_")
+    private Boolean close;
+
+    public Boolean getClose() {
+        return close;
+    }
+
+    public void setClose(Boolean close) {
+        this.close = close;
+    }
+
+    public Boolean getLock() {
+        return lock;
+    }
+
+    public void setLock(Boolean lock) {
+        this.lock = lock;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
 
     public Company getCompany() {
         return company;

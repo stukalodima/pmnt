@@ -72,10 +72,16 @@ public class CompanyServiceBean implements CompanyService {
         for (JsonElement jsonElement:jsonArray) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
 
-            companyMap.put("id", jsonObject.getAsJsonPrimitive("id").getAsString());
-            companyMap.put("edrpou", jsonObject.getAsJsonPrimitive("kodEDRPOU").getAsString());
-            companyMap.put("name", jsonObject.getAsJsonPrimitive("name").getAsString());
-            companyMap.put("shortName", jsonObject.getAsJsonPrimitive("name").getAsString());
+//            companyMap.put("id", jsonObject.getAsJsonPrimitive("id").getAsString());
+//            companyMap.put("edrpou", jsonObject.getAsJsonPrimitive("kodEDRPOU").getAsString());
+//            companyMap.put("name", jsonObject.getAsJsonPrimitive("name").getAsString());
+//            companyMap.put("shortName", jsonObject.getAsJsonPrimitive("name").getAsString());
+
+            //from accounts
+            companyMap.put("id", jsonObject.getAsJsonPrimitive("company").getAsString());
+            companyMap.put("edrpou", jsonObject.getAsJsonPrimitive("company_edrpou").getAsString());
+            companyMap.put("name", jsonObject.getAsJsonPrimitive("company_name").getAsString());
+            companyMap.put("shortName", jsonObject.getAsJsonPrimitive("company_name").getAsString());
 
             fillCompanyEntity(companyMap);
         }

@@ -10,6 +10,7 @@ import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.core.global.UserSessionSource;
 import com.haulmont.cuba.security.entity.User;
+import com.itk.finance.service.UserPropertyService;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.*;
@@ -234,9 +235,9 @@ public class PaymentClaim extends StandardEntity {
     @PostConstruct
     public void initEntity(Metadata metadata) {
         UserSessionSource userSessionSource = AppBeans.get(UserSessionSource.class);
-        DataManager dataManager = AppBeans.get(DataManager.class);
+        UserPropertyService userPropertyService = AppBeans.get(UserPropertyService.class);
         author = userSessionSource.getUserSession().getUser();
-        business = dataManager.getReference(Business.class, UUID.fromString("c3307b59-0d82-6a6b-7ca4-bfb0d11ba028"));
+        business = userPropertyService.getDefaultBusiness();
         status = ClaimStatusEnum.NEW.getId();
     }
 }
