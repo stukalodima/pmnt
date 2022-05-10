@@ -1,5 +1,8 @@
 import { StandardEntity } from "./base/sys$StandardEntity";
-import { PaymentRegisterDetailStatusEnum } from "../enums/enums";
+import {
+  PaymentRegisterDetailStatusEnum,
+  ClaimStatusEnum
+} from "../enums/enums";
 import { Company } from "./finance_Company";
 import { Client } from "./finance_Client";
 import { CashFlowItem } from "./finance_CashFlowItem";
@@ -18,6 +21,7 @@ export class PaymentRegisterDetail extends StandardEntity {
   comment?: string | null;
   paymentClaim?: PaymentClaim | null;
   paymentRegister?: PaymentRegister | null;
+  paymentStatusRow?: ClaimStatusEnum | null;
 }
 export type PaymentRegisterDetailViewName = "_base" | "_local" | "_minimal";
 export type PaymentRegisterDetailView<
@@ -25,12 +29,23 @@ export type PaymentRegisterDetailView<
 > = V extends "_base"
   ? Pick<
       PaymentRegisterDetail,
-      "id" | "client" | "summ" | "approved" | "paymentPurpose" | "comment"
+      | "id"
+      | "client"
+      | "summ"
+      | "approved"
+      | "paymentPurpose"
+      | "comment"
+      | "paymentStatusRow"
     >
   : V extends "_local"
   ? Pick<
       PaymentRegisterDetail,
-      "id" | "approved" | "summ" | "paymentPurpose" | "comment"
+      | "id"
+      | "approved"
+      | "summ"
+      | "paymentPurpose"
+      | "comment"
+      | "paymentStatusRow"
     >
   : V extends "_minimal"
   ? Pick<PaymentRegisterDetail, "id" | "client" | "summ">

@@ -37,9 +37,10 @@ create table FINANCE_PAYMENT_REGISTER (
     BUSINESS_ID uuid not null,
     STATUS varchar(50),
     AUTHOR_ID uuid,
+    REGISTER_TYPE_ID uuid not null,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_PAYMENT_REGISTER
 -- begin FINANCE_PAYMENT_TYPE
 create table FINANCE_PAYMENT_TYPE (
@@ -304,3 +305,37 @@ create table FINANCE_ACCOUNT_REMAINS (
     primary key (ID)
 )^
 -- end FINANCE_ACCOUNT_REMAINS
+-- begin FINANCE_REGISTER_TYPE_DETAIL
+create table FINANCE_REGISTER_TYPE_DETAIL (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    CASH_FLOW_ITEM_ID uuid not null,
+    REGISTER_TYPE_ID uuid not null,
+    --
+    primary key (ID)
+)^
+-- end FINANCE_REGISTER_TYPE_DETAIL
+-- begin FINANCE_REGISTER_TYPE
+create table FINANCE_REGISTER_TYPE (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NUMBER_ integer not null,
+    NAME varchar(255) not null,
+    --
+    primary key (ID)
+)^
+-- end FINANCE_REGISTER_TYPE

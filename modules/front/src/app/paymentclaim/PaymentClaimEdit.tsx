@@ -12,6 +12,8 @@ import {
   createAntdFormValidationMessages
 } from "@cuba-platform/react-ui";
 import {
+  loadAssociationOptions,
+  DataCollectionStore,
   useInstance,
   MainStore,
   useMainStore,
@@ -20,12 +22,31 @@ import {
 import { Field, MultilineText, Spinner } from "@cuba-platform/react-ui";
 import "../../app/App.css";
 import { PaymentClaim } from "../../cuba/entities/finance_PaymentClaim";
+import { Business } from "../../cuba/entities/finance_Business";
+import { Company } from "../../cuba/entities/finance_Company";
+import { Client } from "../../cuba/entities/finance_Client";
+import { Account } from "../../cuba/entities/finance_Account";
+import { Currency } from "../../cuba/entities/finance_Currency";
+import { CashFlowItem } from "../../cuba/entities/finance_CashFlowItem";
+import { CashFlowItemBusiness } from "../../cuba/entities/finance_CashFlowItemBusiness";
+import { PaymentType } from "../../cuba/entities/finance_PaymentType";
+import { User } from "../../cuba/entities/base/sec$User";
 
 type Props = {
   entityId: string;
 };
 
-type PaymentClaimEditAssociationOptions = {};
+type PaymentClaimEditAssociationOptions = {
+  businesssDc?: DataCollectionStore<Business>;
+  companysDc?: DataCollectionStore<Company>;
+  clientsDc?: DataCollectionStore<Client>;
+  accountsDc?: DataCollectionStore<Account>;
+  currencysDc?: DataCollectionStore<Currency>;
+  cashFlowItemsDc?: DataCollectionStore<CashFlowItem>;
+  cashFlowItemBusinesssDc?: DataCollectionStore<CashFlowItemBusiness>;
+  paymentTypesDc?: DataCollectionStore<PaymentType>;
+  authorsDc?: DataCollectionStore<User>;
+};
 
 type PaymentClaimEditLocalStore = PaymentClaimEditAssociationOptions & {
   updated: boolean;
@@ -34,12 +55,22 @@ type PaymentClaimEditLocalStore = PaymentClaimEditAssociationOptions & {
 };
 
 const FIELDS = [
+  "number",
   "onDate",
+  "business",
+  "company",
+  "client",
+  "account",
+  "currency",
   "summ",
   "planPaymentDate",
   "paymentPurpose",
+  "cashFlowItem",
+  "cashFlowItemBusiness",
+  "paymentType",
   "comment",
-  "status"
+  "status",
+  "author"
 ];
 
 const isNewEntity = (entityId: string) => {
@@ -52,6 +83,78 @@ const getAssociationOptions = (
   const { getAttributePermission } = mainStore.security;
   const associationOptions: PaymentClaimEditAssociationOptions = {};
 
+  associationOptions.businesssDc = loadAssociationOptions(
+    PaymentClaim.NAME,
+    "business",
+    Business.NAME,
+    getAttributePermission,
+    { view: "_minimal" }
+  );
+
+  associationOptions.companysDc = loadAssociationOptions(
+    PaymentClaim.NAME,
+    "company",
+    Company.NAME,
+    getAttributePermission,
+    { view: "_minimal" }
+  );
+
+  associationOptions.clientsDc = loadAssociationOptions(
+    PaymentClaim.NAME,
+    "client",
+    Client.NAME,
+    getAttributePermission,
+    { view: "_minimal" }
+  );
+
+  associationOptions.accountsDc = loadAssociationOptions(
+    PaymentClaim.NAME,
+    "account",
+    Account.NAME,
+    getAttributePermission,
+    { view: "_minimal" }
+  );
+
+  associationOptions.currencysDc = loadAssociationOptions(
+    PaymentClaim.NAME,
+    "currency",
+    Currency.NAME,
+    getAttributePermission,
+    { view: "_minimal" }
+  );
+
+  associationOptions.cashFlowItemsDc = loadAssociationOptions(
+    PaymentClaim.NAME,
+    "cashFlowItem",
+    CashFlowItem.NAME,
+    getAttributePermission,
+    { view: "_minimal" }
+  );
+
+  associationOptions.cashFlowItemBusinesssDc = loadAssociationOptions(
+    PaymentClaim.NAME,
+    "cashFlowItemBusiness",
+    CashFlowItemBusiness.NAME,
+    getAttributePermission,
+    { view: "_minimal" }
+  );
+
+  associationOptions.paymentTypesDc = loadAssociationOptions(
+    PaymentClaim.NAME,
+    "paymentType",
+    PaymentType.NAME,
+    getAttributePermission,
+    { view: "_minimal" }
+  );
+
+  associationOptions.authorsDc = loadAssociationOptions(
+    PaymentClaim.NAME,
+    "author",
+    User.NAME,
+    getAttributePermission,
+    { view: "_minimal" }
+  );
+
   return associationOptions;
 };
 
@@ -63,12 +166,21 @@ const PaymentClaimEdit = (props: Props) => {
   const [form] = useForm();
 
   const dataInstance = useInstance<PaymentClaim>(PaymentClaim.NAME, {
-    view: "_local",
+    view: "paymentClaimReact-edit",
     loadImmediately: false
   });
 
   const store: PaymentClaimEditLocalStore = useLocalStore(() => ({
     // Association options
+    businesssDc: undefined,
+    companysDc: undefined,
+    clientsDc: undefined,
+    accountsDc: undefined,
+    currencysDc: undefined,
+    cashFlowItemsDc: undefined,
+    cashFlowItemBusinesssDc: undefined,
+    paymentTypesDc: undefined,
+    authorsDc: undefined,
 
     // Other
     updated: false,
@@ -188,6 +300,14 @@ const PaymentClaimEdit = (props: Props) => {
         >
           <Field
             entityName={PaymentClaim.NAME}
+            propertyName="number"
+            formItemProps={{
+              style: { marginBottom: "12px" }
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
             propertyName="onDate"
             formItemProps={{
               style: { marginBottom: "12px" },
@@ -199,8 +319,7 @@ const PaymentClaimEdit = (props: Props) => {
             entityName={PaymentClaim.NAME}
             propertyName="summ"
             formItemProps={{
-              style: { marginBottom: "12px" },
-              rules: [{ required: true }]
+              style: { marginBottom: "12px" }
             }}
           />
 
@@ -233,6 +352,95 @@ const PaymentClaimEdit = (props: Props) => {
           <Field
             entityName={PaymentClaim.NAME}
             propertyName="status"
+            formItemProps={{
+              style: { marginBottom: "12px" },
+              rules: [{ required: true }]
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
+            propertyName="business"
+            optionsContainer={store.businesssDc}
+            formItemProps={{
+              style: { marginBottom: "12px" },
+              rules: [{ required: true }]
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
+            propertyName="company"
+            optionsContainer={store.companysDc}
+            formItemProps={{
+              style: { marginBottom: "12px" },
+              rules: [{ required: true }]
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
+            propertyName="client"
+            optionsContainer={store.clientsDc}
+            formItemProps={{
+              style: { marginBottom: "12px" },
+              rules: [{ required: true }]
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
+            propertyName="account"
+            optionsContainer={store.accountsDc}
+            formItemProps={{
+              style: { marginBottom: "12px" },
+              rules: [{ required: true }]
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
+            propertyName="currency"
+            optionsContainer={store.currencysDc}
+            formItemProps={{
+              style: { marginBottom: "12px" },
+              rules: [{ required: true }]
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
+            propertyName="cashFlowItem"
+            optionsContainer={store.cashFlowItemsDc}
+            formItemProps={{
+              style: { marginBottom: "12px" },
+              rules: [{ required: true }]
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
+            propertyName="cashFlowItemBusiness"
+            optionsContainer={store.cashFlowItemBusinesssDc}
+            formItemProps={{
+              style: { marginBottom: "12px" }
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
+            propertyName="paymentType"
+            optionsContainer={store.paymentTypesDc}
+            formItemProps={{
+              style: { marginBottom: "12px" },
+              rules: [{ required: true }]
+            }}
+          />
+
+          <Field
+            entityName={PaymentClaim.NAME}
+            propertyName="author"
+            optionsContainer={store.authorsDc}
             formItemProps={{
               style: { marginBottom: "12px" },
               rules: [{ required: true }]

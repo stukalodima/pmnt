@@ -42,10 +42,23 @@ public class PaymentRegister extends StandardEntity {
     @JoinColumn(name = "AUTHOR_ID")
     private User author;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "REGISTER_TYPE_ID")
+    private RegisterType registerType;
+
     @Composition
     @OnDelete(DeletePolicy.CASCADE)
     @OneToMany(mappedBy = "paymentRegister")
     private List<PaymentRegisterDetail> paymentRegisters;
+
+    public RegisterType getRegisterType() {
+        return registerType;
+    }
+
+    public void setRegisterType(RegisterType registerType) {
+        this.registerType = registerType;
+    }
 
     public void setNumber(Long number) {
         this.number = number;

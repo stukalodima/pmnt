@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import { useObserver } from "mobx-react";
 import { Link } from "react-router-dom";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Modal, Button, List, message } from "antd";
+import { Modal, Button, Card, message } from "antd";
 import {
   useCollection,
   useMainStore,
@@ -27,12 +27,20 @@ type Props = {
 };
 
 const FIELDS = [
+  "number",
   "onDate",
+  "business",
+  "company",
+  "client",
+  "cashFlowItem",
+  "currency",
   "summ",
   "planPaymentDate",
   "paymentPurpose",
+  "paymentType",
   "comment",
-  "status"
+  "status",
+  "author"
 ];
 
 const PaymentClaimList = (props: Props) => {
@@ -42,7 +50,7 @@ const PaymentClaimList = (props: Props) => {
   const mainStore = useMainStore();
 
   const dataCollection = useCollection<PaymentClaim>(PaymentClaim.NAME, {
-    view: "_local",
+    view: "paymentClaimReact-view",
     sort: "-updateTs",
     loadImmediately: false
   });
@@ -102,36 +110,36 @@ const PaymentClaimList = (props: Props) => {
             </Link>
           </div>
         </EntityPermAccessControl>
-
-        <List
-          itemLayout="horizontal"
-          bordered
-          dataSource={items}
-          renderItem={item => (
-            <List.Item
-              actions={[
-                <DeleteOutlined
-                  key="delete"
-                  onClick={() => showDeletionDialog(item)}
-                />,
-                <Link to={PATH + "/" + getStringId(item.id!)} key="edit">
-                  <EditOutlined />
-                </Link>
-              ]}
-            >
-              <div style={{ flexGrow: 1 }}>
-                {FIELDS.map(p => (
-                  <EntityProperty
-                    entityName={PaymentClaim.NAME}
-                    propertyName={p}
-                    value={item[p]}
-                    key={p}
-                  />
-                ))}
-              </div>
-            </List.Item>
-          )}
-        />
+        {items == null || items.length === 0 ? (
+          <p>
+            <FormattedMessage id="management.browser.noItems" />
+          </p>
+        ) : null}
+        {items.map(e => (
+          <Card
+            title={e._instanceName}
+            key={e.id ? getStringId(e.id) : undefined}
+            style={{ marginBottom: "12px" }}
+            actions={[
+              <DeleteOutlined
+                key="delete"
+                onClick={() => showDeletionDialog(e)}
+              />,
+              <Link to={PATH + "/" + getStringId(e.id!)} key="edit">
+                <EditOutlined />
+              </Link>
+            ]}
+          >
+            {FIELDS.map(p => (
+              <EntityProperty
+                entityName={PaymentClaim.NAME}
+                propertyName={p}
+                value={e[p]}
+                key={p}
+              />
+            ))}
+          </Card>
+        ))}
 
         {!paginationConfig.disabled && (
           <div style={{ margin: "12px 0 12px 0", float: "right" }}>

@@ -16,9 +16,9 @@ export type ClientView<V extends ClientViewName> = V extends "_base"
   ? Pick<
       Client,
       | "id"
-      | "name"
-      | "edrpou"
       | "shortName"
+      | "edrpou"
+      | "name"
       | "clientType"
       | "address"
       | "kved"
@@ -39,5 +39,5 @@ export type ClientView<V extends ClientViewName> = V extends "_base"
       | "stan"
     >
   : V extends "_minimal"
-  ? Pick<Client, "id" | "name" | "edrpou">
+  ? Pick<Client, "id" | "shortName" | "edrpou">
   : never;

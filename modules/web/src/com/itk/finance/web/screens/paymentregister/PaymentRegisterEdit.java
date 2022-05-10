@@ -8,6 +8,7 @@ import com.haulmont.bpm.entity.ProcTask;
 import com.haulmont.bpm.form.ProcFormDefinition;
 import com.haulmont.bpm.gui.action.CompleteProcTaskAction;
 import com.haulmont.bpm.gui.procactionsfragment.ProcActionsFragment;
+import com.haulmont.bpm.gui.proctask.ProcTasksFrame;
 import com.haulmont.bpm.service.BpmEntitiesService;
 import com.haulmont.bpm.service.ProcessFormService;
 import com.haulmont.bpm.service.ProcessRuntimeService;
@@ -78,6 +79,8 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private HBoxLayout actionsBox;
     @Inject
     private ProcessFormService processFormService;
+    @Inject
+    private ProcTasksFrame taskFrame;
 
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
@@ -94,6 +97,8 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         if (procTask != null && procTask.getProcActor() != null) {
             initCompleteTaskUI();
         }
+        taskFrame.setProcInstance(procInstance);
+        taskFrame.refresh();
     }
 
     protected void initCompleteTaskUI() {
@@ -168,6 +173,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
 
             dataManager.commit(commitContext);
         }
+        paymentRegisterDl.load();
     }
 
     @Subscribe("paymentRegistersDetailTable.approve")

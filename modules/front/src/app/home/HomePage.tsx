@@ -5,7 +5,7 @@ class HomePage extends React.Component {
   render() {
     return (
       <div>
-        <FormattedMessage id="home.welcome" /> pmnt!
+        <FormattedMessage id="home.welcome" /> Фабрика платежей!
       </div>
     );
   }

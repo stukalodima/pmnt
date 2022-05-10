@@ -1,22 +1,33 @@
+import { PaymentClaimManagement } from "./app/paymentclaim/PaymentClaimManagement";
+import { BankManagement } from "./app/bank/BankManagement";
 import { getMenuItems } from "@cuba-platform/react-core";
 
 export const menuItems = getMenuItems();
 
-// Code below demonstrates how we can create SubMenu section
-// Remove '/*' '*/' comments and restart app to get this block in menu
-
-/*
-// This is RouteItem object that we want to see in User Settings sub menu
-const backToHomeRouteItem = {
-  pathPattern: "/backToHome",
-  menuLink: "/",
-  component: null,
-  caption: "home"
+const bankCatalog = {
+  pathPattern: "/bankManagement/:entityId?",
+  menuLink: "/bankManagement",
+  component: BankManagement,
+  caption: "BankManagement"
 };
-// SubMenu object
-const userSettingsSubMenu = {
-  caption: 'UserSettings', // add router.UserSettings key to src/i18n/en.json for valid caption
-  items: [backToHomeRouteItem]};
-// Add sub menu item to menu config
-menuItems.push(userSettingsSubMenu);
-*/
+
+const catalog = {
+  caption: "catalog",
+  items: [bankCatalog]
+};
+
+menuItems.push(catalog);
+
+const paymentClaimDocument = {
+  pathPattern: "/paymentClaimManagement/:entityId?",
+  menuLink: "/paymentClaimManagement",
+  component: PaymentClaimManagement,
+  caption: "PaymentClaimManagement"
+};
+
+const document = {
+  caption: "document",
+  items: [paymentClaimDocument]
+};
+
+menuItems.push(document);

@@ -1,11 +1,11 @@
 insert into FINANCE_MANAGEMENT_COMPANY
 (ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, SHORT_NAME, NAME)
-values ('6ebc95d9-933e-e588-2e88-88a3586d3b95', 1, '2022-03-24 21:12:48', 'admin', '2022-03-24 21:12:48', null, null, null, 'Смарт Холдинг', 'ООО "Смарт Холдинг"')^
+values ('6ebc95d9-933e-e588-2e88-88a3586d3b95', 1, '2022-03-24 21:12:48', 'admin', '2022-03-24 21:12:48', null, null, null, 'Смарт Холдинг', 'ТОВ "Смарт Холдинг"')^
 
 insert into FINANCE_BUSINESS
 (ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('b2b91e6c-8cb3-d952-dbe2-adb67958ffb5', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null,
-    null, 'Смарт Энерджи', '6ebc95d9-933e-e588-2e88-88a3586d3b95') ^
+    null, 'Смарт Енерджі', '6ebc95d9-933e-e588-2e88-88a3586d3b95') ^
 
 insert into FINANCE_BUSINESS
 (ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
@@ -17,7 +17,7 @@ values ('7dd20d96-47bf-5bae-3e1a-d192eaf29f00', 1, '2022-03-15 22:21:28', 'admin
 
 insert into FINANCE_BUSINESS
 (ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
-values ('d02d0e26-aa64-7f56-ecf0-91a23984596b', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'ФТИ', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
+values ('d02d0e26-aa64-7f56-ecf0-91a23984596b', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'ІФС', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
 
 insert into FINANCE_BUSINESS
 (ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)

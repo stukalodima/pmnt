@@ -2,6 +2,7 @@ import { StandardEntity } from "./base/sys$StandardEntity";
 import { Business } from "./finance_Business";
 import { ClaimStatusEnum } from "../enums/enums";
 import { User } from "./base/sec$User";
+import { RegisterType } from "./finance_RegisterType";
 import { PaymentRegisterDetail } from "./finance_PaymentRegisterDetail";
 export class PaymentRegister extends StandardEntity {
   static NAME = "finance_PaymentRegister";
@@ -10,6 +11,7 @@ export class PaymentRegister extends StandardEntity {
   business?: Business | null;
   status?: ClaimStatusEnum | null;
   author?: User | null;
+  registerType?: RegisterType | null;
   paymentRegisters?: PaymentRegisterDetail[] | null;
 }
 export type PaymentRegisterViewName = "_base" | "_local" | "_minimal";

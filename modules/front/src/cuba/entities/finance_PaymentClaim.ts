@@ -32,7 +32,9 @@ export type PaymentClaimViewName =
   | "_base"
   | "_local"
   | "_minimal"
-  | "paymentClaim.getEdit";
+  | "paymentClaim.getEdit"
+  | "paymentClaimReact-edit"
+  | "paymentClaimReact-view";
 export type PaymentClaimView<V extends PaymentClaimViewName> = V extends "_base"
   ? Pick<
       PaymentClaim,
@@ -78,5 +80,45 @@ export type PaymentClaimView<V extends PaymentClaimViewName> = V extends "_base"
       | "paymentType"
       | "author"
       | "cashFlowItemBusiness"
+    >
+  : V extends "paymentClaimReact-edit"
+  ? Pick<
+      PaymentClaim,
+      | "id"
+      | "number"
+      | "onDate"
+      | "summ"
+      | "planPaymentDate"
+      | "paymentPurpose"
+      | "comment"
+      | "status"
+      | "business"
+      | "company"
+      | "client"
+      | "account"
+      | "currency"
+      | "cashFlowItem"
+      | "cashFlowItemBusiness"
+      | "paymentType"
+      | "author"
+    >
+  : V extends "paymentClaimReact-view"
+  ? Pick<
+      PaymentClaim,
+      | "id"
+      | "number"
+      | "onDate"
+      | "summ"
+      | "planPaymentDate"
+      | "paymentPurpose"
+      | "comment"
+      | "status"
+      | "business"
+      | "company"
+      | "client"
+      | "currency"
+      | "cashFlowItem"
+      | "paymentType"
+      | "author"
     >
   : never;

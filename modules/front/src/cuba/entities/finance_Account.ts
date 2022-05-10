@@ -9,12 +9,47 @@ export class Account extends StandardEntity {
   currency?: Currency | null;
   iban?: string | null;
   bank?: Bank | null;
+  startDate?: any | null;
+  endDate?: any | null;
+  lock?: boolean | null;
+  close?: boolean | null;
 }
-export type AccountViewName = "_base" | "_local" | "_minimal";
+export type AccountViewName =
+  | "_base"
+  | "_local"
+  | "_minimal"
+  | "account-all-property";
 export type AccountView<V extends AccountViewName> = V extends "_base"
-  ? Pick<Account, "id" | "name" | "currency" | "iban">
+  ? Pick<
+      Account,
+      | "id"
+      | "name"
+      | "currency"
+      | "iban"
+      | "startDate"
+      | "endDate"
+      | "lock"
+      | "close"
+    >
   : V extends "_local"
-  ? Pick<Account, "id" | "name" | "iban">
+  ? Pick<
+      Account,
+      "id" | "name" | "iban" | "startDate" | "endDate" | "lock" | "close"
+    >
   : V extends "_minimal"
   ? Pick<Account, "id" | "name" | "currency">
+  : V extends "account-all-property"
+  ? Pick<
+      Account,
+      | "id"
+      | "name"
+      | "iban"
+      | "startDate"
+      | "endDate"
+      | "lock"
+      | "close"
+      | "company"
+      | "currency"
+      | "bank"
+    >
   : never;
