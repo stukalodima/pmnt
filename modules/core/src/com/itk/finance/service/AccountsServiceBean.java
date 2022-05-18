@@ -78,7 +78,6 @@ public class AccountsServiceBean implements AccountsService {
         }
 
         account.setCompany(companyService.getCompanyById(accountsMap.get("company")));
-        account.setName(accountsMap.get("name"));
         account.setCurrency(currencyService.getCurrencyByCode(accountsMap.get("currency_code")));
         account.setIban(accountsMap.get("iban"));
         account.setBank(bankService.getBankByMfo(accountsMap.get("bank_mfo")));

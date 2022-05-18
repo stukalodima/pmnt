@@ -26,6 +26,17 @@ public class Currency extends StandardEntity {
     @Column(name = "NAME", nullable = false)
     private String name;
 
+    @Column(name = "BASE_CURRENCY")
+    private Boolean baseCurrency;
+
+    public Boolean getBaseCurrency() {
+        return baseCurrency;
+    }
+
+    public void setBaseCurrency(Boolean baseCurrency) {
+        this.baseCurrency = baseCurrency;
+    }
+
     public String getName() {
         return name;
     }

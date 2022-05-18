@@ -9,12 +9,16 @@ public enum ClaimStatusEnum implements EnumClass<String> {
 
     NEW("NEW"),
     IN_APPROVE("IN_APPROVE"),
+    APPROVED_FIN_DIR_BN("APPROVED_FIN_DIR_BN"),
+    REJECTED_FIN_DIR_BN("REJECTED_FIN_DIR_BN"),
     APPROVED_FIN_CONTROLER("APPROVED_FIN_CONTROLER"),
     REJECTED_FIN_CONTROLER("REJECTED_FIN_CONTROLER"),
+    APPROVED_TAX_CONTROLER("APPROVED_TAX_CONTROLER"),
+    REJECTED_TAX_CONTROLER("REJECTED_TAX_CONTROLER"),
     APPROVED_FIN_DIR("APPROVED_FIN_DIR"),
     REJECTED_FIN_DIR("REJECTED_FIN_DIR");
 
-    private String id;
+    private final String id;
 
     ClaimStatusEnum(String value) {
         this.id = value;

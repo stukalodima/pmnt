@@ -1,0 +1,10 @@
+<html>
+<head>
+  <title>${systemName}</title>
+</head>
+<body>
+  <h2>${welcome}, ${userName}!</h2>
+  <p>${newTask} "${taskName}" ${inSystem} "${systemName}"!
+  <p><a href="https://fpmnt.smart-holding.com/#login">${goToSystem}</a>!
+</body>
+</html>

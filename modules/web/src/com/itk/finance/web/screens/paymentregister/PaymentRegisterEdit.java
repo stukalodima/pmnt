@@ -1,13 +1,10 @@
 package com.itk.finance.web.screens.paymentregister;
 
 import com.haulmont.bpm.BpmConstants;
-import com.haulmont.bpm.entity.ProcActor;
 import com.haulmont.bpm.entity.ProcInstance;
-import com.haulmont.bpm.entity.ProcRole;
 import com.haulmont.bpm.entity.ProcTask;
 import com.haulmont.bpm.form.ProcFormDefinition;
 import com.haulmont.bpm.gui.action.CompleteProcTaskAction;
-import com.haulmont.bpm.gui.procactionsfragment.ProcActionsFragment;
 import com.haulmont.bpm.gui.proctask.ProcTasksFrame;
 import com.haulmont.bpm.service.BpmEntitiesService;
 import com.haulmont.bpm.service.ProcessFormService;
@@ -16,17 +13,15 @@ import com.haulmont.cuba.core.app.UniqueNumbersService;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.UiComponents;
-import com.haulmont.cuba.gui.components.Action;
-import com.haulmont.cuba.gui.components.Button;
-import com.haulmont.cuba.gui.components.DataGrid;
-import com.haulmont.cuba.gui.components.HBoxLayout;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.model.CollectionPropertyContainer;
+import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.model.InstanceLoader;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.util.OperationResult;
-import com.haulmont.cuba.security.entity.User;
 import com.haulmont.cuba.security.global.UserSession;
 import com.itk.finance.entity.*;
+import com.itk.finance.service.ProcPropertyService;
 import com.itk.finance.service.UserPropertyService;
 
 import javax.inject.Inject;
@@ -37,11 +32,16 @@ import java.util.*;
 @EditedEntityContainer("paymentRegisterDc")
 @LoadDataBeforeShow
 public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
-    private static final String PROCESS_CODE = "pmntRegister";
-    @Inject
-    private InstanceLoader<PaymentRegister> paymentRegisterDl;
-    @Inject
-    private ProcActionsFragment procActionsFragment;
+    public static final String QUERY_STRING_ROLES_BY_BUSSINES =
+            "select e from finance_AddressingDetail e " +
+                    "where " +
+                    "e.addressing.bussines = :bussines " +
+                    "and e.addressing.procDefinition = :procDefinition ";
+    public static final String QUERY_STRING_FILL_PAYMENTS_CLAIM = "select e from finance_PaymentClaim e " +
+            "where " +
+            "e.status = :status " +
+            "and e.business = :business " +
+            "and e.cashFlowItem IN :cashFlowItems";
     @Inject
     private EntityStates entityStates;
     @Inject
@@ -63,7 +63,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     @Inject
     private UserPropertyService userPropertyService;
     @Inject
-    private DataGrid<PaymentRegisterDetail> paymentRegistersDetailTable;
+    private GroupTable<PaymentRegisterDetail> paymentRegistersDetailTable;
     @Inject
     private UserSession userSession;
     @Inject
@@ -73,7 +73,6 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     protected ProcTask procTask;
     @Inject
     private UiComponents uiComponents;
-    private ProcInstance procInstance;
     private final List<CompleteProcTaskAction> completeProcTaskActions = new ArrayList<>();
     @Inject
     private HBoxLayout actionsBox;
@@ -81,24 +80,46 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private ProcessFormService processFormService;
     @Inject
     private ProcTasksFrame taskFrame;
+    @Inject
+    private Button paymentRegistersDetailTableFillPaymentClaimsBtn;
+    @Inject
+    private Button paymentRegistersDetailTableRemoveBtn;
+    @Inject
+    private Button paymentRegistersDetailTableApproveBtn;
+    @Inject
+    private Button paymentRegistersDetailTableRejectBtn;
+    @Inject
+    private Button paymentRegistersDetailTableDeterminateBtn;
+    @Inject
+    private ScreenValidation screenValidation;
+    @Inject
+    private DataContext dataContext;
+    @Inject
+    private GroupBoxLayout boxTab;
+    @Inject
+    private Messages messages;
+    @Inject
+    private ProcPropertyService procPropertyService;
+    @Inject
+    private InstanceLoader<PaymentRegister> paymentRegisterDl;
 
     @Subscribe
-    public void onBeforeShow(BeforeShowEvent event) {
-       initProcActionsFragment();
-       updateVisible();
-       initProcAction(procActionsFragment.getProcInstance());
+    public void onAfterShow(AfterShowEvent event) {
+        updateVisible();
+        initProcAction();
     }
 
-    private void initProcAction(ProcInstance procInstance) {
-        this.procInstance = procInstance;
-//        reset();
-        List<ProcTask> procTasks = bpmEntitiesService.findActiveProcTasksForCurrentUser(procInstance, BpmConstants.Views.PROC_TASK_COMPLETE);
-        procTask = procTasks.isEmpty() ? null : procTasks.get(0);
-        if (procTask != null && procTask.getProcActor() != null) {
-            initCompleteTaskUI();
+
+    private void initProcAction() {
+        if (!Objects.isNull(getEditedEntity().getProcInstance())) {
+            List<ProcTask> procTasks = bpmEntitiesService.findActiveProcTasksForCurrentUser(getEditedEntity().getProcInstance(), BpmConstants.Views.PROC_TASK_COMPLETE);
+            procTask = procTasks.isEmpty() ? null : procTasks.get(0);
+            if (procTask != null && procTask.getProcActor() != null) {
+                initCompleteTaskUI();
+            }
+            taskFrame.setProcInstance(getEditedEntity().getProcInstance());
+            taskFrame.refresh();
         }
-        taskFrame.setProcInstance(procInstance);
-        taskFrame.refresh();
     }
 
     protected void initCompleteTaskUI() {
@@ -109,7 +130,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                 completeProcTaskActions.add(action);
             }
         } else {
-            ProcFormDefinition form = processFormService.getDefaultCompleteTaskForm(procInstance.getProcDefinition());
+            ProcFormDefinition form = processFormService.getDefaultCompleteTaskForm(getEditedEntity().getProcInstance().getProcDefinition());
             CompleteProcTaskAction action = new CompleteProcTaskAction(procTask, BpmConstants.DEFAULT_TASK_OUTCOME, form);
             action.setCaption(messageBundle.getMessage("completeTask"));
             completeProcTaskActions.add(action);
@@ -125,68 +146,80 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     }
 
     private void updateVisible() {
-        sendToApprove.setVisible(getEditedEntity().getStatus() == ClaimStatusEnum.NEW);
+        sendToApprove.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
+        paymentRegistersDetailTableFillPaymentClaimsBtn.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
+        paymentRegistersDetailTableRemoveBtn.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
+        paymentRegistersDetailTableApproveBtn.setVisible(procInstanceIsActive());
+        paymentRegistersDetailTableRejectBtn.setVisible(procInstanceIsActive());
+        paymentRegistersDetailTableDeterminateBtn.setVisible(procInstanceIsActive());
+    }
+
+    private boolean procInstanceIsActive() {
+        return !Objects.isNull(getEditedEntity().getProcInstance()) && getEditedEntity().getProcInstance().getActive();
     }
 
     @Subscribe
     public void onInitEntity(InitEntityEvent<PaymentRegister> event) {
         event.getEntity().setOnDate(timeSource.currentTimestamp());
         event.getEntity().setBusiness(userPropertyService.getDefaultBusiness());
-        event.getEntity().setStatus(ClaimStatusEnum.NEW);
+        event.getEntity().setStatus(procPropertyService.getNewStatus());
         event.getEntity().setAuthor(userSession.getUser());
     }
 
     @Subscribe("paymentRegistersDetailTable.fillPaymentClaims")
     public void onPaymentRegistersDetailTableFillPaymentClaims(Action.ActionPerformedEvent event) {
-        if (commitChanges().getStatus() == OperationResult.Status.SUCCESS) {
+        ValidationErrors errors = validateUiComponents();
+        if (errors.isEmpty()) {
             List<PaymentClaim> paymentClaimList = dataManager.load(PaymentClaim.class)
-                    .query("select e from finance_PaymentClaim e where e.status = :status " +
-                            "and e.business = :business ")
-                    .parameter("status", ClaimStatusEnum.NEW)
+                    .query(QUERY_STRING_FILL_PAYMENTS_CLAIM)
+                    .parameter("status", procPropertyService.getNewStatus())
                     .parameter("business", getEditedEntity().getBusiness())
+                    .parameter("cashFlowItems", getCashFlowItemsByRegisterType())
                     .view("paymentClaim.getEdit")
                     .list();
 
-            List<PaymentRegisterDetail> toSave = new ArrayList<>();
-
-            List<PaymentRegisterDetail> toDelete = new ArrayList<>(paymentRegistersDc.getItems());
-
-            paymentRegistersDc.getMutableItems().clear();
-
-            for (PaymentClaim paymentClaim : paymentClaimList) {
-                PaymentRegisterDetail paymentRegisterDetail = metadata.create(PaymentRegisterDetail.class);
-                paymentRegisterDetail.setApproved(PaymentRegisterDetailStatusEnum.APPROVED);
-                paymentRegisterDetail.setCompany(paymentClaim.getCompany());
-                paymentRegisterDetail.setClient(paymentClaim.getClient());
-                paymentRegisterDetail.setSumm(paymentClaim.getSumm());
-                paymentRegisterDetail.setPaymentPurpose(paymentClaim.getPaymentPurpose());
-                paymentRegisterDetail.setCashFlowItem(paymentClaim.getCashFlowItem());
-                paymentRegisterDetail.setPaymentType(paymentClaim.getPaymentType());
-                paymentRegisterDetail.setComment(paymentClaim.getComment());
-                paymentRegisterDetail.setPaymentRegister(getEditedEntity());
-                paymentRegisterDetail.setPaymentClaim(paymentClaim);
-                toSave.add(paymentRegisterDetail);
-                paymentRegistersDc.getMutableItems().add(paymentRegisterDetail);
-            }
-
-            CommitContext commitContext = new CommitContext(toSave, toDelete);
-
-            dataManager.commit(commitContext);
+            clearPaymentRegisters();
+            List<PaymentRegisterDetail> listDetail = getPaymentRegisterDetailsByPaymentClaimList(paymentClaimList);
+            getEditedEntity().setPaymentRegisters(listDetail);
+        } else {
+            screenValidation.showValidationErrors(this, errors);
         }
-        paymentRegisterDl.load();
+    }
+
+    private List<PaymentRegisterDetail> getPaymentRegisterDetailsByPaymentClaimList(List<PaymentClaim> paymentClaimList) {
+        List<PaymentRegisterDetail> listDetail = new ArrayList<>();
+        paymentClaimList.forEach(e -> listDetail.add(createPaymentRegisterDetail(e)));
+        return listDetail;
+    }
+
+    private ArrayList<CashFlowItem> getCashFlowItemsByRegisterType() {
+        ArrayList<CashFlowItem> cashFlowItems = new ArrayList<>();
+        getEditedEntity().getRegisterType().getRegisterTypeDetails().forEach(e -> cashFlowItems.add(e.getCashFlowItem()));
+        return cashFlowItems;
+    }
+
+    private void clearPaymentRegisters() {
+        if (Objects.requireNonNull(paymentRegistersDetailTable.getItems()).size() > 0) {
+            paymentRegistersDc.getItems().forEach(e->dataContext.remove(e));
+            paymentRegistersDc.getMutableItems().clear();
+        }
+    }
+
+    private PaymentRegisterDetail createPaymentRegisterDetail(PaymentClaim paymentClaim) {
+        PaymentRegisterDetail paymentRegisterDetail = metadata.create(PaymentRegisterDetail.class);
+        paymentRegisterDetail.setApproved(PaymentRegisterDetailStatusEnum.APPROVED);
+        paymentRegisterDetail.setPaymentClaim(paymentClaim);
+        paymentRegisterDetail.setPaymentRegister(getEditedEntity());
+        return dataContext.merge(paymentRegisterDetail);
+    }
+
+    private void setApprovedByValue(PaymentRegisterDetailStatusEnum value) {
+        paymentRegistersDetailTable.getLookupSelectedItems().forEach(e->e.setApproved(value));
     }
 
     @Subscribe("paymentRegistersDetailTable.approve")
     public void onPaymentRegistersDetailTableApprove(Action.ActionPerformedEvent event) {
         setApprovedByValue(PaymentRegisterDetailStatusEnum.APPROVED);
-    }
-
-    private void setApprovedByValue(PaymentRegisterDetailStatusEnum value) {
-        for (PaymentRegisterDetail selRow :
-                paymentRegistersDetailTable.getLookupSelectedItems()) {
-            selRow.setApproved(value);
-        }
-        paymentRegistersDetailTable.deselectAll();
     }
 
     @Subscribe("paymentRegistersDetailTable.reject")
@@ -206,75 +239,60 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         }
     }
 
-    private void initProcActionsFragment() {
-        procActionsFragment.initializer()
-                .standard()
-                .setBeforeStartProcessPredicate(() -> {
-                    /*the predicate creates process actors and sets them to the process instance created by the ProcActionsFragment*/
-                    if (commitChanges().getStatus() == OperationResult.Status.SUCCESS) {
-                        ProcInstance procInstance = procActionsFragment.getProcInstance();
-                        Business business = dataManager.reload(getEditedEntity().getBusiness(), "business-all-property");
-                        ProcActor initiatorProcActor = createProcActor("finControler", procInstance, business.getManagementCompany().getFinControler());
-                        ProcActor executorProcActor = createProcActor("finDirector", procInstance, business.getManagementCompany().getFinDirector());
-                        ProcActor finDirBN = createProcActor("finDirectorBN", procInstance, business.getFinDirector());
-                        Set<ProcActor> procActors = new HashSet<>();
-                        procActors.add(initiatorProcActor);
-                        procActors.add(executorProcActor);
-                        procActors.add(finDirBN);
-                        procInstance.setProcActors(procActors);
-                        return true;
-                    }
-                    return false;
-                })
-                .setAfterStartProcessListener(this::closeWithCommit)
-                .setAfterCompleteTaskListener(this::closeWithCommit)
-                .init(PROCESS_CODE, getEditedEntity());
-    }
-
-    private ProcActor createProcActor(String procRoleCode, ProcInstance procInstance, User user) {
-        ProcActor initiatorProcActor = metadata.create(ProcActor.class);
-        initiatorProcActor.setUser(user);
-        ProcRole initiatorProcRole = bpmEntitiesService.findProcRole(PROCESS_CODE, procRoleCode, View.MINIMAL);
-        initiatorProcActor.setProcRole(initiatorProcRole);
-        initiatorProcActor.setProcInstance(procInstance);
-        return initiatorProcActor;
-    }
-
     @Subscribe("sendToApprove")
     public void onSendToApproveClick(Button.ClickEvent event) {
-        paymentRegisterDl.load();
-        procActionsFragment.initializer()
-                .standard()
-                .init(PROCESS_CODE, getEditedEntity());
-        if (getEditedEntity().getStatus() == ClaimStatusEnum.NEW
-                && !Objects.isNull(getEditedEntity().getPaymentRegisters())
-                && !getEditedEntity().getPaymentRegisters().isEmpty()
-        ) {
-            Business business = dataManager.reload(getEditedEntity().getBusiness(), "business-all-property");
-            /*The ProcInstanceDetails object is used for describing a ProcInstance to be created with its proc actors*/
-            BpmEntitiesService.ProcInstanceDetails procInstanceDetails = new BpmEntitiesService.ProcInstanceDetails(PROCESS_CODE)
-                    .addProcActor("finControler", business.getManagementCompany().getFinControler())
-                    .addProcActor("finDirector", business.getManagementCompany().getFinDirector())
-                    .addProcActor("finDirectorBN", business.getFinDirector())
-                    .setEntity(getEditedEntity());
+        if (Objects.isNull(getEditedEntity().getProcInstance())) {
+            if (Objects.requireNonNull(paymentRegistersDetailTable.getItems()).size() > 0) {
+                if (commitChanges().getStatus() == OperationResult.Status.SUCCESS) {
+                    List<AddressingDetail> listRoles = dataManager.load(AddressingDetail.class)
+                            .query(QUERY_STRING_ROLES_BY_BUSSINES)
+                            .parameter("bussines", getEditedEntity().getBusiness())
+                            .parameter("procDefinition", dataManager.reload(getEditedEntity().getRegisterType(), "registerType-with-procDefinition").getProcDefinition())
+                            .view("addressingDetail-all-property")
+                            .list();
 
-            /*The created ProcInstance will have two proc actors. None of the entities is persisted yet.*/
-            ProcInstance procInstance = bpmEntitiesService.createProcInstance(procInstanceDetails);
+                    /*The ProcInstanceDetails object is used for describing a ProcInstance to be created with its proc actors*/
+                    BpmEntitiesService.ProcInstanceDetails procInstanceDetails = new BpmEntitiesService.ProcInstanceDetails(
+                            dataManager
+                                    .reload(getEditedEntity().getRegisterType(), "registerType-with-procDefinition")
+                                    .getProcDefinition().getCode()
+                    );
+                    listRoles.forEach(e -> procInstanceDetails.addProcActor(e.getProcRole(), e.getUser()));
+                    procInstanceDetails.setEntity(getEditedEntity());
 
-            /*A map with process variables that must be passed to the Activity process instance when it is started. This variable is used in the model to make a decision for one of gateways.*/
-            HashMap<String, Object> processVariables = new HashMap<>();
-            //processVariables.put("acceptanceRequired", getEditedEntity().getAcceptanceRequired());
+                    /*The created ProcInstance will have two proc actors. None of the entities is persisted yet.*/
+                    ProcInstance procInstance = bpmEntitiesService.createProcInstance(procInstanceDetails);
 
-            /*Starts the process. The "startProcess" method automatically persists the passed procInstance with its actors*/
-            processRuntimeService.startProcess(procInstance, "Process started programmatically", processVariables);
-            notifications.create()
-                    .withCaption(messageBundle.getMessage("processStarted"))
-                    .withType(Notifications.NotificationType.HUMANIZED)
-                    .show();
+                    /*A map with process variables that must be passed to the Activity process instance when it is started. This variable is used in the model to make a decision for one of gateways.*/
+                    HashMap<String, Object> processVariables = new HashMap<>();
+                    //processVariables.put("acceptanceRequired", getEditedEntity().getAcceptanceRequired());
 
-            /*refresh the procActionsFragment to display complete tasks buttons (if a process task appears for the current user after the process is started)*/
-            initProcActionsFragment();
-            closeWithCommit();
+                    /*Starts the process. The "startProcess" method automatically persists the passed procInstance with its actors*/
+                    processRuntimeService.startProcess(procInstance, "Process started programmatically", processVariables);
+                    notifications.create()
+                            .withCaption(messages.getMessage(PaymentRegisterEdit.class, "PaymentRegisterEdit.msgProcessStarted"))
+                            .withType(Notifications.NotificationType.HUMANIZED)
+                            .show();
+
+                    /*refresh the procActionsFragment to display complete tasks buttons (if a process task appears for the current user after the process is started)*/
+                    procPropertyService.updateStateRegister(getEditedEntity().getId(), procPropertyService.getStartStatus().getCode());
+                    paymentRegisterDl.load();
+                    getEditedEntity().setProcInstance(procInstance);
+                    closeWithCommit();
+                }
+            }
         }
+    }
+
+    @Subscribe("paymentRegistersDetailTable")
+    public void onPaymentRegistersDetailTableSelection(Table.SelectionEvent<PaymentRegisterDetail> event) {
+        Set<PaymentRegisterDetail> paymentRegisterDetails = event.getSelected();
+        String cap = "Количество строк: " + paymentRegisterDetails.size() + " ";
+        double sum = 0.;
+        for (PaymentRegisterDetail detail : paymentRegisterDetails) {
+            sum = sum + detail.getPaymentClaim().getSumm();
+        }
+        cap = cap + "Сумма строк: " + sum;
+        boxTab.setCaption(cap);
     }
 }

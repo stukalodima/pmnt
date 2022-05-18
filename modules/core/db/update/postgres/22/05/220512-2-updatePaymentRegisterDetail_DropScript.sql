@@ -1,0 +1,7 @@
+alter table FINANCE_PAYMENT_REGISTER_DETAIL drop column COMPANY_ID__U11837 cascade ;
+alter table FINANCE_PAYMENT_REGISTER_DETAIL drop column CLIENT_ID__U96295 cascade ;
+alter table FINANCE_PAYMENT_REGISTER_DETAIL drop column SUMM__U25508 cascade ;
+alter table FINANCE_PAYMENT_REGISTER_DETAIL drop column PAYMENT_PURPOSE__U80103 cascade ;
+alter table FINANCE_PAYMENT_REGISTER_DETAIL drop column CASH_FLOW_ITEM_ID__U90340 cascade ;
+alter table FINANCE_PAYMENT_REGISTER_DETAIL drop column PAYMENT_TYPE_ID__U67233 cascade ;
+alter table FINANCE_PAYMENT_REGISTER_DETAIL drop column COMMENT___U45500 cascade ;

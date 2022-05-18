@@ -6,17 +6,16 @@ import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
 import com.haulmont.cuba.core.entity.annotation.PublishEntityChangedEvents;
 import com.haulmont.cuba.core.global.AppBeans;
-import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.core.global.UserSessionSource;
 import com.haulmont.cuba.security.entity.User;
+import com.itk.finance.service.ProcPropertyService;
 import com.itk.finance.service.UserPropertyService;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.UUID;
 
 @PublishEntityChangedEvents
 @Table(name = "FINANCE_PAYMENT_CLAIM")
@@ -101,8 +100,18 @@ public class PaymentClaim extends StandardEntity {
     @JoinColumn(name = "AUTHOR_ID")
     private User author;
 
-    @Column(name = "STATUS", nullable = false)
-    private String status;
+    @JoinColumn(name = "STATUS_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    private ProcStatus status;
+
+    public void setStatus(ProcStatus status) {
+        this.status = status;
+    }
+
+    public ProcStatus getStatus() {
+        return status;
+    }
 
     public Currency getCurrency() {
         return currency;
@@ -142,14 +151,6 @@ public class PaymentClaim extends StandardEntity {
 
     public void setAuthor(User author) {
         this.author = author;
-    }
-
-    public ClaimStatusEnum getStatus() {
-        return status == null ? null : ClaimStatusEnum.fromId(status);
-    }
-
-    public void setStatus(ClaimStatusEnum status) {
-        this.status = status == null ? null : status.getId();
     }
 
     public Date getPlanPaymentDate() {
@@ -236,8 +237,9 @@ public class PaymentClaim extends StandardEntity {
     public void initEntity(Metadata metadata) {
         UserSessionSource userSessionSource = AppBeans.get(UserSessionSource.class);
         UserPropertyService userPropertyService = AppBeans.get(UserPropertyService.class);
+        ProcPropertyService procPropertyService = AppBeans.get(ProcPropertyService.class);
         author = userSessionSource.getUserSession().getUser();
         business = userPropertyService.getDefaultBusiness();
-        status = ClaimStatusEnum.NEW.getId();
+        status = procPropertyService.getNewStatus();
     }
 }

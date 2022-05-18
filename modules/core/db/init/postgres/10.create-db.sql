@@ -35,9 +35,10 @@ create table FINANCE_PAYMENT_REGISTER (
     NUMBER_ bigint,
     ON_DATE date not null,
     BUSINESS_ID uuid not null,
-    STATUS varchar(50),
+    STATUS_ID uuid,
     AUTHOR_ID uuid,
-    REGISTER_TYPE_ID uuid not null,
+    REGISTER_TYPE_ID uuid,
+    PROC_INSTANCE_ID uuid,
     --
     primary key (ID)
 )^
@@ -108,13 +109,6 @@ create table FINANCE_PAYMENT_REGISTER_DETAIL (
     DELETED_BY varchar(50),
     --
     APPROVED varchar(50),
-    COMPANY_ID uuid not null,
-    CLIENT_ID uuid not null,
-    SUMM double precision not null,
-    PAYMENT_PURPOSE text not null,
-    CASH_FLOW_ITEM_ID uuid not null,
-    PAYMENT_TYPE_ID uuid not null,
-    COMMENT_ text,
     PAYMENT_CLAIM_ID uuid,
     PAYMENT_REGISTER_ID uuid not null,
     PAYMENT_STATUS_ROW varchar(50),
@@ -184,7 +178,7 @@ create table FINANCE_PAYMENT_CLAIM (
     PAYMENT_TYPE_ID uuid not null,
     COMMENT_ text,
     AUTHOR_ID uuid not null,
-    STATUS varchar(50) not null,
+    STATUS_ID uuid,
     --
     primary key (ID)
 )^
@@ -239,7 +233,9 @@ create table FINANCE_BANK (
     DELETED_BY varchar(50),
     --
     NAME varchar(255) not null,
+    FULL_NAME text,
     MFO varchar(6) not null,
+    STAN varchar(255),
     --
     primary key (ID)
 )^
@@ -258,9 +254,10 @@ create table FINANCE_CURRENCY (
     CODE varchar(3) not null,
     SHORT_NAME varchar(3) not null,
     NAME varchar(255) not null,
+    BASE_CURRENCY boolean,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_CURRENCY
 -- begin FINANCE_ACCOUNT
 create table FINANCE_ACCOUNT (
@@ -274,7 +271,7 @@ create table FINANCE_ACCOUNT (
     DELETED_BY varchar(50),
     --
     COMPANY_ID uuid not null,
-    NAME varchar(255) not null,
+    TYPE_ID uuid,
     CURRENCY_ID uuid not null,
     IBAN varchar(50) not null,
     BANK_ID uuid not null,
@@ -301,6 +298,9 @@ create table FINANCE_ACCOUNT_REMAINS (
     ACCOUNT_ID uuid not null,
     SUMM_BEFOR double precision,
     SUMM double precision,
+    SUMM_IN_UAH double precision,
+    SUMM_IN_USD double precision,
+    SUM_IN_EUR double precision,
     --
     primary key (ID)
 )^
@@ -333,9 +333,100 @@ create table FINANCE_REGISTER_TYPE (
     DELETE_TS timestamp,
     DELETED_BY varchar(50),
     --
-    NUMBER_ integer not null,
     NAME varchar(255) not null,
+    PROC_DEFINITION_ID uuid,
     --
     primary key (ID)
 )^
 -- end FINANCE_REGISTER_TYPE
+-- begin FINANCE_ACCOUNT_TYPE
+create table FINANCE_ACCOUNT_TYPE (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NAME varchar(255),
+    --
+    primary key (ID)
+)^
+-- end FINANCE_ACCOUNT_TYPE
+-- begin FINANCE_CURRENCY_RATE
+create table FINANCE_CURRENCY_RATE (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    ON_DATE date,
+    CURRENCY_ID uuid,
+    MULTIPLICITY integer,
+    RATE double precision,
+    --
+    primary key (ID)
+)^
+-- end FINANCE_CURRENCY_RATE
+-- begin FINANCE_ADDRESSING
+create table FINANCE_ADDRESSING (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    BUSSINES_ID uuid not null,
+    PROC_DEFINITION_ID uuid not null,
+    USE_COMPANY boolean,
+    COMPANY_ID uuid,
+    --
+    primary key (ID)
+)^
+-- end FINANCE_ADDRESSING
+-- begin FINANCE_ADDRESSING_DETAIL
+create table FINANCE_ADDRESSING_DETAIL (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    PROC_ROLE_ID uuid not null,
+    USER_ID uuid not null,
+    ADDRESSING_ID uuid not null,
+    --
+    primary key (ID)
+)^
+-- end FINANCE_ADDRESSING_DETAIL
+-- begin FINANCE_PROC_STATUS
+create table FINANCE_PROC_STATUS (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    CODE varchar(255) not null,
+    NAME varchar(255) not null,
+    IS_NEW boolean,
+    IS_START boolean,
+    --
+    primary key (ID)
+)^
+-- end FINANCE_PROC_STATUS

@@ -21,16 +21,6 @@ public class PaymentRegisterDetailEdit extends StandardEditor<PaymentRegisterDet
     @Inject
     private CollectionLoader<PaymentClaim> paymentClaimsDl;
 
-    @Subscribe
-    public void onInitEntity(InitEntityEvent<PaymentRegisterDetail> event) {
-        event.getEntity().setCompany(userPropertyService.getDefaultCompany());
-    }
-
-    @Subscribe
-    public void onAfterShow(AfterShowEvent event) {
-        initDataLoader(getEditedEntity().getPaymentRegister().getBusiness(), getEditedEntity().getCompany());
-    }
-
     private void initDataLoader(Business business, Company company) {
         paymentClaimsDl.setParameter("status", ClaimStatusEnum.NEW);
         if (business != null){
@@ -49,20 +39,5 @@ public class PaymentRegisterDetailEdit extends StandardEditor<PaymentRegisterDet
 
         companiesDl.load();
         paymentClaimsDl.load();
-    }
-
-    @Subscribe("companyField")
-    public void onCompanyFieldValueChange(HasValue.ValueChangeEvent<Company> event) {
-        initDataLoader(getEditedEntity().getPaymentRegister().getBusiness(), event.getValue());
-    }
-
-    @Subscribe("paymentClaimField")
-    public void onPaymentClaimFieldValueChange(HasValue.ValueChangeEvent<PaymentClaim> event) {
-        getEditedEntity().setClient(Objects.requireNonNull(event.getValue()).getClient());
-        getEditedEntity().setSumm(event.getValue().getSumm());
-        getEditedEntity().setPaymentPurpose(event.getValue().getPaymentPurpose());
-        getEditedEntity().setCashFlowItem(event.getValue().getCashFlowItem());
-        getEditedEntity().setPaymentType(event.getValue().getPaymentType());
-        getEditedEntity().setComment(event.getValue().getComment());
     }
 }

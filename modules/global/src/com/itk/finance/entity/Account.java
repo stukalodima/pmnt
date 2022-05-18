@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Table(name = "FINANCE_ACCOUNT")
 @Entity(name = "finance_Account")
-@NamePattern("%s [%s]|name,currency")
+@NamePattern("%s [%s]|iban,currency")
 public class Account extends StandardEntity {
     private static final long serialVersionUID = -1194596286939075862L;
 
@@ -21,9 +21,10 @@ public class Account extends StandardEntity {
     @JoinColumn(name = "COMPANY_ID")
     private Company company;
 
-    @NotNull
-    @Column(name = "NAME", nullable = false)
-    private String name;
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TYPE_ID")
+    private AccountType type;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
@@ -54,6 +55,14 @@ public class Account extends StandardEntity {
 
     @Column(name = "CLOSE_")
     private Boolean close;
+
+    public AccountType getType() {
+        return type;
+    }
+
+    public void setType(AccountType type) {
+        this.type = type;
+    }
 
     public Boolean getClose() {
         return close;
@@ -119,11 +128,4 @@ public class Account extends StandardEntity {
         this.currency = currency;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

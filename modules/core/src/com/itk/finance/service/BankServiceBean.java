@@ -27,7 +27,7 @@ public class BankServiceBean implements BankService {
 
     @Override
     public void getBankListFromExternal() throws IOException {
-        String jsonString = restClientService.callGetMethod(externalSystemConnectConfig.getCompanyAccounts());
+        String jsonString = restClientService.callGetMethod(externalSystemConnectConfig.getBankListUrl());
         if (!jsonString.isEmpty()) {
             parseJsonString(jsonString);
         }
@@ -38,11 +38,14 @@ public class BankServiceBean implements BankService {
         HashMap<String, String> bankMap = new HashMap<>();
         for (JsonElement jsonElement:jsonArray) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
-
-            bankMap.put("name", jsonObject.getAsJsonPrimitive("bank_name").getAsString());
-            bankMap.put("mfo", jsonObject.getAsJsonPrimitive("bank_mfo").getAsString());
-
-            fillBankEntity(bankMap);
+            if (jsonObject.getAsJsonPrimitive("TYP").getAsString().equals("0")
+                    || jsonObject.getAsJsonPrimitive("TYP").getAsString().equals("1")) {
+                bankMap.put("name", jsonObject.getAsJsonPrimitive("SHORTNAME").getAsString());
+                bankMap.put("mfo", jsonObject.getAsJsonPrimitive("MFO").getAsString());
+                bankMap.put("fullName", jsonObject.getAsJsonPrimitive("FULLNAME").getAsString());
+                bankMap.put("stan", jsonObject.getAsJsonPrimitive("N_STAN").getAsString());
+                fillBankEntity(bankMap);
+            }
         }
     }
 
@@ -55,6 +58,8 @@ public class BankServiceBean implements BankService {
 
         bank.setName(bankMap.get("name"));
         bank.setMfo(bankMap.get("mfo"));
+        bank.setFullName(bankMap.get("fullName"));
+        bank.setStan(bankMap.get("stan"));
 
         dataManager.commit(bank);
     }

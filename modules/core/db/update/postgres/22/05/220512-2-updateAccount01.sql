@@ -1,0 +1,2 @@
+alter table FINANCE_ACCOUNT add constraint FK_FINANCE_ACCOUNT_ON_TYPE foreign key (TYPE_ID) references FINANCE_ACCOUNT_TYPE(ID);
+create index IDX_FINANCE_ACCOUNT_ON_TYPE on FINANCE_ACCOUNT (TYPE_ID);

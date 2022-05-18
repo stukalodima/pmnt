@@ -1,5 +1,6 @@
 package com.itk.finance.entity;
 
+import com.haulmont.bpm.entity.ProcInstance;
 import com.haulmont.chile.core.annotations.Composition;
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
@@ -34,8 +35,10 @@ public class PaymentRegister extends StandardEntity {
     @JoinColumn(name = "BUSINESS_ID")
     private Business business;
 
-    @Column(name = "STATUS")
-    private String status;
+    @JoinColumn(name = "STATUS_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    private ProcStatus status;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,6 +54,27 @@ public class PaymentRegister extends StandardEntity {
     @OnDelete(DeletePolicy.CASCADE)
     @OneToMany(mappedBy = "paymentRegister")
     private List<PaymentRegisterDetail> paymentRegisters;
+
+    @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROC_INSTANCE_ID")
+    private ProcInstance procInstance;
+
+    public void setStatus(ProcStatus status) {
+        this.status = status;
+    }
+
+    public ProcStatus getStatus() {
+        return status;
+    }
+
+    public ProcInstance getProcInstance() {
+        return procInstance;
+    }
+
+    public void setProcInstance(ProcInstance procInstance) {
+        this.procInstance = procInstance;
+    }
 
     public RegisterType getRegisterType() {
         return registerType;
@@ -74,14 +98,6 @@ public class PaymentRegister extends StandardEntity {
 
     public void setAuthor(User author) {
         this.author = author;
-    }
-
-    public ClaimStatusEnum getStatus() {
-        return status == null ? null : ClaimStatusEnum.fromId(status);
-    }
-
-    public void setStatus(ClaimStatusEnum status) {
-        this.status = status == null ? null : status.getId();
     }
 
     public List<PaymentRegisterDetail> getPaymentRegisters() {

@@ -6,6 +6,7 @@ import com.haulmont.cuba.core.config.Source;
 import com.haulmont.cuba.core.config.SourceType;
 import com.haulmont.cuba.core.config.defaults.Default;
 import com.haulmont.cuba.core.global.Secret;
+import com.itk.finance.entity.Currency;
 
 @Source(type = SourceType.DATABASE)
 public interface ExternalSystemConnectConfig extends Config {
@@ -27,6 +28,10 @@ public interface ExternalSystemConnectConfig extends Config {
     @Property("finance.companyAccounts")
     @Default("http://localhost:7080/pmnt/VAADIN/accounts.json")
     String getCompanyAccounts();
+
+    @Property("finance.bankListUrl")
+    @Default("https://bank.gov.ua/NBU_BankInfo/get_data_branch?json")
+    String getBankListUrl();
 
     @Property("finance.userAuth")
     String getUserAuth();

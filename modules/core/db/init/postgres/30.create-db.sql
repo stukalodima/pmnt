@@ -1,42 +1,42 @@
 insert into FINANCE_MANAGEMENT_COMPANY
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, SHORT_NAME, NAME)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, SHORT_NAME, NAME)
 values ('6ebc95d9-933e-e588-2e88-88a3586d3b95', 1, '2022-03-24 21:12:48', 'admin', '2022-03-24 21:12:48', null, null, null, 'Смарт Холдинг', 'ТОВ "Смарт Холдинг"')^
 
 insert into FINANCE_BUSINESS
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('b2b91e6c-8cb3-d952-dbe2-adb67958ffb5', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null,
     null, 'Смарт Енерджі', '6ebc95d9-933e-e588-2e88-88a3586d3b95') ^
 
 insert into FINANCE_BUSINESS
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('c3307b59-0d82-6a6b-7ca4-bfb0d11ba028', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'Смарт Урбан', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
 
 insert into FINANCE_BUSINESS
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('7dd20d96-47bf-5bae-3e1a-d192eaf29f00', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'Верес', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
 
 insert into FINANCE_BUSINESS
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('d02d0e26-aa64-7f56-ecf0-91a23984596b', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'ІФС', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
 
 insert into FINANCE_BUSINESS
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('a869b197-b45d-a129-b241-87efe9b0390e', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'Амстор', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
 
 insert into FINANCE_BUSINESS
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('062478f7-5126-faff-cbee-5de71728f522', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'Наваль', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
 
 insert into FINANCE_BUSINESS
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('37276629-3d35-aa65-406b-90e89d5a0a98', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'СМГ', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
 
 insert into FINANCE_BUSINESS
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('88d0a5c0-16fe-199d-49df-431ecb8de113', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'Холдинг', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
 
 insert into FINANCE_BUSINESS
-(ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
+(ID, VERSION, create_ts, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, MANAGEMENT_COMPANY_ID)
 values ('52730b35-900a-02ad-4d90-f0c78c23980e', 1, '2022-03-15 22:21:28', 'admin', '2022-03-15 22:21:28', null, null, null, 'ФО', '6ebc95d9-933e-e588-2e88-88a3586d3b95')^
 
 insert into FINANCE_CASH_FLOW_ITEM
@@ -98,3 +98,27 @@ values ('23cb2626-97ee-8a02-cd97-c4f1f1bcd3f9', 1, '2022-03-15 23:21:00', 'admin
 insert into FINANCE_PAYMENT_TYPE
 (ID, VERSION, CREATE_TS, CREATED_BY, UPDATE_TS, UPDATED_BY, DELETE_TS, DELETED_BY, NAME, NUMBER)
 values ('ee779d82-260e-f6b0-319f-5cbac1f74cb5', 1, '2022-03-15 23:21:14', 'admin', '2022-03-15 23:21:14', null, null, null, 'Просроченный долг', 3)^
+
+insert into finance_account_type
+(ID, VERSION, CREATE_TS, CREATED_BY, update_ts, updated_by, delete_ts, deleted_by, NAME)
+values('4fb5150a-140b-4404-9b0f-d980600d1834',1, '2022-03-15 23:21:14', 'admin', '2022-03-15 23:21:14', null, null, null, 'Текущий')^
+
+insert into finance_account_type
+(ID, VERSION, CREATE_TS, CREATED_BY, update_ts, updated_by, delete_ts, deleted_by, NAME)
+values('b86021e8-d663-4d37-9feb-a8504a4c4c42',1, '2022-03-15 23:21:14', 'admin', '2022-03-15 23:21:14', null, null, null, 'Депозитный')^
+
+insert into finance_account_type
+(ID, VERSION, CREATE_TS, CREATED_BY, update_ts, updated_by, delete_ts, deleted_by, NAME)
+values('12aed81f-037c-4a51-80f2-196e79962e03',1, '2022-03-15 23:21:14', 'admin', '2022-03-15 23:21:14', null, null, null, 'Зарплатный')^
+
+insert into finance_account_type
+(ID, VERSION, CREATE_TS, CREATED_BY, update_ts, updated_by, delete_ts, deleted_by, NAME)
+values('4ae87a48-7559-43f0-b6f3-01232711f140',1, '2022-03-15 23:21:14', 'admin', '2022-03-15 23:21:14', null, null, null, 'Корпоративный')^
+
+insert into finance_account_type
+(ID, VERSION, CREATE_TS, CREATED_BY, update_ts, updated_by, delete_ts, deleted_by, NAME)
+values('05ee2304-1e66-4dda-9607-cf354d857749',1, '2022-03-15 23:21:14', 'admin', '2022-03-15 23:21:14', null, null, null, 'Кредитный')^
+
+insert into finance_account_type
+(ID, VERSION, CREATE_TS, CREATED_BY, update_ts, updated_by, delete_ts, deleted_by, NAME)
+values('d24ad815-b3be-4305-a7e5-d4e4d657bc0a',1, '2022-03-15 23:21:14', 'admin', '2022-03-15 23:21:14', null, null, null, 'ФСС')^

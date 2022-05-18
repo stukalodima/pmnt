@@ -19,8 +19,6 @@ import java.util.*;
 
 @Service(PaymentClaimService.NAME)
 public class PaymentClaimServiceBean implements PaymentClaimService {
-
-
     @Inject
     private ExternalSystemConnectConfig externalSystemConnectConfig;
     @Inject
@@ -37,6 +35,8 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
     private UserSessionSource userSessionSource;
     @Inject
     private RestClientService restClientService;
+    @Inject
+    private ProcPropertyService procPropertyService;
 
     @Override
     public void getPaymentClaimListfromExternal() throws IOException, ParseException {
@@ -109,7 +109,7 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
         paymentClaim.setOnDate(onDate);
         paymentClaim.setPlanPaymentDate(planPaymentDate);
         paymentClaim.setSumm((Double) paymentClaimMap.get("summ"));
-        paymentClaim.setStatus(ClaimStatusEnum.NEW);
+        paymentClaim.setStatus(procPropertyService.getNewStatus());
         paymentClaim.setCompany(company);
         paymentClaim.setBusiness(company.getBusiness());
         paymentClaim.setClient(client);

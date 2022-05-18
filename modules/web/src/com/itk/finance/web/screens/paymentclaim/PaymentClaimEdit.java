@@ -9,6 +9,7 @@ import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.security.global.UserSession;
 import com.itk.finance.entity.*;
+import com.itk.finance.service.ProcPropertyService;
 import com.itk.finance.service.UserPropertyService;
 
 import javax.inject.Inject;
@@ -40,6 +41,8 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
     private LookupPickerField<Account> accountField;
     @Inject
     private LookupPickerField<Currency> currencyField;
+    @Inject
+    private ProcPropertyService procPropertyService;
 
     @Subscribe
     public void onBeforeCommitChanges(BeforeCommitChangesEvent event) {
@@ -53,7 +56,7 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
     public void onInitEntity(InitEntityEvent<PaymentClaim> event) {
         event.getEntity().setOnDate(timeSource.currentTimestamp());
         event.getEntity().setPlanPaymentDate(new Date(timeSource.currentTimeMillis() + 24 * 60 * 60 * 1000));
-        event.getEntity().setStatus(ClaimStatusEnum.NEW);
+        event.getEntity().setStatus(procPropertyService.getNewStatus());
         event.getEntity().setAuthor(userSession.getUser());
 
         Company company = userPropertyService.getDefaultCompany();
