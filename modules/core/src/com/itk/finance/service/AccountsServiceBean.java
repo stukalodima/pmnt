@@ -7,17 +7,20 @@ import com.google.gson.JsonParser;
 import com.haulmont.cuba.core.global.DataManager;
 import com.itk.finance.config.ExternalSystemConnectConfig;
 import com.itk.finance.entity.Account;
+import com.itk.finance.entity.AccountRemains;
+import com.itk.finance.entity.Currency;
+import com.itk.finance.entity.CurrencyRate;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
 @Service(AccountsService.NAME)
 public class AccountsServiceBean implements AccountsService {
-
     @Inject
     private RestClientService restClientService;
     @Inject
@@ -52,6 +55,43 @@ public class AccountsServiceBean implements AccountsService {
             account = accountList.get(0);
         }
         return account;
+    }
+
+    @Override
+    public double getCurrentRate(Date onDate, String currencyName) {
+        Currency currency = dataManager.load(Currency.class)
+                .query("select e from finance_Currency e where e.shortName = :currencyName")
+                .parameter("currencyName", currencyName)
+                .one();
+        CurrencyRate currencyRate = dataManager.load(CurrencyRate.class)
+                .query("select e from finance_CurrencyRate e where e.currency =:currency " +
+                        "and e.onDate = (select max(c.onDate) from finance_CurrencyRate c where c.onDate <= :onDate and c.currency=e.currency)")
+                .parameter("currency", currency)
+                .parameter("onDate", onDate)
+                .view("currencyRate-all-property")
+                .one();
+        return currencyRate.getRate();
+    }
+
+    @Override
+    public double getBeforSummValue(Account account, Date onDate) {
+        double result;
+        if (Objects.isNull(account)) {
+            result = 0.;
+        } else {
+            List<AccountRemains> accountList = dataManager.load(AccountRemains.class)
+                    .query("select e from finance_AccountRemains e where e.account = :account and e.onDate<:onDate order by e.onDate DESC")
+                    .parameter("account", account)
+                    .parameter("onDate", onDate)
+                    .view("accountRemains-all-property")
+                    .list();
+            if (accountList.size() > 0) {
+                result = accountList.get(0).getSumm();
+            } else {
+                result = 0.;
+            }
+        }
+        return result;
     }
 
     private void parseJsonString(String jsonString) {

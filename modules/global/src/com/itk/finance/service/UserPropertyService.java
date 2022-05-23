@@ -13,4 +13,8 @@ public interface UserPropertyService {
 
     Company getDefaultCompany();
 
+    boolean dontSendEmailByTask();
+
+    boolean dontSendEmailByApprovalResult();
+
 }

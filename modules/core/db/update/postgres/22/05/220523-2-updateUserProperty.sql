@@ -1,0 +1,2 @@
+alter table FINANCE_USER_PROPERTY add column DONT_SEND_EMAIL_BY_TASK boolean ;
+alter table FINANCE_USER_PROPERTY add column DONT_SEND_EMAIL_BY_APPROVAL_RESULT boolean ;

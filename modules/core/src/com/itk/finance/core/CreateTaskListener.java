@@ -5,6 +5,7 @@ import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.security.entity.User;
 import com.itk.finance.service.EmailService;
+import com.itk.finance.service.UserPropertyService;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 
@@ -21,6 +22,7 @@ public class CreateTaskListener implements TaskListener {
         EmailService emailService = AppBeans.get(EmailService.class);
         DataManager dataManager = AppBeans.get(DataManager.class);
         Messages messages = AppBeans.get(Messages.class);
+        UserPropertyService userPropertyService = AppBeans.get(UserPropertyService.class);
 
         String userStrId = delegateTask.getAssignee();
 
@@ -32,7 +34,7 @@ public class CreateTaskListener implements TaskListener {
                 .view("user.browse")
                 .one();
 
-        if (!Objects.isNull(user.getEmail())) {
+        if (!Objects.isNull(user.getEmail()) && !userPropertyService.dontSendEmailByTask()) {
 
             Map<String, Serializable> mapParam = new HashMap<>();
 

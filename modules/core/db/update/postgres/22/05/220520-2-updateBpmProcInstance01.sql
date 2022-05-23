@@ -1,0 +1,1 @@
+update BPM_PROC_INSTANCE set DTYPE = 'finance_ExtProcInstance' where DTYPE is null ;

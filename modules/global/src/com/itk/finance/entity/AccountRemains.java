@@ -5,10 +5,14 @@ import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
 import com.haulmont.cuba.core.entity.annotation.PublishEntityChangedEvents;
+import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.core.global.DataManager;
+import com.itk.finance.service.AccountsService;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.Objects;
 
 @Table(name = "FINANCE_ACCOUNT_REMAINS")
 @Entity(name = "finance_AccountRemains")
@@ -99,5 +103,31 @@ public class AccountRemains extends StandardEntity {
         this.onDate = onDate;
     }
 
-
+    protected void fillSummInAllCurrency() {
+        if (Objects.isNull(account)) {
+            return;
+        }
+        AccountsService accountsService = AppBeans.get(AccountsService.class);
+        DataManager dataManager = AppBeans.get(DataManager.class);
+        account = dataManager.reload(account, "account-all-property");
+        Currency currency = dataManager.reload(account.getCurrency(), "_local");
+        if (currency.getShortName().equals("UAH")) {
+            summInUAH = summ;
+        } else {
+            summInUAH = summ * accountsService.getCurrentRate(onDate, currency.getShortName());
+        }
+        summInUSD = (summInUAH / accountsService.getCurrentRate(onDate, "USD"));
+        sumInEUR = (summInUAH / accountsService.getCurrentRate(onDate, "EUR"));
+        if (currency.getShortName().equals("USD")) {
+            summInUSD = summ;
+        }
+        if (currency.getShortName().equals("EUR")) {
+            sumInEUR = summ;
+        }
+    }
+    public void fillSummPreCommit() {
+        AccountsService accountsService = AppBeans.get(AccountsService.class);
+        summBefor = accountsService.getBeforSummValue(account, onDate);
+        fillSummInAllCurrency();
+    }
 }

@@ -6,6 +6,7 @@ import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.security.global.UserSession;
 import com.itk.finance.entity.Business;
 import com.itk.finance.entity.Company;
+import com.itk.finance.entity.ManagementCompany;
 import com.itk.finance.entity.UserProperty;
 
 import javax.inject.Inject;
@@ -17,6 +18,8 @@ import javax.inject.Inject;
 public class UserPropertyEdit extends StandardEditor<UserProperty> {
     @Inject
     private UserSession userSession;
+    @Inject
+    private CollectionLoader<Business> businessesDl;
 
     @Subscribe
     public void onInitEntity(InitEntityEvent<UserProperty> event) {
@@ -27,11 +30,13 @@ public class UserPropertyEdit extends StandardEditor<UserProperty> {
 
     @Subscribe("businessField")
     public void onBusinessFieldValueChange(HasValue.ValueChangeEvent<Business> event) {
-        if (event.getValue() != null) {
-            companiesDl.setParameter("business", event.getValue());
-        } else {
-            companiesDl.removeParameter("business");
-        }
+        companiesDl.setParameter("business", event.getValue());
         companiesDl.load();
+    }
+
+    @Subscribe("managementCompanyField")
+    public void onManagementCompanyFieldValueChange(HasValue.ValueChangeEvent<ManagementCompany> event) {
+        businessesDl.setParameter("managementCompany", event.getValue());
+        businessesDl.load();
     }
 }

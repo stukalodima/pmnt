@@ -1,5 +1,6 @@
 package com.itk.finance.web.screens.paymentregister;
 
+import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.model.InstanceContainer;

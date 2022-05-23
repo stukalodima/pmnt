@@ -39,6 +39,28 @@ public class UserProperty extends StandardEntity {
     @JoinColumn(name = "COMPANY_ID")
     private Company company;
 
+    @Column(name = "DONT_SEND_EMAIL_BY_TASK")
+    private Boolean dontSendEmailByTask;
+
+    @Column(name = "DONT_SEND_EMAIL_BY_APPROVAL_RESULT")
+    private Boolean dontSendEmailByApprovalResult;
+
+    public Boolean getDontSendEmailByApprovalResult() {
+        return dontSendEmailByApprovalResult;
+    }
+
+    public void setDontSendEmailByApprovalResult(Boolean dontSendEmailByApprovalResult) {
+        this.dontSendEmailByApprovalResult = dontSendEmailByApprovalResult;
+    }
+
+    public Boolean getDontSendEmailByTask() {
+        return dontSendEmailByTask;
+    }
+
+    public void setDontSendEmailByTask(Boolean dontSendEmailByTask) {
+        this.dontSendEmailByTask = dontSendEmailByTask;
+    }
+
     public ManagementCompany getManagementCompany() {
         return managementCompany;
     }

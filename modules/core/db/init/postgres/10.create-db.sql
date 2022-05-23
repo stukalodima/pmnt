@@ -131,9 +131,11 @@ create table FINANCE_USER_PROPERTY (
     MANAGEMENT_COMPANY_ID uuid not null,
     BUSINESS_ID uuid not null,
     COMPANY_ID uuid not null,
+    DONT_SEND_EMAIL_BY_TASK boolean,
+    DONT_SEND_EMAIL_BY_APPROVAL_RESULT boolean,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_USER_PROPERTY
 -- begin FINANCE_CASH_FLOW_ITEM
 create table FINANCE_CASH_FLOW_ITEM (
@@ -335,6 +337,9 @@ create table FINANCE_REGISTER_TYPE (
     --
     NAME varchar(255) not null,
     PROC_DEFINITION_ID uuid,
+    USE_CONDITION boolean,
+    CONDITION_ varchar(255),
+    CONDITION_VALUE double precision,
     --
     primary key (ID)
 )^
@@ -430,3 +435,8 @@ create table FINANCE_PROC_STATUS (
     primary key (ID)
 )^
 -- end FINANCE_PROC_STATUS
+-- begin BPM_PROC_INSTANCE
+alter table BPM_PROC_INSTANCE add column PAYMENT_REGISTER_ID uuid ^
+alter table BPM_PROC_INSTANCE add column DTYPE varchar(31) ^
+update BPM_PROC_INSTANCE set DTYPE = 'finance_ExtProcInstance' where DTYPE is null ^
+-- end BPM_PROC_INSTANCE

@@ -48,6 +48,16 @@ public class UserPropertyServiceBean implements UserPropertyService {
         return (Company) getEntityFromUserProperty(Company.class.getSimpleName(), getUserProperty());
     }
 
+    @Override
+    public boolean dontSendEmailByTask() {
+        return (!Objects.isNull(getUserProperty().getDontSendEmailByTask()) && getUserProperty().getDontSendEmailByTask());
+    }
+
+    @Override
+    public boolean dontSendEmailByApprovalResult() {
+        return (!Objects.isNull(getUserProperty().getDontSendEmailByApprovalResult()) && getUserProperty().getDontSendEmailByApprovalResult());
+    }
+
     private Object getEntityFromUserProperty(String propertyName, UserProperty userProperty) {
         Object result = null;
         switch (propertyName) {

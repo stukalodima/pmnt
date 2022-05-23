@@ -95,13 +95,13 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     @Inject
     private DataContext dataContext;
     @Inject
-    private GroupBoxLayout boxTab;
-    @Inject
     private Messages messages;
     @Inject
     private ProcPropertyService procPropertyService;
     @Inject
     private InstanceLoader<PaymentRegister> paymentRegisterDl;
+    @Inject
+    private TextField<String> totalMessage;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
@@ -170,11 +170,16 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     public void onPaymentRegistersDetailTableFillPaymentClaims(Action.ActionPerformedEvent event) {
         ValidationErrors errors = validateUiComponents();
         if (errors.isEmpty()) {
+            String conditionStr = QUERY_STRING_FILL_PAYMENTS_CLAIM;
+            if (!Objects.isNull(getEditedEntity().getRegisterType().getUseCondition()) && getEditedEntity().getRegisterType().getUseCondition()){
+                conditionStr = conditionStr + " and e.summ " + getEditedEntity().getRegisterType().getCondition() + " :summ";
+            }
             List<PaymentClaim> paymentClaimList = dataManager.load(PaymentClaim.class)
-                    .query(QUERY_STRING_FILL_PAYMENTS_CLAIM)
+                    .query(conditionStr)
                     .parameter("status", procPropertyService.getNewStatus())
                     .parameter("business", getEditedEntity().getBusiness())
                     .parameter("cashFlowItems", getCashFlowItemsByRegisterType())
+                    .parameter("summ", getEditedEntity().getRegisterType().getConditionValue())
                     .view("paymentClaim.getEdit")
                     .list();
 
@@ -273,14 +278,22 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                             .withCaption(messages.getMessage(PaymentRegisterEdit.class, "PaymentRegisterEdit.msgProcessStarted"))
                             .withType(Notifications.NotificationType.HUMANIZED)
                             .show();
-
                     /*refresh the procActionsFragment to display complete tasks buttons (if a process task appears for the current user after the process is started)*/
                     procPropertyService.updateStateRegister(getEditedEntity().getId(), procPropertyService.getStartStatus().getCode());
                     paymentRegisterDl.load();
-                    getEditedEntity().setProcInstance(procInstance);
+                    getEditedEntity().setProcInstance((ExtProcInstance) procInstance);
                     closeWithCommit();
                 }
             }
+        }
+    }
+
+    @Subscribe
+    public void onAfterClose(AfterCloseEvent event) {
+        if (!Objects.isNull(getEditedEntity().getProcInstance()) && Objects.isNull(getEditedEntity().getProcInstance().getPaymentRegister())) {
+            ExtProcInstance extProcInstance = getEditedEntity().getProcInstance();
+            extProcInstance.setPaymentRegister(getEditedEntity());
+            dataManager.commit(extProcInstance);
         }
     }
 
@@ -292,7 +305,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         for (PaymentRegisterDetail detail : paymentRegisterDetails) {
             sum = sum + detail.getPaymentClaim().getSumm();
         }
-        cap = cap + "Сумма строк: " + sum;
-        boxTab.setCaption(cap);
+        cap = cap + "Сумма строк: " + String.format("%,.2f",sum).replaceAll(",", " ").replace(".", ",");
+        totalMessage.setValue(cap);
     }
 }

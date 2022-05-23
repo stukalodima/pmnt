@@ -28,10 +28,43 @@ public class RegisterType extends StandardEntity {
     @JoinColumn(name = "PROC_DEFINITION_ID")
     private ProcDefinition procDefinition;
 
+    @Column(name = "USE_CONDITION")
+    private Boolean useCondition;
+
+    @Column(name = "CONDITION_")
+    private String condition;
+
+    @Column(name = "CONDITION_VALUE")
+    private Double conditionValue;
+
     @Composition
     @OnDelete(DeletePolicy.CASCADE)
     @OneToMany(mappedBy = "registerType")
     private List<RegisterTypeDetail> registerTypeDetails;
+
+    public Double getConditionValue() {
+        return conditionValue;
+    }
+
+    public void setConditionValue(Double conditionValue) {
+        this.conditionValue = conditionValue;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
+    public Boolean getUseCondition() {
+        return useCondition;
+    }
+
+    public void setUseCondition(Boolean useCondition) {
+        this.useCondition = useCondition;
+    }
 
     public ProcDefinition getProcDefinition() {
         return procDefinition;
