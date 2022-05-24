@@ -8,10 +8,12 @@ import com.haulmont.cuba.core.entity.annotation.PublishEntityChangedEvents;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.DataManager;
 import com.itk.finance.service.AccountsService;
+import com.itk.finance.service.CurrencyService;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Table(name = "FINANCE_ACCOUNT_REMAINS")
@@ -129,5 +131,10 @@ public class AccountRemains extends StandardEntity {
         AccountsService accountsService = AppBeans.get(AccountsService.class);
         summBefor = accountsService.getBeforSummValue(account, onDate);
         fillSummInAllCurrency();
+    }
+
+    public void setAccountIbanByCurrency(String iban, String currencyShortName) {
+        AccountsService accountsService = AppBeans.get(AccountsService.class);
+        account = accountsService.getCompanyAccountsByIban(iban, currencyShortName);
     }
 }

@@ -9,4 +9,5 @@ public interface CurrencyService {
 
     void getCurrencyListFromExternal() throws IOException;
     Currency getCurrencyByCode(String code);
+    Currency getCurrencyByShortName(String shortName);
 }

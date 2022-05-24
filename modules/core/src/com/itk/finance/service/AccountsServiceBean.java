@@ -44,15 +44,26 @@ public class AccountsServiceBean implements AccountsService {
     }
 
     @Override
-    public Account getCompanyAccountsByIban(String iban) {
+    public Account getCompanyAccountsByIban(String iban, Currency currency) {
         List<Account> accountList = dataManager.load(Account.class)
-                .query("select e from finance_Account e where e.iban = :iban")
+                .query("select e from finance_Account e where e.iban = :iban and e.currency = :currency")
                 .parameter("iban", iban)
+                .parameter("currency", currency)
                 .view("account-all-property")
                 .list();
         Account account = null;
         if (accountList.size() > 0) {
             account = accountList.get(0);
+        }
+        return account;
+    }
+
+    @Override
+    public Account getCompanyAccountsByIban(String iban, String currencyName) {
+        Account account = null;
+        Currency currency = currencyService.getCurrencyByShortName(currencyName);
+        if (!Objects.isNull(currency)) {
+            account = getCompanyAccountsByIban(iban, currency);
         }
         return account;
     }
@@ -111,14 +122,15 @@ public class AccountsServiceBean implements AccountsService {
     }
 
     private void fillAccountEntity(HashMap<String, String> accountsMap) {
-        Account account = getCompanyAccountsByIban(accountsMap.get("iban"));
+        Currency currency = currencyService.getCurrencyByCode(accountsMap.get("currency_code"));
+        Account account = getCompanyAccountsByIban(accountsMap.get("iban"),currency);
 
         if (Objects.isNull(account)) {
             account = dataManager.create(Account.class);
         }
 
         account.setCompany(companyService.getCompanyById(accountsMap.get("company")));
-        account.setCurrency(currencyService.getCurrencyByCode(accountsMap.get("currency_code")));
+        account.setCurrency(currency);
         account.setIban(accountsMap.get("iban"));
         account.setBank(bankService.getBankByMfo(accountsMap.get("bank_mfo")));
 

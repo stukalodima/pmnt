@@ -63,14 +63,23 @@ public class CurrencyServiceBean implements CurrencyService {
 
     @Override
     public Currency getCurrencyByCode(String code) {
+        return getCurrencyByParam("code", code);
+    }
+
+    private Currency getCurrencyByParam(String paramName, String paramValue) {
         List<Currency> currencyList = dataManager.load(Currency.class)
-                .query("select e from finance_Currency e where e.code = :code")
-                .parameter("code", code)
+                .query("select e from finance_Currency e where e." + paramName + " = :paramValue")
+                .parameter("paramValue", paramValue)
                 .list();
         Currency currency = null;
         if (currencyList.size() > 0) {
             currency = currencyList.get(0);
         }
         return currency;
+    }
+
+    @Override
+    public Currency getCurrencyByShortName(String shortName) {
+        return getCurrencyByParam("shortName", shortName);
     }
 }
