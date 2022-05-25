@@ -40,8 +40,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     public static final String QUERY_STRING_FILL_PAYMENTS_CLAIM = "select e from finance_PaymentClaim e " +
             "where " +
             "e.status = :status " +
-            "and e.business = :business " +
-            "and e.cashFlowItem IN :cashFlowItems";
+            "and e.business = :business ";
     @Inject
     private EntityStates entityStates;
     @Inject
@@ -170,17 +169,21 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     public void onPaymentRegistersDetailTableFillPaymentClaims(Action.ActionPerformedEvent event) {
         ValidationErrors errors = validateUiComponents();
         if (errors.isEmpty()) {
-            String conditionStr = QUERY_STRING_FILL_PAYMENTS_CLAIM;
-            if (!Objects.isNull(getEditedEntity().getRegisterType().getUseCondition()) && getEditedEntity().getRegisterType().getUseCondition()){
-                conditionStr = conditionStr + " and e.summ " + getEditedEntity().getRegisterType().getCondition() + " :summ";
+            StringBuilder conditionStr = new StringBuilder(QUERY_STRING_FILL_PAYMENTS_CLAIM);
+            Map<String, Object> mapParam = new HashMap<>();
+
+            boolean conditionByRegisterType = getQueryStrByCondition(conditionStr, mapParam);
+
+            FluentLoader.ByQuery<PaymentClaim, UUID> byQuery = dataManager.load(PaymentClaim.class).query(conditionStr.toString());
+            byQuery.parameter("status", procPropertyService.getNewStatus())
+                    .parameter("business", getEditedEntity().getBusiness());
+            if (conditionByRegisterType) {
+                byQuery.parameter("summ", getEditedEntity().getRegisterType().getConditionValue());
+                byQuery.parameter("cashFlowItems", getCashFlowItemsByRegisterType());
+            } else {
+                mapParam.forEach(byQuery::parameter);
             }
-            List<PaymentClaim> paymentClaimList = dataManager.load(PaymentClaim.class)
-                    .query(conditionStr)
-                    .parameter("status", procPropertyService.getNewStatus())
-                    .parameter("business", getEditedEntity().getBusiness())
-                    .parameter("cashFlowItems", getCashFlowItemsByRegisterType())
-                    .parameter("summ", getEditedEntity().getRegisterType().getConditionValue())
-                    .view("paymentClaim.getEdit")
+            List<PaymentClaim> paymentClaimList = byQuery.view("paymentClaim.getEdit")
                     .list();
 
             clearPaymentRegisters();
@@ -189,6 +192,42 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         } else {
             screenValidation.showValidationErrors(this, errors);
         }
+    }
+
+    private boolean getQueryStrByCondition(StringBuilder conditionStr, Map<String, Object> mapParam) {
+        boolean conditionByRegisterType = !Objects.isNull(getEditedEntity().getRegisterType().getUseCondition())
+                && getEditedEntity().getRegisterType().getUseCondition();
+        int colCondition = 0;
+        if (conditionByRegisterType) {
+            conditionStr
+                    .append(" and e.summ ")
+                    .append(getEditedEntity().getRegisterType().getCondition())
+                    .append(" :summ ")
+                    .append("and e.cashFlowItem IN :cashFlowItems");
+        } else {
+            conditionStr.append(" and (");
+            for (RegisterTypeDetail registerTypeDetail : getEditedEntity().getRegisterType().getRegisterTypeDetails()) {
+                if (colCondition != 0) {
+                    conditionStr.append(" or ");
+                }
+                colCondition = colCondition + 1;
+                mapParam.put("cashFlowItem" + colCondition, registerTypeDetail.getCashFlowItem());
+                if (!Objects.isNull(registerTypeDetail.getUseCondition()) && registerTypeDetail.getUseCondition()) {
+                    conditionStr
+                            .append(" (e.summ ")
+                            .append(registerTypeDetail.getCondition())
+                            .append(" :summ").append(colCondition)
+                            .append(" and e.cashFlowItem = :cashFlowItem")
+                            .append(colCondition)
+                            .append(") ");
+                    mapParam.put("summ" + colCondition, registerTypeDetail.getConditionValue());
+                } else {
+                    conditionStr.append(" (e.cashFlowItem = :cashFlowItem").append(colCondition).append(") ");
+                }
+            }
+            conditionStr.append(")");
+        }
+        return conditionByRegisterType;
     }
 
     private List<PaymentRegisterDetail> getPaymentRegisterDetailsByPaymentClaimList(List<PaymentClaim> paymentClaimList) {
@@ -205,7 +244,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
 
     private void clearPaymentRegisters() {
         if (Objects.requireNonNull(paymentRegistersDetailTable.getItems()).size() > 0) {
-            paymentRegistersDc.getItems().forEach(e->dataContext.remove(e));
+            paymentRegistersDc.getItems().forEach(e -> dataContext.remove(e));
             paymentRegistersDc.getMutableItems().clear();
         }
     }
@@ -219,7 +258,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     }
 
     private void setApprovedByValue(PaymentRegisterDetailStatusEnum value) {
-        paymentRegistersDetailTable.getLookupSelectedItems().forEach(e->e.setApproved(value));
+        paymentRegistersDetailTable.getLookupSelectedItems().forEach(e -> e.setApproved(value));
     }
 
     @Subscribe("paymentRegistersDetailTable.approve")
@@ -305,7 +344,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         for (PaymentRegisterDetail detail : paymentRegisterDetails) {
             sum = sum + detail.getPaymentClaim().getSumm();
         }
-        cap = cap + "Сумма строк: " + String.format("%,.2f",sum).replaceAll(",", " ").replace(".", ",");
+        cap = cap + "Сумма строк: " + String.format("%,.2f", sum).replaceAll(",", " ").replace(".", ",");
         totalMessage.setValue(cap);
     }
 }

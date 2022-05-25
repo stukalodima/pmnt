@@ -1,0 +1,1 @@
+alter table FINANCE_REGISTER_TYPE_DETAIL drop column CONDITION_VALUE__U44141 cascade ;

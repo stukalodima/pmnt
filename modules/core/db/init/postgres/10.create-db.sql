@@ -319,6 +319,9 @@ create table FINANCE_REGISTER_TYPE_DETAIL (
     DELETED_BY varchar(50),
     --
     CASH_FLOW_ITEM_ID uuid not null,
+    USE_CONDITION boolean,
+    CONDITION_ varchar(255),
+    CONDITION_VALUE double precision,
     REGISTER_TYPE_ID uuid not null,
     --
     primary key (ID)

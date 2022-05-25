@@ -18,9 +18,42 @@ public class RegisterTypeDetail extends StandardEntity {
     @JoinColumn(name = "CASH_FLOW_ITEM_ID")
     private CashFlowItem cashFlowItem;
 
+    @Column(name = "USE_CONDITION")
+    private Boolean useCondition;
+
+    @Column(name = "CONDITION_")
+    private String condition;
+
+    @Column(name = "CONDITION_VALUE")
+    private Double conditionValue;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "REGISTER_TYPE_ID")
     private RegisterType registerType;
+
+    public void setConditionValue(Double conditionValue) {
+        this.conditionValue = conditionValue;
+    }
+
+    public Double getConditionValue() {
+        return conditionValue;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
+    public Boolean getUseCondition() {
+        return useCondition;
+    }
+
+    public void setUseCondition(Boolean useCondition) {
+        this.useCondition = useCondition;
+    }
 
     public RegisterType getRegisterType() {
         return registerType;
