@@ -19,7 +19,7 @@ create table FINANCE_CLIENT (
     STAN varchar(255),
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_CLIENT
 -- begin FINANCE_PAYMENT_REGISTER
 create table FINANCE_PAYMENT_REGISTER (
@@ -39,9 +39,10 @@ create table FINANCE_PAYMENT_REGISTER (
     AUTHOR_ID uuid,
     REGISTER_TYPE_ID uuid,
     PROC_INSTANCE_ID uuid,
+    SUMMA varchar(255),
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PAYMENT_REGISTER
 -- begin FINANCE_PAYMENT_TYPE
 create table FINANCE_PAYMENT_TYPE (
@@ -58,7 +59,7 @@ create table FINANCE_PAYMENT_TYPE (
     NUMBER integer not null,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PAYMENT_TYPE
 -- begin FINANCE_COMPANY
 create table FINANCE_COMPANY (
@@ -114,7 +115,7 @@ create table FINANCE_PAYMENT_REGISTER_DETAIL (
     PAYMENT_STATUS_ROW varchar(50),
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PAYMENT_REGISTER_DETAIL
 -- begin FINANCE_USER_PROPERTY
 create table FINANCE_USER_PROPERTY (
@@ -135,7 +136,7 @@ create table FINANCE_USER_PROPERTY (
     DONT_SEND_EMAIL_BY_APPROVAL_RESULT boolean,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_USER_PROPERTY
 -- begin FINANCE_CASH_FLOW_ITEM
 create table FINANCE_CASH_FLOW_ITEM (
@@ -152,7 +153,7 @@ create table FINANCE_CASH_FLOW_ITEM (
     NUMBER integer not null,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_CASH_FLOW_ITEM
 -- begin FINANCE_PAYMENT_CLAIM
 create table FINANCE_PAYMENT_CLAIM (
@@ -183,7 +184,7 @@ create table FINANCE_PAYMENT_CLAIM (
     STATUS_ID uuid,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PAYMENT_CLAIM
 -- begin FINANCE_MANAGEMENT_COMPANY
 create table FINANCE_MANAGEMENT_COMPANY (
@@ -240,7 +241,7 @@ create table FINANCE_BANK (
     STAN varchar(255),
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_BANK
 -- begin FINANCE_CURRENCY
 create table FINANCE_CURRENCY (
@@ -259,7 +260,7 @@ create table FINANCE_CURRENCY (
     BASE_CURRENCY boolean,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_CURRENCY
 -- begin FINANCE_ACCOUNT
 create table FINANCE_ACCOUNT (
@@ -283,7 +284,7 @@ create table FINANCE_ACCOUNT (
     CLOSE_ boolean,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_ACCOUNT
 -- begin FINANCE_ACCOUNT_REMAINS
 create table FINANCE_ACCOUNT_REMAINS (
@@ -305,7 +306,7 @@ create table FINANCE_ACCOUNT_REMAINS (
     SUM_IN_EUR double precision,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_ACCOUNT_REMAINS
 -- begin FINANCE_REGISTER_TYPE_DETAIL
 create table FINANCE_REGISTER_TYPE_DETAIL (
@@ -325,7 +326,7 @@ create table FINANCE_REGISTER_TYPE_DETAIL (
     REGISTER_TYPE_ID uuid not null,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_REGISTER_TYPE_DETAIL
 -- begin FINANCE_REGISTER_TYPE
 create table FINANCE_REGISTER_TYPE (
@@ -345,7 +346,7 @@ create table FINANCE_REGISTER_TYPE (
     CONDITION_VALUE double precision,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_REGISTER_TYPE
 -- begin FINANCE_ACCOUNT_TYPE
 create table FINANCE_ACCOUNT_TYPE (
@@ -361,7 +362,7 @@ create table FINANCE_ACCOUNT_TYPE (
     NAME varchar(255),
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_ACCOUNT_TYPE
 -- begin FINANCE_CURRENCY_RATE
 create table FINANCE_CURRENCY_RATE (
@@ -380,7 +381,7 @@ create table FINANCE_CURRENCY_RATE (
     RATE double precision,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_CURRENCY_RATE
 -- begin FINANCE_ADDRESSING
 create table FINANCE_ADDRESSING (
@@ -399,7 +400,7 @@ create table FINANCE_ADDRESSING (
     COMPANY_ID uuid,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_ADDRESSING
 -- begin FINANCE_ADDRESSING_DETAIL
 create table FINANCE_ADDRESSING_DETAIL (
@@ -417,7 +418,7 @@ create table FINANCE_ADDRESSING_DETAIL (
     ADDRESSING_ID uuid not null,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_ADDRESSING_DETAIL
 -- begin FINANCE_PROC_STATUS
 create table FINANCE_PROC_STATUS (
@@ -436,10 +437,10 @@ create table FINANCE_PROC_STATUS (
     IS_START boolean,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PROC_STATUS
 -- begin BPM_PROC_INSTANCE
-alter table BPM_PROC_INSTANCE add column PAYMENT_REGISTER_ID uuid ^
-alter table BPM_PROC_INSTANCE add column DTYPE varchar(31) ^
-update BPM_PROC_INSTANCE set DTYPE = 'finance_ExtProcInstance' where DTYPE is null ^
+alter table BPM_PROC_INSTANCE add column PAYMENT_REGISTER_ID uuid ;
+alter table BPM_PROC_INSTANCE add column DTYPE varchar(31) ;
+update BPM_PROC_INSTANCE set DTYPE = 'finance_ExtProcInstance' where DTYPE is null ;
 -- end BPM_PROC_INSTANCE

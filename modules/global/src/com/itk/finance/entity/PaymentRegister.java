@@ -59,6 +59,17 @@ public class PaymentRegister extends StandardEntity {
     @JoinColumn(name = "PROC_INSTANCE_ID")
     private ExtProcInstance procInstance;
 
+    @Column(name = "SUMMA")
+    private String summa;
+
+    public String getSumma() {
+        return summa;
+    }
+
+    public void setSumma(String summa) {
+        this.summa = summa;
+    }
+
     public void setProcInstance(ExtProcInstance procInstance) {
         this.procInstance = procInstance;
     }

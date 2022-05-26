@@ -1,5 +1,6 @@
 package com.itk.finance.entity;
 
+import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
@@ -9,6 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Table(name = "FINANCE_REGISTER_TYPE_DETAIL")
 @Entity(name = "finance_RegisterTypeDetail")
+@NamePattern("%s %s|registerType,cashFlowItem")
 public class RegisterTypeDetail extends StandardEntity {
     private static final long serialVersionUID = -90679518331180277L;
 

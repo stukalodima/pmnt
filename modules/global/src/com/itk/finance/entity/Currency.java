@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Table(name = "FINANCE_CURRENCY")
 @Entity(name = "finance_Currency")
-@NamePattern("%s [%s]|name,code")
+@NamePattern("%s|shortName")
 public class Currency extends StandardEntity {
     private static final long serialVersionUID = -2958253090921298413L;
 

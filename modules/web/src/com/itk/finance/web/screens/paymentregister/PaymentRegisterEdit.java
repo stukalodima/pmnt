@@ -100,7 +100,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     @Inject
     private InstanceLoader<PaymentRegister> paymentRegisterDl;
     @Inject
-    private TextField<String> totalMessage;
+    private Label<String> totalMessage;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
@@ -281,6 +281,8 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         if (entityStates.isNew(getEditedEntity())) {
             getEditedEntity().setNumber(uniqueNumbersService.getNextNumber(PaymentRegister.class.getSimpleName()));
         }
+        getEditedEntity().setSumma(calcSummaPaymentClaim(new HashSet<>(getEditedEntity().getPaymentRegisters())));
+        event.resume();
     }
 
     @Subscribe("sendToApprove")
@@ -344,7 +346,36 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         for (PaymentRegisterDetail detail : paymentRegisterDetails) {
             sum = sum + detail.getPaymentClaim().getSumm();
         }
-        cap = cap + "Сумма строк: " + String.format("%,.2f", sum).replaceAll(",", " ").replace(".", ",");
+        cap = cap + "Сумма строк: " + calcSummaPaymentClaim(paymentRegisterDetails);
         totalMessage.setValue(cap);
+    }
+
+    public String calcSummaPaymentClaim(Set<PaymentRegisterDetail> paymentRegisterDetails) {
+        Map<String, Double> mapSumma = new HashMap<>();
+        paymentRegisterDetails.forEach(e -> {
+            PaymentClaim paymentClaim = dataManager.reload(e.getPaymentClaim(), "paymentClaim.getEdit");
+            String key = paymentClaim.getCurrency().getShortName();
+            double value = paymentClaim.getSumm();
+            if (mapSumma.containsKey(key)) {
+                mapSumma.replace(key, mapSumma.get(key) + value);
+            } else {
+                mapSumma.put(key, value);
+            }
+        });
+        StringBuilder text = new StringBuilder();
+        mapSumma.forEach((key, value) -> {
+                    if (!text.toString().equals("")) {
+                        text.append("; ");
+                    }
+                    text.append(
+                                    String.format("%,.2f", value)
+                                            .replace(",", " ")
+                                            .replace(".", ",")
+                            )
+                            .append(" ")
+                            .append(key);
+                }
+        );
+        return text.toString();
     }
 }

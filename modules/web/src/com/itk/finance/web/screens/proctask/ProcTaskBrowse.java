@@ -46,20 +46,22 @@ public class ProcTaskBrowse extends StandardLookup<ProcTask> {
     @Subscribe("procTasksTable.openEntityEdit")
     public void onProcTasksTableOpenEntityEdit(Action.ActionPerformedEvent event) {
         ExtProcInstance extProcInstance = (ExtProcInstance) procTasksDc.getItem().getProcInstance();
-        screenBuilders.editor(PaymentRegister.class, this)
+        Screen screen = screenBuilders.editor(PaymentRegister.class, this)
                 .editEntity(extProcInstance.getPaymentRegister())
                 .withLaunchMode(OpenMode.DIALOG)
-                .build()
-                .show();
+                .build();
+        screen.addAfterCloseListener(e->procTasksDl.load());
+        screen.show();
     }
 
     @Subscribe("procTasksTable.openProcInstanceEdit")
     public void onProcTasksTableOpenProcInstanceEdit(Action.ActionPerformedEvent event) {
-        screenBuilders.editor(ExtProcInstance.class, this)
+        Screen screen = screenBuilders.editor(ExtProcInstance.class, this)
                 .editEntity((ExtProcInstance) procTasksDc.getItem().getProcInstance())
                 .withLaunchMode(OpenMode.THIS_TAB)
-                .build()
-                .show();
+                .build();
+        screen.addAfterCloseListener(e->procTasksDl.load());
+        screen.show();
     }
 
     @Subscribe("procTasksTable")
