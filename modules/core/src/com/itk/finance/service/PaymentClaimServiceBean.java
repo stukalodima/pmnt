@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.haulmont.cuba.core.app.UniqueNumbersAPI;
 import com.haulmont.cuba.core.global.DataManager;
+import com.haulmont.cuba.core.global.FluentLoader;
 import com.haulmont.cuba.core.global.UserSessionSource;
 import com.itk.finance.config.ExternalSystemConnectConfig;
 import com.itk.finance.entity.*;
@@ -19,6 +20,10 @@ import java.util.*;
 
 @Service(PaymentClaimService.NAME)
 public class PaymentClaimServiceBean implements PaymentClaimService {
+    private static final String QUERY_STRING_FILL_PAYMENTS_CLAIM = "select e from finance_PaymentClaim e " +
+            "where " +
+            "e.status = :status " +
+            "and e.business = :business ";
     @Inject
     private ExternalSystemConnectConfig externalSystemConnectConfig;
     @Inject
@@ -39,7 +44,7 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
     private ProcPropertyService procPropertyService;
 
     @Override
-    public void getPaymentClaimListfromExternal() throws IOException, ParseException {
+    public void getPaymentClaimListFromExternal() throws IOException, ParseException {
         //"http://localhost:8080/pmnt/VAADIN/paymentClaim.json"
         String jsonString = restClientService.callGetMethod(externalSystemConnectConfig.getPaymentClaimListUrl());
         if (!jsonString.isEmpty()) {
@@ -48,12 +53,12 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
     }
 
     @Override
-    public PaymentClaim getPaimentClaimById(String id) {
-        return getPaimentClaimById(UUID.fromString(id));
+    public PaymentClaim getPaymentClaimById(String id) {
+        return getPaymentClaimById(UUID.fromString(id));
     }
 
     @Override
-    public PaymentClaim getPaimentClaimById(UUID id) {
+    public PaymentClaim getPaymentClaimById(UUID id) {
         List<PaymentClaim> paymentClaimList = dataManager.load(PaymentClaim.class)
                 .query("select e from finance_PaymentClaim e where e.id = :id")
                 .parameter("id", id)
@@ -69,9 +74,9 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
     private void parseJsonString(String jsonString) throws ParseException {
         JsonArray jsonArray = new JsonParser().parse(jsonString).getAsJsonArray();
         HashMap<String, Object> paymentClaimMap = new HashMap<>();
-        for (JsonElement jsonElement:jsonArray) {
+        for (JsonElement jsonElement : jsonArray) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
-            paymentClaimMap.put("id",jsonObject.getAsJsonPrimitive("id").getAsString());
+            paymentClaimMap.put("id", jsonObject.getAsJsonPrimitive("id").getAsString());
             paymentClaimMap.put("onDate", jsonObject.getAsJsonPrimitive("onDate").getAsString());
             paymentClaimMap.put("planPaymentDate", jsonObject.getAsJsonPrimitive("planPaymentDate").getAsString());
             paymentClaimMap.put("companyId", jsonObject.getAsJsonPrimitive("company").getAsString());
@@ -83,10 +88,10 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
 
             fillPaymentClaimEntity(paymentClaimMap);
         }
-        }
+    }
 
     private void fillPaymentClaimEntity(HashMap<String, Object> paymentClaimMap) throws ParseException {
-        PaymentClaim paymentClaim = getPaimentClaimById(paymentClaimMap.get("id").toString());
+        PaymentClaim paymentClaim = getPaymentClaimById(paymentClaimMap.get("id").toString());
 
         if (Objects.isNull(paymentClaim)) {
             paymentClaim = dataManager.create(PaymentClaim.class);
@@ -140,5 +145,68 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
 
         return client;
 
+    }
+
+    public List<PaymentClaim> getPaymentClaimsListByRegister(Business business, RegisterType registerType) {
+        StringBuilder conditionStr = new StringBuilder(QUERY_STRING_FILL_PAYMENTS_CLAIM);
+        Map<String, Object> mapParam = new HashMap<>();
+
+        boolean conditionByRegisterType = getQueryStrByCondition(registerType, conditionStr, mapParam);
+
+        FluentLoader.ByQuery<PaymentClaim, UUID> byQuery = dataManager.load(PaymentClaim.class).query(conditionStr.toString());
+        byQuery.parameter("status", procPropertyService.getNewStatus())
+                .parameter("business", business);
+        if (conditionByRegisterType) {
+            byQuery.parameter("summ", registerType.getConditionValue());
+            byQuery.parameter("cashFlowItems", getCashFlowItemsByRegisterType(registerType));
+        } else {
+            mapParam.forEach(byQuery::parameter);
+        }
+        return byQuery.view("paymentClaim.getEdit")
+                .list();
+    }
+
+    private boolean getQueryStrByCondition(RegisterType registerType, StringBuilder conditionStr, Map<String, Object> mapParam) {
+        boolean conditionByRegisterType = !Objects.isNull(registerType.getUseCondition())
+                && registerType.getUseCondition();
+        int colCondition = 0;
+        if (conditionByRegisterType) {
+            conditionStr
+                    .append(" and e.summ ")
+                    .append(registerType.getCondition())
+                    .append(" :summ ")
+                    .append("and e.cashFlowItem IN :cashFlowItems");
+        } else {
+            conditionStr.append(" and (");
+            for (RegisterTypeDetail registerTypeDetail : registerType.getRegisterTypeDetails()) {
+                if (colCondition != 0) {
+                    conditionStr.append(" or ");
+                }
+                colCondition = colCondition + 1;
+                mapParam.put("cashFlowItem" + colCondition, registerTypeDetail.getCashFlowItem());
+                if (!Objects.isNull(registerTypeDetail.getUseCondition()) && registerTypeDetail.getUseCondition()) {
+                    conditionStr
+                            .append(" (e.summ ")
+                            .append(registerTypeDetail.getCondition())
+                            .append(" :summ").append(colCondition)
+                            .append(" and e.cashFlowItem = :cashFlowItem")
+                            .append(colCondition)
+                            .append(") ");
+                    mapParam.put("summ" + colCondition, registerTypeDetail.getConditionValue());
+                } else {
+                    conditionStr.append(" (e.cashFlowItem = :cashFlowItem").append(colCondition).append(") ");
+                }
+            }
+            conditionStr.append(")");
+        }
+        return conditionByRegisterType;
+    }
+
+    private ArrayList<CashFlowItem> getCashFlowItemsByRegisterType(RegisterType registerType) {
+        ArrayList<CashFlowItem> cashFlowItems = new ArrayList<>();
+        registerType.getRegisterTypeDetails().forEach(
+                e -> cashFlowItems.add(e.getCashFlowItem())
+        );
+        return cashFlowItems;
     }
 }

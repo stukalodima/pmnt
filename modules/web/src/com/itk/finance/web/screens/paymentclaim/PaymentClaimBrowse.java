@@ -5,8 +5,8 @@ import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.CollectionLoader;
-import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.screen.LookupComponent;
+import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.PaymentClaim;
 import com.itk.finance.service.PaymentClaimService;
 import de.diedavids.cuba.dataimport.web.WithImportWizard;
@@ -38,7 +38,7 @@ public class PaymentClaimBrowse extends StandardLookup<PaymentClaim> implements 
     @Subscribe("paymentClaimsTable.fillPaymentClaim")
     public void onPaymentClaimsTableFillPaymentClaim(Action.ActionPerformedEvent event) {
         try {
-            paymentClaimService.getPaymentClaimListfromExternal();
+            paymentClaimService.getPaymentClaimListFromExternal();
         } catch (IOException e) {
             notifications.create()
                     .withCaption(messages.getMessage(PaymentClaimBrowse.class, "message.restCall.error.caption"))

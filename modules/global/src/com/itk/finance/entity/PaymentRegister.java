@@ -6,13 +6,19 @@ import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
 import com.haulmont.cuba.core.entity.annotation.OnDelete;
+import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.DeletePolicy;
+import com.haulmont.cuba.core.global.TimeSource;
 import com.haulmont.cuba.security.entity.User;
+import com.haulmont.cuba.security.global.UserSession;
+import com.itk.finance.service.ProcPropertyService;
+import com.itk.finance.service.UserPropertyService;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Table(name = "FINANCE_PAYMENT_REGISTER")
 @Entity(name = "finance_PaymentRegister")
@@ -67,7 +73,11 @@ public class PaymentRegister extends StandardEntity {
     }
 
     public void setSumma(String summa) {
-        this.summa = summa;
+        if (Objects.isNull(summa)) {
+            this.summa = calcSummaPaymentClaim(new HashSet<>(paymentRegisters));
+        } else {
+            this.summa = summa;
+        }
     }
 
     public void setProcInstance(ExtProcInstance procInstance) {
@@ -132,5 +142,47 @@ public class PaymentRegister extends StandardEntity {
 
     public void setOnDate(Date onDate) {
         this.onDate = onDate;
+    }
+
+    @PostConstruct
+    public void init() {
+        TimeSource timeSource = AppBeans.get(TimeSource.class);
+        UserSession userSession = AppBeans.get(UserSession.class);
+        UserPropertyService userPropertyService = AppBeans.get(UserPropertyService.class);
+        ProcPropertyService procPropertyService = AppBeans.get(ProcPropertyService.class);
+        onDate = timeSource.currentTimestamp();
+        business = userPropertyService.getDefaultBusiness();
+        author = userSession.getUser();
+        status = procPropertyService.getNewStatus();
+    }
+
+    public String calcSummaPaymentClaim(Set<PaymentRegisterDetail> paymentRegisterDetails) {
+        DataManager dataManager = AppBeans.get(DataManager.class);
+        Map<String, Double> mapSumma = new HashMap<>();
+        paymentRegisterDetails.forEach(e -> {
+            PaymentClaim paymentClaim = dataManager.reload(e.getPaymentClaim(), "paymentClaim.getEdit");
+            String key = paymentClaim.getCurrency().getShortName();
+            double value = paymentClaim.getSumm();
+            if (mapSumma.containsKey(key)) {
+                mapSumma.replace(key, mapSumma.get(key) + value);
+            } else {
+                mapSumma.put(key, value);
+            }
+        });
+        StringBuilder text = new StringBuilder();
+        mapSumma.forEach((key, value) -> {
+                    if (!text.toString().equals("")) {
+                        text.append("; ");
+                    }
+                    text.append(
+                                    String.format("%,.2f", value)
+                                            .replace(",", " ")
+                                            .replace(".", ",")
+                            )
+                            .append(" ")
+                            .append(key);
+                }
+        );
+        return text.toString();
     }
 }

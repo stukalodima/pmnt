@@ -10,7 +10,10 @@ import com.haulmont.bpm.service.BpmEntitiesService;
 import com.haulmont.bpm.service.ProcessFormService;
 import com.haulmont.bpm.service.ProcessRuntimeService;
 import com.haulmont.cuba.core.app.UniqueNumbersService;
-import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.core.global.DataManager;
+import com.haulmont.cuba.core.global.EntityStates;
+import com.haulmont.cuba.core.global.Messages;
+import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.components.*;
@@ -19,10 +22,10 @@ import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.model.InstanceLoader;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.util.OperationResult;
-import com.haulmont.cuba.security.global.UserSession;
 import com.itk.finance.entity.*;
+import com.itk.finance.service.PaymentClaimService;
+import com.itk.finance.service.PaymentRegisterService;
 import com.itk.finance.service.ProcPropertyService;
-import com.itk.finance.service.UserPropertyService;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -37,10 +40,6 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                     "where " +
                     "e.addressing.bussines = :bussines " +
                     "and e.addressing.procDefinition = :procDefinition ";
-    public static final String QUERY_STRING_FILL_PAYMENTS_CLAIM = "select e from finance_PaymentClaim e " +
-            "where " +
-            "e.status = :status " +
-            "and e.business = :business ";
     @Inject
     private EntityStates entityStates;
     @Inject
@@ -58,13 +57,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     @Inject
     private Metadata metadata;
     @Inject
-    private TimeSource timeSource;
-    @Inject
-    private UserPropertyService userPropertyService;
-    @Inject
     private GroupTable<PaymentRegisterDetail> paymentRegistersDetailTable;
-    @Inject
-    private UserSession userSession;
     @Inject
     private UniqueNumbersService uniqueNumbersService;
     @Inject
@@ -101,13 +94,16 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private InstanceLoader<PaymentRegister> paymentRegisterDl;
     @Inject
     private Label<String> totalMessage;
+    @Inject
+    private PaymentClaimService paymentClaimService;
+    @Inject
+    private PaymentRegisterService paymentRegisterService;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
         updateVisible();
         initProcAction();
     }
-
 
     private void initProcAction() {
         if (!Objects.isNull(getEditedEntity().getProcInstance())) {
@@ -157,89 +153,22 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         return !Objects.isNull(getEditedEntity().getProcInstance()) && getEditedEntity().getProcInstance().getActive();
     }
 
-    @Subscribe
-    public void onInitEntity(InitEntityEvent<PaymentRegister> event) {
-        event.getEntity().setOnDate(timeSource.currentTimestamp());
-        event.getEntity().setBusiness(userPropertyService.getDefaultBusiness());
-        event.getEntity().setStatus(procPropertyService.getNewStatus());
-        event.getEntity().setAuthor(userSession.getUser());
-    }
-
     @Subscribe("paymentRegistersDetailTable.fillPaymentClaims")
     public void onPaymentRegistersDetailTableFillPaymentClaims(Action.ActionPerformedEvent event) {
         ValidationErrors errors = validateUiComponents();
         if (errors.isEmpty()) {
-            StringBuilder conditionStr = new StringBuilder(QUERY_STRING_FILL_PAYMENTS_CLAIM);
-            Map<String, Object> mapParam = new HashMap<>();
-
-            boolean conditionByRegisterType = getQueryStrByCondition(conditionStr, mapParam);
-
-            FluentLoader.ByQuery<PaymentClaim, UUID> byQuery = dataManager.load(PaymentClaim.class).query(conditionStr.toString());
-            byQuery.parameter("status", procPropertyService.getNewStatus())
-                    .parameter("business", getEditedEntity().getBusiness());
-            if (conditionByRegisterType) {
-                byQuery.parameter("summ", getEditedEntity().getRegisterType().getConditionValue());
-                byQuery.parameter("cashFlowItems", getCashFlowItemsByRegisterType());
-            } else {
-                mapParam.forEach(byQuery::parameter);
-            }
-            List<PaymentClaim> paymentClaimList = byQuery.view("paymentClaim.getEdit")
-                    .list();
+            List<PaymentClaim> paymentClaimList = paymentClaimService.getPaymentClaimsListByRegister(
+                    getEditedEntity().getBusiness(), getEditedEntity().getRegisterType()
+            );
 
             clearPaymentRegisters();
-            List<PaymentRegisterDetail> listDetail = getPaymentRegisterDetailsByPaymentClaimList(paymentClaimList);
-            getEditedEntity().setPaymentRegisters(listDetail);
+            getEditedEntity().setPaymentRegisters(paymentRegisterService.getPaymentRegisterDetailsByPaymentClaimList(
+                    getEditedEntity(), paymentClaimList)
+            );
+            dataContext.merge(getEditedEntity().getPaymentRegisters());
         } else {
             screenValidation.showValidationErrors(this, errors);
         }
-    }
-
-    private boolean getQueryStrByCondition(StringBuilder conditionStr, Map<String, Object> mapParam) {
-        boolean conditionByRegisterType = !Objects.isNull(getEditedEntity().getRegisterType().getUseCondition())
-                && getEditedEntity().getRegisterType().getUseCondition();
-        int colCondition = 0;
-        if (conditionByRegisterType) {
-            conditionStr
-                    .append(" and e.summ ")
-                    .append(getEditedEntity().getRegisterType().getCondition())
-                    .append(" :summ ")
-                    .append("and e.cashFlowItem IN :cashFlowItems");
-        } else {
-            conditionStr.append(" and (");
-            for (RegisterTypeDetail registerTypeDetail : getEditedEntity().getRegisterType().getRegisterTypeDetails()) {
-                if (colCondition != 0) {
-                    conditionStr.append(" or ");
-                }
-                colCondition = colCondition + 1;
-                mapParam.put("cashFlowItem" + colCondition, registerTypeDetail.getCashFlowItem());
-                if (!Objects.isNull(registerTypeDetail.getUseCondition()) && registerTypeDetail.getUseCondition()) {
-                    conditionStr
-                            .append(" (e.summ ")
-                            .append(registerTypeDetail.getCondition())
-                            .append(" :summ").append(colCondition)
-                            .append(" and e.cashFlowItem = :cashFlowItem")
-                            .append(colCondition)
-                            .append(") ");
-                    mapParam.put("summ" + colCondition, registerTypeDetail.getConditionValue());
-                } else {
-                    conditionStr.append(" (e.cashFlowItem = :cashFlowItem").append(colCondition).append(") ");
-                }
-            }
-            conditionStr.append(")");
-        }
-        return conditionByRegisterType;
-    }
-
-    private List<PaymentRegisterDetail> getPaymentRegisterDetailsByPaymentClaimList(List<PaymentClaim> paymentClaimList) {
-        List<PaymentRegisterDetail> listDetail = new ArrayList<>();
-        paymentClaimList.forEach(e -> listDetail.add(createPaymentRegisterDetail(e)));
-        return listDetail;
-    }
-
-    private ArrayList<CashFlowItem> getCashFlowItemsByRegisterType() {
-        ArrayList<CashFlowItem> cashFlowItems = new ArrayList<>();
-        getEditedEntity().getRegisterType().getRegisterTypeDetails().forEach(e -> cashFlowItems.add(e.getCashFlowItem()));
-        return cashFlowItems;
     }
 
     private void clearPaymentRegisters() {
@@ -247,14 +176,6 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
             paymentRegistersDc.getItems().forEach(e -> dataContext.remove(e));
             paymentRegistersDc.getMutableItems().clear();
         }
-    }
-
-    private PaymentRegisterDetail createPaymentRegisterDetail(PaymentClaim paymentClaim) {
-        PaymentRegisterDetail paymentRegisterDetail = metadata.create(PaymentRegisterDetail.class);
-        paymentRegisterDetail.setApproved(PaymentRegisterDetailStatusEnum.APPROVED);
-        paymentRegisterDetail.setPaymentClaim(paymentClaim);
-        paymentRegisterDetail.setPaymentRegister(getEditedEntity());
-        return dataContext.merge(paymentRegisterDetail);
     }
 
     private void setApprovedByValue(PaymentRegisterDetailStatusEnum value) {
@@ -281,7 +202,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         if (entityStates.isNew(getEditedEntity())) {
             getEditedEntity().setNumber(uniqueNumbersService.getNextNumber(PaymentRegister.class.getSimpleName()));
         }
-        getEditedEntity().setSumma(calcSummaPaymentClaim(new HashSet<>(getEditedEntity().getPaymentRegisters())));
+        getEditedEntity().setSumma(null);
         event.resume();
     }
 
@@ -346,36 +267,9 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         for (PaymentRegisterDetail detail : paymentRegisterDetails) {
             sum = sum + detail.getPaymentClaim().getSumm();
         }
-        cap = cap + "Сумма строк: " + calcSummaPaymentClaim(paymentRegisterDetails);
+        cap = cap + "Сумма строк: " + getEditedEntity().calcSummaPaymentClaim(paymentRegisterDetails);
         totalMessage.setValue(cap);
     }
 
-    public String calcSummaPaymentClaim(Set<PaymentRegisterDetail> paymentRegisterDetails) {
-        Map<String, Double> mapSumma = new HashMap<>();
-        paymentRegisterDetails.forEach(e -> {
-            PaymentClaim paymentClaim = dataManager.reload(e.getPaymentClaim(), "paymentClaim.getEdit");
-            String key = paymentClaim.getCurrency().getShortName();
-            double value = paymentClaim.getSumm();
-            if (mapSumma.containsKey(key)) {
-                mapSumma.replace(key, mapSumma.get(key) + value);
-            } else {
-                mapSumma.put(key, value);
-            }
-        });
-        StringBuilder text = new StringBuilder();
-        mapSumma.forEach((key, value) -> {
-                    if (!text.toString().equals("")) {
-                        text.append("; ");
-                    }
-                    text.append(
-                                    String.format("%,.2f", value)
-                                            .replace(",", " ")
-                                            .replace(".", ",")
-                            )
-                            .append(" ")
-                            .append(key);
-                }
-        );
-        return text.toString();
-    }
+
 }
