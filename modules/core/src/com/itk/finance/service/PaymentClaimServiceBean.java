@@ -23,7 +23,8 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
     private static final String QUERY_STRING_FILL_PAYMENTS_CLAIM = "select e from finance_PaymentClaim e " +
             "where " +
             "e.status = :status " +
-            "and e.business = :business ";
+            "and e.business = :business " +
+            "and e.express = :express ";
     @Inject
     private ExternalSystemConnectConfig externalSystemConnectConfig;
     @Inject
@@ -149,18 +150,30 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
 
     public List<PaymentClaim> getPaymentClaimsListByRegister(Business business, RegisterType registerType) {
         StringBuilder conditionStr = new StringBuilder(QUERY_STRING_FILL_PAYMENTS_CLAIM);
-        Map<String, Object> mapParam = new HashMap<>();
-
-        boolean conditionByRegisterType = getQueryStrByCondition(registerType, conditionStr, mapParam);
-
-        FluentLoader.ByQuery<PaymentClaim, UUID> byQuery = dataManager.load(PaymentClaim.class).query(conditionStr.toString());
-        byQuery.parameter("status", procPropertyService.getNewStatus())
-                .parameter("business", business);
-        if (conditionByRegisterType) {
-            byQuery.parameter("summ", registerType.getConditionValue());
-            byQuery.parameter("cashFlowItems", getCashFlowItemsByRegisterType(registerType));
+        FluentLoader.ByQuery<PaymentClaim, UUID> byQuery;
+        if (Boolean.TRUE.equals(registerType.getExpress())) {
+            byQuery = dataManager.load(PaymentClaim.class).query(conditionStr.toString());
+            byQuery
+                    .parameter("status", procPropertyService.getNewStatus())
+                    .parameter("business", business)
+                    .parameter("express", registerType.getExpress());
         } else {
-            mapParam.forEach(byQuery::parameter);
+
+            Map<String, Object> mapParam = new HashMap<>();
+
+            boolean conditionByRegisterType = getQueryStrByCondition(registerType, conditionStr, mapParam);
+
+            byQuery = dataManager.load(PaymentClaim.class).query(conditionStr.toString());
+            byQuery
+                    .parameter("status", procPropertyService.getNewStatus())
+                    .parameter("business", business)
+                    .parameter("express", null);
+            if (conditionByRegisterType) {
+                byQuery.parameter("summ", registerType.getConditionValue());
+                byQuery.parameter("cashFlowItems", getCashFlowItemsByRegisterType(registerType));
+            } else {
+                mapParam.forEach(byQuery::parameter);
+            }
         }
         return byQuery.view("paymentClaim.getEdit")
                 .list();

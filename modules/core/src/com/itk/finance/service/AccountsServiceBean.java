@@ -96,8 +96,8 @@ public class AccountsServiceBean implements AccountsService {
                     .parameter("onDate", onDate)
                     .view("accountRemains-all-property")
                     .list();
-            if (accountList.size() > 0) {
-                result = accountList.get(0).getSumm();
+            if (accountList.size() > 0 && !Objects.isNull(accountList.get(0).getSummEqualsUAH())) {
+                result = accountList.get(0).getSummEqualsUAH();
             } else {
                 result = 0.;
             }

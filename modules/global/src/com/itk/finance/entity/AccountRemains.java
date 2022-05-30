@@ -8,12 +8,10 @@ import com.haulmont.cuba.core.entity.annotation.PublishEntityChangedEvents;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.DataManager;
 import com.itk.finance.service.AccountsService;
-import com.itk.finance.service.CurrencyService;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 @Table(name = "FINANCE_ACCOUNT_REMAINS")
@@ -47,14 +45,25 @@ public class AccountRemains extends StandardEntity {
     private Double summInUSD;
 
     @Column(name = "SUM_IN_EUR")
-    private Double sumInEUR;
+    private Double summInEUR;
 
-    public Double getSumInEUR() {
-        return sumInEUR;
+    @Column(name = "SUMM_EQUALS_UAH")
+    private Double summEqualsUAH;
+
+    public Double getSummEqualsUAH() {
+        return summEqualsUAH;
     }
 
-    public void setSumInEUR(Double sumInEUR) {
-        this.sumInEUR = sumInEUR;
+    public void setSummEqualsUAH(Double summEqualsUAH) {
+        this.summEqualsUAH = summEqualsUAH;
+    }
+
+    public Double getSummInEUR() {
+        return summInEUR;
+    }
+
+    public void setSummInEUR(Double sumInEUR) {
+        this.summInEUR = sumInEUR;
     }
 
     public Double getSummInUSD() {
@@ -113,18 +122,23 @@ public class AccountRemains extends StandardEntity {
         DataManager dataManager = AppBeans.get(DataManager.class);
         account = dataManager.reload(account, "account-all-property");
         Currency currency = dataManager.reload(account.getCurrency(), "_local");
-        if (currency.getShortName().equals("UAH")) {
-            summInUAH = summ;
-        } else {
-            summInUAH = summ * accountsService.getCurrentRate(onDate, currency.getShortName());
-        }
-        summInUSD = (summInUAH / accountsService.getCurrentRate(onDate, "USD"));
-        sumInEUR = (summInUAH / accountsService.getCurrentRate(onDate, "EUR"));
         if (currency.getShortName().equals("USD")) {
             summInUSD = summ;
+            summInEUR = 0.;
+            summInUAH = 0.;
+            summEqualsUAH = summ * accountsService.getCurrentRate(onDate, currency.getShortName());
         }
         if (currency.getShortName().equals("EUR")) {
-            sumInEUR = summ;
+            summInEUR = summ;
+            summInUSD = 0.;
+            summInUAH = 0.;
+            summEqualsUAH = summ * accountsService.getCurrentRate(onDate, currency.getShortName());
+        }
+        if (currency.getShortName().equals("UAH")) {
+            summInUAH = summ;
+            summInUSD = 0.;
+            summInEUR = 0.;
+            summEqualsUAH = summ;
         }
     }
     public void fillSummPreCommit() {

@@ -10,12 +10,16 @@ import com.haulmont.bpm.service.BpmEntitiesService;
 import com.haulmont.bpm.service.ProcessFormService;
 import com.haulmont.bpm.service.ProcessRuntimeService;
 import com.haulmont.cuba.core.app.UniqueNumbersService;
+import com.haulmont.cuba.core.global.CommitContext;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.EntityStates;
 import com.haulmont.cuba.core.global.Messages;
-import com.haulmont.cuba.core.global.Metadata;
+import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.UiComponents;
+import com.haulmont.cuba.gui.app.core.inputdialog.DialogActions;
+import com.haulmont.cuba.gui.app.core.inputdialog.DialogOutcome;
+import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.model.CollectionPropertyContainer;
 import com.haulmont.cuba.gui.model.DataContext;
@@ -54,8 +58,6 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private DataManager dataManager;
     @Inject
     private CollectionPropertyContainer<PaymentRegisterDetail> paymentRegistersDc;
-    @Inject
-    private Metadata metadata;
     @Inject
     private GroupTable<PaymentRegisterDetail> paymentRegistersDetailTable;
     @Inject
@@ -98,6 +100,8 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private PaymentClaimService paymentClaimService;
     @Inject
     private PaymentRegisterService paymentRegisterService;
+    @Inject
+    private Dialogs dialogs;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
@@ -194,7 +198,39 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
 
     @Subscribe("paymentRegistersDetailTable.determinate")
     public void onPaymentRegistersDetailTableDeterminate(Action.ActionPerformedEvent event) {
-        setApprovedByValue(PaymentRegisterDetailStatusEnum.TERMINATED);
+        dialogs.createInputDialog(this)
+                .withCaption(messages.getMessage(PaymentRegisterEdit.class, "inputDialogDeterminate.caption"))
+                .withParameter(
+                        InputParameter.dateParameter("planDate")
+                                .withCaption(messages.getMessage(PaymentRegisterEdit.class, "inputDialogDeterminate.planDate.caption"))
+                                .withRequired(true)
+                )
+                .withActions(DialogActions.OK_CANCEL)
+                .withCloseListener(closeEvent -> {
+                    if (closeEvent.closedWith(DialogOutcome.OK)) {
+                        List<PaymentClaim> paymentClaimList = new ArrayList<>();
+                        getEditedEntity().getPaymentRegisters().forEach(e -> {
+                            e.getPaymentClaim().setPlanPaymentDate(closeEvent.getValue("planDate"));
+                            paymentClaimList.add(e.getPaymentClaim());
+                        });
+                        dataManager.commit(new CommitContext(paymentClaimList));
+                        paymentRegisterDl.load();
+                        setApprovedByValue(PaymentRegisterDetailStatusEnum.TERMINATED);
+                    }
+                }).show();
+    }
+
+    @Install(to = "paymentRegistersDetailTable", subject = "styleProvider")
+    private String paymentRegistersDetailTableStyleProvider(PaymentRegisterDetail entity, String property) {
+        if (property.equals("approved")) {
+            switch (entity.getApproved()) {
+                case TERMINATED:
+                    return "determinate-payment";
+                case REJECTED:
+                    return "rejected-payment";
+            }
+        }
+        return null;
     }
 
     @Subscribe
@@ -270,6 +306,5 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         cap = cap + "Сумма строк: " + getEditedEntity().calcSummaPaymentClaim(paymentRegisterDetails);
         totalMessage.setValue(cap);
     }
-
 
 }

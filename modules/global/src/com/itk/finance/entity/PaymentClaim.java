@@ -105,6 +105,17 @@ public class PaymentClaim extends StandardEntity {
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     private ProcStatus status;
 
+    @Column(name = "EXPRESS")
+    private Boolean express;
+
+    public Boolean getExpress() {
+        return express;
+    }
+
+    public void setExpress(Boolean express) {
+        this.express = express;
+    }
+
     public void setStatus(ProcStatus status) {
         this.status = status;
     }

@@ -2,6 +2,8 @@ package com.itk.finance.web.screens.registertype;
 
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.gui.components.CheckBox;
+import com.haulmont.cuba.gui.components.GroupBoxLayout;
 import com.haulmont.cuba.gui.components.HasValue;
 import com.haulmont.cuba.gui.components.TextField;
 import com.haulmont.cuba.gui.screen.*;
@@ -24,6 +26,10 @@ public class RegisterTypeEdit extends StandardEditor<RegisterType> {
     private Dialogs dialogs;
     @Inject
     private Messages messages;
+    @Inject
+    private CheckBox useConditionField;
+    @Inject
+    private GroupBoxLayout registerTypeDetailsBox;
 
     @Subscribe("useConditionField")
     public void onUseConditionFieldValueChange(HasValue.ValueChangeEvent<Boolean> event) {
@@ -51,5 +57,21 @@ public class RegisterTypeEdit extends StandardEditor<RegisterType> {
         boolean visible = !Objects.isNull(event.getValue()) && event.getValue();
         conditionField.setVisible(visible);
         conditionValueField.setVisible(visible);
+    }
+
+    @Subscribe("expressField")
+    public void onExpressFieldValueChange(HasValue.ValueChangeEvent<Boolean> event) {
+        if (event.isUserOriginated()) {
+            if (Boolean.TRUE.equals(event.getValue())) {
+                getEditedEntity().setUseCondition(false);
+                getEditedEntity().setCondition(null);
+                getEditedEntity().setConditionValue(null);
+            }
+        }
+        boolean visible = !Boolean.TRUE.equals(event.getValue());
+        useConditionField.setVisible(visible);
+        conditionField.setVisible(visible);
+        conditionValueField.setVisible(visible);
+        registerTypeDetailsBox.setVisible(visible);
     }
 }

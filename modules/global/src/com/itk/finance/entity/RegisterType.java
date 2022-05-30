@@ -23,6 +23,9 @@ public class RegisterType extends StandardEntity {
     @Column(name = "NAME", nullable = false)
     private String name;
 
+    @Column(name = "EXPRESS")
+    private Boolean express;
+
     @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROC_DEFINITION_ID")
@@ -41,6 +44,14 @@ public class RegisterType extends StandardEntity {
     @OnDelete(DeletePolicy.CASCADE)
     @OneToMany(mappedBy = "registerType")
     private List<RegisterTypeDetail> registerTypeDetails;
+
+    public Boolean getExpress() {
+        return express;
+    }
+
+    public void setExpress(Boolean express) {
+        this.express = express;
+    }
 
     public Double getConditionValue() {
         return conditionValue;

@@ -1,6 +1,7 @@
 package com.itk.finance.entity;
 
 import com.haulmont.bpm.entity.ProcRole;
+import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 
 @Table(name = "FINANCE_ADDRESSING_DETAIL")
 @Entity(name = "finance_AddressingDetail")
+@NamePattern("%s %s|procRole,user")
 public class AddressingDetail extends StandardEntity {
     private static final long serialVersionUID = 7576773215129200886L;
 
@@ -26,9 +28,20 @@ public class AddressingDetail extends StandardEntity {
     @JoinColumn(name = "USER_ID")
     private User user;
 
+    @Column(name = "AUTO")
+    private Boolean auto;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ADDRESSING_ID")
     private Addressing addressing;
+
+    public Boolean getAuto() {
+        return auto;
+    }
+
+    public void setAuto(Boolean auto) {
+        this.auto = auto;
+    }
 
     public Addressing getAddressing() {
         return addressing;
