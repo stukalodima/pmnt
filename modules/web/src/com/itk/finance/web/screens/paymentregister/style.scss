@@ -1,9 +1,41 @@
-.rejected-payment {
-  background-color: red;
-  color: white;
-}
+.v-table {
+  .active-customer {
+    font-weight: bold;
+  }
 
-.determinate-payment {
-  background-color: saddlebrown;
-  color: white;
+  .v-table-row,
+  .v-table-row-odd {
+    &.rejected {
+      background-color: red;
+      color: white;
+
+      .c-grouptable-group-cell-expander:before {
+        color: white;
+      }
+    }
+  }
+
+  .v-table-row,
+  .v-table-row-odd {
+    &.high-grade {
+      background-color: green;
+      color: white;
+
+      .c-grouptable-group-cell-expander:before {
+        color: white;
+      }
+    }
+  }
+
+  .v-table-row,
+  .v-table-row-odd {
+    &.terminated {
+      background-color: saddlebrown;
+      color: white;
+
+      .c-grouptable-group-cell-expander:before {
+        color: white;
+      }
+    }
+  }
 }

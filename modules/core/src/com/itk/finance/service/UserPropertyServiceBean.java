@@ -2,6 +2,7 @@ package com.itk.finance.service;
 
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.UserSessionSource;
+import com.haulmont.cuba.security.entity.User;
 import com.itk.finance.entity.Business;
 import com.itk.finance.entity.Company;
 import com.itk.finance.entity.ManagementCompany;
@@ -21,10 +22,14 @@ public class UserPropertyServiceBean implements UserPropertyService {
     private UserSessionSource userSessionSource;
 
     private UserProperty getUserProperty() {
+        return getUserProperty(null);
+    }
+
+    private UserProperty getUserProperty(User user) {
         UserProperty userProperty = null;
         List<UserProperty> userPropertyList = dataManager.load(UserProperty.class)
                 .query("select e from finance_UserProperty e where e.user = :user")
-                .parameter("user", userSessionSource.getUserSession().getUser())
+                .parameter("user", Objects.isNull(user) ? userSessionSource.getUserSession().getUser() : user)
                 .view("userProperty.get.edit")
                 .list();
         if (userPropertyList.size() > 0) {
@@ -50,12 +55,22 @@ public class UserPropertyServiceBean implements UserPropertyService {
 
     @Override
     public boolean dontSendEmailByTask() {
-        return (!Objects.isNull(getUserProperty().getDontSendEmailByTask()) && getUserProperty().getDontSendEmailByTask());
+        return dontSendEmailByTask(null);
+    }
+
+    @Override
+    public boolean dontSendEmailByTask(User user) {
+        return Boolean.TRUE.equals(getUserProperty(user).getDontSendEmailByTask());
     }
 
     @Override
     public boolean dontSendEmailByApprovalResult() {
-        return (!Objects.isNull(getUserProperty().getDontSendEmailByApprovalResult()) && getUserProperty().getDontSendEmailByApprovalResult());
+        return dontSendEmailByApprovalResult(null);
+    }
+
+    @Override
+    public boolean dontSendEmailByApprovalResult(User user) {
+        return Boolean.TRUE.equals(getUserProperty().getDontSendEmailByApprovalResult());
     }
 
     private Object getEntityFromUserProperty(String propertyName, UserProperty userProperty) {

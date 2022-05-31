@@ -37,9 +37,9 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
     @Install(to = "paymentRegistersTable.edit", subject = "afterCommitHandler")
     private void paymentRegistersTableEditAfterCommitHandler(PaymentRegister paymentRegister) {
         paymentRegistersDl.load();
-        paymentRegistersDc.setItem(paymentRegister);
     }
 
+    @SuppressWarnings("all")
     @Subscribe("paymentRegistersTable.createAllRegisterByType")
     public void onPaymentRegistersTableCreateAllRegisterByType(Action.ActionPerformedEvent event) {
         PaymentClaimService paymentClaimService = AppBeans.get(PaymentClaimService.class);
@@ -62,6 +62,7 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
                                 )
                         );
                         paymentRegister.setSumma(null);
+
                         paymentRegisterList.add(paymentRegister);
                         paymentRegisterList.addAll(paymentRegister.getPaymentRegisters());
                     }

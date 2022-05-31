@@ -10,7 +10,10 @@ import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 public class CreateTaskListener implements TaskListener {
 
@@ -34,20 +37,20 @@ public class CreateTaskListener implements TaskListener {
                 .view("user.browse")
                 .one();
 
-        if (!Objects.isNull(user.getEmail()) && !userPropertyService.dontSendEmailByTask()) {
+        if (!Objects.isNull(user.getEmail()) && !userPropertyService.dontSendEmailByTask(user)) {
 
             Map<String, Serializable> mapParam = new HashMap<>();
 
-            mapParam.put("systemName",messages.getMessage(CreateTaskListener.class,"mail.systemName"));
-            mapParam.put("welcome",messages.getMessage(CreateTaskListener.class,"mail.welcome"));
-            mapParam.put("newTask",messages.getMessage(CreateTaskListener.class,"mail.newTask"));
-            mapParam.put("inSystem",messages.getMessage(CreateTaskListener.class,"mail.inSystem"));
-            mapParam.put("goToSystem",messages.getMessage(CreateTaskListener.class,"mail.goToSystem"));
+            mapParam.put("systemName", messages.getMessage(CreateTaskListener.class, "mail.systemName"));
+            mapParam.put("welcome", messages.getMessage(CreateTaskListener.class, "mail.welcome"));
+            mapParam.put("newTask", messages.getMessage(CreateTaskListener.class, "mail.newTask"));
+            mapParam.put("inSystem", messages.getMessage(CreateTaskListener.class, "mail.inSystem"));
+            mapParam.put("goToSystem", messages.getMessage(CreateTaskListener.class, "mail.goToSystem"));
             mapParam.put("userName", user.getName());
             mapParam.put("taskName", delegateTask.getName());
 
             emailService.sendEmail(user.getEmail(),
-                    messages.getMessage(CreateTaskListener.class,"mail.createTaskListenerEmailCaption"),
+                    messages.getMessage(CreateTaskListener.class, "mail.createTaskListenerEmailCaption"),
                     messages.getMessage(CreateTaskListener.class, "mail.createTaskListenerEmailTemplate"),
                     mapParam);
         }

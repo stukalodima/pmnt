@@ -157,6 +157,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         return !Objects.isNull(getEditedEntity().getProcInstance()) && getEditedEntity().getProcInstance().getActive();
     }
 
+    @SuppressWarnings("all")
     @Subscribe("paymentRegistersDetailTable.fillPaymentClaims")
     public void onPaymentRegistersDetailTableFillPaymentClaims(Action.ActionPerformedEvent event) {
         ValidationErrors errors = validateUiComponents();
@@ -209,28 +210,16 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                 .withCloseListener(closeEvent -> {
                     if (closeEvent.closedWith(DialogOutcome.OK)) {
                         List<PaymentClaim> paymentClaimList = new ArrayList<>();
-                        getEditedEntity().getPaymentRegisters().forEach(e -> {
+                        paymentRegistersDetailTable.getLookupSelectedItems().forEach(e -> {
                             e.getPaymentClaim().setPlanPaymentDate(closeEvent.getValue("planDate"));
                             paymentClaimList.add(e.getPaymentClaim());
                         });
+//                        dataContext.merge(paymentClaimList);
                         dataManager.commit(new CommitContext(paymentClaimList));
                         paymentRegisterDl.load();
                         setApprovedByValue(PaymentRegisterDetailStatusEnum.TERMINATED);
                     }
                 }).show();
-    }
-
-    @Install(to = "paymentRegistersDetailTable", subject = "styleProvider")
-    private String paymentRegistersDetailTableStyleProvider(PaymentRegisterDetail entity, String property) {
-        if (property.equals("approved")) {
-            switch (entity.getApproved()) {
-                case TERMINATED:
-                    return "determinate-payment";
-                case REJECTED:
-                    return "rejected-payment";
-            }
-        }
-        return null;
     }
 
     @Subscribe
