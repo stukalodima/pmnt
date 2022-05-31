@@ -5,7 +5,6 @@ import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.CommitContext;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.gui.components.Action;
-import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.PaymentClaim;
@@ -24,8 +23,6 @@ import java.util.List;
 @LoadDataBeforeShow
 public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
     @Inject
-    private CollectionContainer<PaymentRegister> paymentRegistersDc;
-    @Inject
     private CollectionLoader<PaymentRegister> paymentRegistersDl;
     @Inject
     private DataManager dataManager;
@@ -34,6 +31,7 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
     @Inject
     private PaymentRegisterService paymentRegisterService;
 
+    @SuppressWarnings("unused")
     @Install(to = "paymentRegistersTable.edit", subject = "afterCommitHandler")
     private void paymentRegistersTableEditAfterCommitHandler(PaymentRegister paymentRegister) {
         paymentRegistersDl.load();
