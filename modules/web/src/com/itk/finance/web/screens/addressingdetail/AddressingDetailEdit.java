@@ -9,7 +9,6 @@ import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.AddressingDetail;
 
 import javax.inject.Inject;
-import java.util.ConcurrentModificationException;
 import java.util.Objects;
 
 @UiController("finance_AddressingDetail.edit")
@@ -27,7 +26,7 @@ public class AddressingDetailEdit extends StandardEditor<AddressingDetail> {
     private Form form;
 
     @Subscribe
-    public void onBeforeShow(BeforeShowEvent event) throws Exception {
+    public void onBeforeShow(BeforeShowEvent event) {
         if (Objects.isNull(getEditedEntity().getAddressing().getProcDefinition())) {
             dialogs
                     .createMessageDialog()

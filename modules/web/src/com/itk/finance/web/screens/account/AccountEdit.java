@@ -28,8 +28,8 @@ public class AccountEdit extends StandardEditor<Account> {
 
     @Subscribe("ibanField")
     public void onIbanFieldTextChange(TextInputField.TextChangeEvent event) {
-        if(!Objects.isNull(event.getSource().getValue()) && event.getSource().getValue().toString().length() > 11) {
-            String mfo = event.getSource().getValue().toString().substring(5, 11);
+        if(event.getText().length() > 11) {
+            String mfo = event.getText().substring(4, 10);
             Bank bank = bankService.getBankByMfo(mfo);
             getEditedEntity().setBank(bank);
         }

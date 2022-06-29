@@ -104,46 +104,46 @@ create table FINANCE_BUSINESS
 );
 -- end FINANCE_BUSINESS
 -- begin FINANCE_PAYMENT_REGISTER_DETAIL
-create table FINANCE_PAYMENT_REGISTER_DETAIL
-(
-    ID                  uuid,
-    VERSION             integer not null,
-    CREATE_TS           timestamp,
-    CREATED_BY          varchar(50),
-    UPDATE_TS           timestamp,
-    UPDATED_BY          varchar(50),
-    DELETE_TS           timestamp,
-    DELETED_BY          varchar(50),
+create table FINANCE_PAYMENT_REGISTER_DETAIL (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
     --
-    APPROVED            varchar(50),
-    PAYMENT_CLAIM_ID    uuid,
-    PAYMENT_REGISTER_ID uuid    not null,
-    PAYMENT_STATUS_ROW  varchar(50),
+    APPROVED varchar(50),
+    PAYMENT_CLAIM_ID uuid,
+    PAYMENT_REGISTER_ID uuid not null,
+    PAYMENT_STATUS_ROW varchar(50),
+    COMMENT_ text,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_PAYMENT_REGISTER_DETAIL
 -- begin FINANCE_USER_PROPERTY
-create table FINANCE_USER_PROPERTY
-(
-    ID                                 uuid,
-    VERSION                            integer not null,
-    CREATE_TS                          timestamp,
-    CREATED_BY                         varchar(50),
-    UPDATE_TS                          timestamp,
-    UPDATED_BY                         varchar(50),
-    DELETE_TS                          timestamp,
-    DELETED_BY                         varchar(50),
+create table FINANCE_USER_PROPERTY (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
     --
-    USER_ID                            uuid    not null,
-    MANAGEMENT_COMPANY_ID              uuid    not null,
-    BUSINESS_ID                        uuid    not null,
-    COMPANY_ID                         uuid    not null,
-    DONT_SEND_EMAIL_BY_TASK            boolean,
+    USER_ID uuid not null,
+    MANAGEMENT_COMPANY_ID uuid not null,
+    BUSINESS_ID uuid not null,
+    COMPANY_ID uuid not null,
+    DONT_SEND_EMAIL_BY_TASK boolean,
     DONT_SEND_EMAIL_BY_APPROVAL_RESULT boolean,
+    SEND_NOTIFICATION_TASK boolean,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_USER_PROPERTY
 -- begin FINANCE_CASH_FLOW_ITEM
 create table FINANCE_CASH_FLOW_ITEM
@@ -164,37 +164,37 @@ create table FINANCE_CASH_FLOW_ITEM
 );
 -- end FINANCE_CASH_FLOW_ITEM
 -- begin FINANCE_PAYMENT_CLAIM
-create table FINANCE_PAYMENT_CLAIM
-(
-    ID                         uuid,
-    VERSION                    integer not null,
-    CREATE_TS                  timestamp,
-    CREATED_BY                 varchar(50),
-    UPDATE_TS                  timestamp,
-    UPDATED_BY                 varchar(50),
-    DELETE_TS                  timestamp,
-    DELETED_BY                 varchar(50),
+create table FINANCE_PAYMENT_CLAIM (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
     --
-    NUMBER_                    bigint,
-    ON_DATE                    date    not null,
-    BUSINESS_ID                uuid    not null,
-    COMPANY_ID                 uuid    not null,
-    CLIENT_ID                  uuid    not null,
-    ACCOUNT_ID                 uuid    not null,
-    CURRENCY_ID                uuid    not null,
-    SUMM                       double precision,
-    PLAN_PAYMENT_DATE          date    not null,
-    PAYMENT_PURPOSE            text    not null,
-    CASH_FLOW_ITEM_ID          uuid    not null,
+    NUMBER_ bigint,
+    ON_DATE date not null,
+    BUSINESS_ID uuid not null,
+    COMPANY_ID uuid not null,
+    CLIENT_ID uuid not null,
+    ACCOUNT_ID uuid not null,
+    CURRENCY_ID uuid not null,
+    SUMM double precision not null,
+    PLAN_PAYMENT_DATE date not null,
+    PAYMENT_PURPOSE text not null,
+    CASH_FLOW_ITEM_ID uuid not null,
     CASH_FLOW_ITEM_BUSINESS_ID uuid,
-    PAYMENT_TYPE_ID            uuid    not null,
-    COMMENT_                   text,
-    AUTHOR_ID                  uuid    not null,
-    STATUS_ID                  uuid,
-    EXPRESS                    boolean,
+    PAYMENT_TYPE_ID uuid not null,
+    COMMENT_ text,
+    AUTHOR_ID uuid not null,
+    STATUS_ID uuid,
+    EXPRESS boolean,
+    BUDGET_ANALITIC text,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_PAYMENT_CLAIM
 -- begin FINANCE_MANAGEMENT_COMPANY
 create table FINANCE_MANAGEMENT_COMPANY

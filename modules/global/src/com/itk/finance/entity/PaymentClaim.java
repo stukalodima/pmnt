@@ -7,6 +7,7 @@ import com.haulmont.cuba.core.entity.annotation.LookupType;
 import com.haulmont.cuba.core.entity.annotation.PublishEntityChangedEvents;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.Metadata;
+import com.haulmont.cuba.core.global.TimeSource;
 import com.haulmont.cuba.core.global.UserSessionSource;
 import com.haulmont.cuba.security.entity.User;
 import com.itk.finance.service.ProcPropertyService;
@@ -61,7 +62,8 @@ public class PaymentClaim extends StandardEntity {
     @JoinColumn(name = "CURRENCY_ID")
     private Currency currency;
 
-    @Column(name = "SUMM")
+    @Column(name = "SUMM", nullable = false)
+    @NotNull
     private Double summ;
 
     @Temporal(TemporalType.DATE)
@@ -107,6 +109,18 @@ public class PaymentClaim extends StandardEntity {
 
     @Column(name = "EXPRESS")
     private Boolean express;
+
+    @Lob
+    @Column(name = "BUDGET_ANALITIC")
+    private String budgetAnalitic;
+
+    public String getBudgetAnalitic() {
+        return budgetAnalitic;
+    }
+
+    public void setBudgetAnalitic(String budgetAnalitic) {
+        this.budgetAnalitic = budgetAnalitic;
+    }
 
     public Boolean getExpress() {
         return express;
@@ -249,8 +263,12 @@ public class PaymentClaim extends StandardEntity {
         UserSessionSource userSessionSource = AppBeans.get(UserSessionSource.class);
         UserPropertyService userPropertyService = AppBeans.get(UserPropertyService.class);
         ProcPropertyService procPropertyService = AppBeans.get(ProcPropertyService.class);
+        TimeSource timeSource = AppBeans.get(TimeSource.class);
         author = userSessionSource.getUserSession().getUser();
         business = userPropertyService.getDefaultBusiness();
+        company = userPropertyService.getDefaultCompany();
         status = procPropertyService.getNewStatus();
+        onDate = timeSource.currentTimestamp();
+        planPaymentDate = new Date(timeSource.currentTimeMillis() + 24 * 60 * 60 * 1000);
     }
 }

@@ -1,11 +1,18 @@
 package com.itk.finance.core;
 
+import com.haulmont.chile.core.model.MetaClass;
+import com.haulmont.cuba.core.EntityManager;
+import com.haulmont.cuba.core.Persistence;
 import com.haulmont.cuba.core.global.AppBeans;
-import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Messages;
+import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.security.entity.User;
+import com.itk.finance.entity.AddressingDetail;
+import com.itk.finance.entity.PaymentRegister;
 import com.itk.finance.service.EmailService;
 import com.itk.finance.service.UserPropertyService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 
@@ -23,21 +30,48 @@ public class CreateTaskListener implements TaskListener {
     public void notify(DelegateTask delegateTask) {
 
         EmailService emailService = AppBeans.get(EmailService.class);
-        DataManager dataManager = AppBeans.get(DataManager.class);
         Messages messages = AppBeans.get(Messages.class);
         UserPropertyService userPropertyService = AppBeans.get(UserPropertyService.class);
+        Persistence persistence = AppBeans.get(Persistence.class);
+        Metadata metadata = AppBeans.get(Metadata.class);
+
+        RuntimeService runtimeService = delegateTask.getExecution().getEngineServices().getRuntimeService();
+        String executionId = delegateTask.getExecutionId();
+        UUID entityId = (UUID) runtimeService.getVariable(executionId, "entityId");
+        String entityName = (String) runtimeService.getVariable(executionId, "entityName");
+
+        MetaClass metaClass = metadata.getClass(entityName);
+
+        EntityManager entityManager = persistence.getEntityManager();
+        PaymentRegister paymentRegister = entityManager.find(Objects.requireNonNull(metaClass).getJavaClass(), entityId);
 
         String userStrId = delegateTask.getAssignee();
 
         UUID uuidUser = UUID.fromString(userStrId);
 
-        User user = dataManager.load(User.class)
-                .query(QUERY_STRING_GET_USER_BY_ID)
-                .parameter("id", uuidUser)
-                .view("user.browse")
-                .one();
+        User user = (User) entityManager.createQuery(QUERY_STRING_GET_USER_BY_ID)
+                .setParameter("id", uuidUser)
+                .setView(User.class, "user.browse")
+                .getFirstResult();
+        if (Objects.isNull(user)) {
+            return;
+        }
+
+        AddressingDetail addressingDetail = (AddressingDetail) entityManager.createQuery("select e from finance_AddressingDetail e " +
+                        "where e.addressing.bussines = :bussines " +
+                        "and e.addressing.procDefinition = :procDefinition " +
+                        "and e.user = :user")
+                .setParameter("bussines", Objects.requireNonNull(paymentRegister).getBusiness())
+                .setParameter("procDefinition", Objects.requireNonNull(paymentRegister).getRegisterType().getProcDefinition())
+                .setParameter("user", user)
+                .getFirstResult();
+        if (!Objects.isNull(addressingDetail) && !Objects.isNull(addressingDetail.getAuto()) && addressingDetail.getAuto()) {
+            TaskService taskService = delegateTask.getExecution().getEngineServices().getTaskService();
+            taskService.complete(delegateTask.getId());
+        }
 
         if (!Objects.isNull(user.getEmail()) && !userPropertyService.dontSendEmailByTask(user)) {
+//                if (!Objects.isNull(user.getEmail())) {
 
             Map<String, Serializable> mapParam = new HashMap<>();
 
@@ -53,7 +87,7 @@ public class CreateTaskListener implements TaskListener {
                     messages.getMessage(CreateTaskListener.class, "mail.createTaskListenerEmailCaption"),
                     messages.getMessage(CreateTaskListener.class, "mail.createTaskListenerEmailTemplate"),
                     mapParam);
+//                }
         }
-
     }
 }

@@ -3,9 +3,7 @@ package com.itk.finance.entity;
 import com.haulmont.chile.core.annotations.Composition;
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
-import com.haulmont.cuba.core.entity.annotation.Lookup;
-import com.haulmont.cuba.core.entity.annotation.LookupType;
-import com.haulmont.cuba.core.entity.annotation.OnDelete;
+import com.haulmont.cuba.core.entity.annotation.*;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.DeletePolicy;
@@ -22,6 +20,7 @@ import java.util.*;
 
 @Table(name = "FINANCE_PAYMENT_REGISTER")
 @Entity(name = "finance_PaymentRegister")
+@Listeners("finance_PaymentRegisterEntityListener")
 @NamePattern("%s %s [%s]|number,onDate,business")
 public class PaymentRegister extends StandardEntity {
     private static final long serialVersionUID = 244328380356450374L;

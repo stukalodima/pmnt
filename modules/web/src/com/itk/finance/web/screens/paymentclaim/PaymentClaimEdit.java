@@ -1,20 +1,17 @@
 package com.itk.finance.web.screens.paymentclaim;
 
 import com.haulmont.cuba.core.app.UniqueNumbersService;
+import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.EntityStates;
-import com.haulmont.cuba.core.global.TimeSource;
-import com.haulmont.cuba.gui.components.HasValue;
-import com.haulmont.cuba.gui.components.LookupPickerField;
+import com.haulmont.cuba.core.global.Messages;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.*;
-import com.haulmont.cuba.security.global.UserSession;
 import com.itk.finance.entity.*;
-import com.itk.finance.service.ProcPropertyService;
-import com.itk.finance.service.UserPropertyService;
 
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 @UiController("finance_PaymentClaim.edit")
 @UiDescriptor("payment-claim-edit.xml")
@@ -24,13 +21,7 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
     @Inject
     private CollectionLoader<Company> companiesDl;
     @Inject
-    private UserPropertyService userPropertyService;
-    @Inject
-    private TimeSource timeSource;
-    @Inject
     private LookupPickerField<Company> companyField;
-    @Inject
-    private UserSession userSession;
     @Inject
     private EntityStates entityStates;
     @Inject
@@ -42,28 +33,23 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
     @Inject
     private LookupPickerField<Currency> currencyField;
     @Inject
-    private ProcPropertyService procPropertyService;
+    private Form formBody;
+    @Inject
+    private DataManager dataManager;
+    @Inject
+    private PickerField<PaymentRegister> paymentRegisterField;
+    @Inject
+    private TextField<String> approvedField;
+    @Inject
+    private TextArea<String> commentTextField;
+    @Inject
+    private Messages messages;
 
     @Subscribe
     public void onBeforeCommitChanges(BeforeCommitChangesEvent event) {
         if (entityStates.isNew(getEditedEntity())) {
             getEditedEntity().setNumber(uniqueNumbersService.getNextNumber(PaymentClaim.class.getSimpleName()));
             event.resume();
-        }
-    }
-
-    @Subscribe
-    public void onInitEntity(InitEntityEvent<PaymentClaim> event) {
-        event.getEntity().setOnDate(timeSource.currentTimestamp());
-        event.getEntity().setPlanPaymentDate(new Date(timeSource.currentTimeMillis() + 24 * 60 * 60 * 1000));
-        event.getEntity().setStatus(procPropertyService.getNewStatus());
-        event.getEntity().setAuthor(userSession.getUser());
-
-        Company company = userPropertyService.getDefaultCompany();
-
-        if (company != null) {
-            event.getEntity().setCompany(company);
-            event.getEntity().setBusiness(company.getBusiness());
         }
     }
 
@@ -93,6 +79,24 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
         refreshForm(getEditedEntity().getBusiness(), getEditedEntity().getCompany());
+        boolean enable = Objects.isNull(getEditedEntity().getStatus())
+                || (!Objects.isNull(getEditedEntity().getStatus().getIsNew()) && getEditedEntity().getStatus().getIsNew());
+        formBody.setEditable(enable);
+        fillPaymentRegisterProperty();
+    }
+
+    private void fillPaymentRegisterProperty() {
+        Optional<PaymentRegisterDetail> paymentRegisterDetail = dataManager.load(PaymentRegisterDetail.class)
+                .query("select e from finance_PaymentRegisterDetail e where e.paymentClaim = :paymentClaim")
+                .parameter("paymentClaim", getEditedEntity())
+                .view("paymentRegisterDetail-view")
+                .optional();
+        paymentRegisterDetail.ifPresent(registerDetail -> {
+            paymentRegisterField.setValue(registerDetail.getPaymentRegister());
+            approvedField.setValue(messages.getMessage(registerDetail.getApproved()));
+            commentTextField.setValue(registerDetail.getComment());
+
+        });
     }
 
     private void refreshForm(Business thisBusiness, Company company) {

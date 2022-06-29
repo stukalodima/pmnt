@@ -13,7 +13,8 @@ public class FinanceWebTestContainer extends TestContainer {
                 "com.haulmont.addon.helium",
                 "com.haulmont.addon.restapi",
                 "com.haulmont.bpm",
-                "de.diedavids.cuba.dataimport");
+                "de.diedavids.cuba.dataimport",
+                "com.haulmont.charts");
         appPropertiesFiles = Arrays.asList(
                 // List the files defined in your web.xml
                 // in appPropertiesConfig context parameter of the web module

@@ -14,4 +14,5 @@ public interface ProcPropertyService {
     ProcStatus getNewStatus();
 
     ProcStatus getStartStatus();
+    void sendNotificationsTask();
 }

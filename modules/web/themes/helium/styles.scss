@@ -8,4 +8,26 @@
   @include app_components;
 
   @include com_itk_finance-helium-ext;
+
+  .v-table-row,
+  .v-table-row-odd {
+    &.rejected {
+      color: red !important;
+      font-weight: bold;
+      .c-grouptable-group-cell-expander:before {
+        color: red !important;
+      }
+    }
+  }
+
+  .v-table-row,
+  .v-table-row-odd {
+    &.terminated {
+      color: #ffc90e !important;
+      font-weight: bold;
+      .c-grouptable-group-cell-expander:before {
+        color: #ffc90e !important;
+      }
+    }
+  }
 }

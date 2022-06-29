@@ -8,19 +8,14 @@ import com.haulmont.bpm.gui.action.CompleteProcTaskAction;
 import com.haulmont.bpm.gui.proctask.ProcTasksFrame;
 import com.haulmont.bpm.service.BpmEntitiesService;
 import com.haulmont.bpm.service.ProcessFormService;
+import com.haulmont.bpm.service.ProcessMessagesService;
 import com.haulmont.bpm.service.ProcessRuntimeService;
 import com.haulmont.cuba.core.app.UniqueNumbersService;
-import com.haulmont.cuba.core.global.CommitContext;
-import com.haulmont.cuba.core.global.DataManager;
-import com.haulmont.cuba.core.global.EntityStates;
-import com.haulmont.cuba.core.global.Messages;
-import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.UiComponents;
-import com.haulmont.cuba.gui.app.core.inputdialog.DialogActions;
-import com.haulmont.cuba.gui.app.core.inputdialog.DialogOutcome;
-import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
 import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.data.GroupInfo;
 import com.haulmont.cuba.gui.model.CollectionPropertyContainer;
 import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.model.InstanceLoader;
@@ -29,8 +24,8 @@ import com.haulmont.cuba.gui.util.OperationResult;
 import com.itk.finance.entity.*;
 import com.itk.finance.service.PaymentClaimService;
 import com.itk.finance.service.PaymentRegisterService;
-import com.itk.finance.service.ProcPropertyService;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.*;
 
@@ -75,23 +70,11 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     @Inject
     private ProcTasksFrame taskFrame;
     @Inject
-    private Button paymentRegistersDetailTableFillPaymentClaimsBtn;
-    @Inject
-    private Button paymentRegistersDetailTableRemoveBtn;
-    @Inject
-    private Button paymentRegistersDetailTableApproveBtn;
-    @Inject
-    private Button paymentRegistersDetailTableRejectBtn;
-    @Inject
-    private Button paymentRegistersDetailTableDeterminateBtn;
-    @Inject
     private ScreenValidation screenValidation;
     @Inject
     private DataContext dataContext;
     @Inject
     private Messages messages;
-    @Inject
-    private ProcPropertyService procPropertyService;
     @Inject
     private InstanceLoader<PaymentRegister> paymentRegisterDl;
     @Inject
@@ -101,7 +84,19 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     @Inject
     private PaymentRegisterService paymentRegisterService;
     @Inject
-    private Dialogs dialogs;
+    private ProcessMessagesService processMessagesService;
+    @Inject
+    private UserSessionSource userSessionSource;
+    @Inject
+    private MessageTools messageTools;
+    @Inject
+    private PopupView popupView;
+    @Inject
+    private TextArea<String> comment;
+
+    private PaymentRegisterDetail paymentRegisterDetailPopupElement;
+    @Inject
+    private Form formBody;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
@@ -126,6 +121,12 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         if (!outcomesWithForms.isEmpty()) {
             for (Map.Entry<String, ProcFormDefinition> entry : outcomesWithForms.entrySet()) {
                 CompleteProcTaskAction action = new CompleteProcTaskAction(procTask, entry.getKey(), entry.getValue());
+                action.setCaption(processMessagesService.getMessage(
+                        procTask.getProcInstance().getProcDefinition().getActId(),
+                        procTask.getActTaskDefinitionKey() + "." + entry.getKey(),
+                        getUserLocale()
+                        )
+                );
                 completeProcTaskActions.add(action);
             }
         } else {
@@ -144,13 +145,35 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         }
     }
 
+    private Locale getUserLocale() {
+        return userSessionSource.checkCurrentUserSession() ?
+                userSessionSource.getUserSession().getLocale() :
+                messageTools.getDefaultLocale();
+    }
+
     private void updateVisible() {
         sendToApprove.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
-        paymentRegistersDetailTableFillPaymentClaimsBtn.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
-        paymentRegistersDetailTableRemoveBtn.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
-        paymentRegistersDetailTableApproveBtn.setVisible(procInstanceIsActive());
-        paymentRegistersDetailTableRejectBtn.setVisible(procInstanceIsActive());
-        paymentRegistersDetailTableDeterminateBtn.setVisible(procInstanceIsActive());
+        formBody.setEditable(Objects.isNull(getEditedEntity().getProcInstance()));
+    }
+
+    @Install(to = "paymentRegistersDetailTable.fillPaymentClaims", subject = "enabledRule")
+    private boolean paymentRegistersDetailTableFillPaymentClaimsEnabledRule() {
+        return Objects.isNull(getEditedEntity().getProcInstance());
+    }
+
+    @Install(to = "paymentRegistersDetailTable.remove", subject = "enabledRule")
+    private boolean paymentRegistersDetailTableRemoveEnabledRule() {
+        return Objects.isNull(getEditedEntity().getProcInstance());
+    }
+
+    @Install(to = "paymentRegistersDetailTable.reject", subject = "enabledRule")
+    private boolean paymentRegistersDetailTableRejectEnabledRule() {
+        return procInstanceIsActive();
+    }
+
+    @Install(to = "paymentRegistersDetailTable.approve", subject = "enabledRule")
+    private boolean paymentRegistersDetailTableApproveEnabledRule() {
+        return procInstanceIsActive();
     }
 
     private boolean procInstanceIsActive() {
@@ -185,6 +208,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
 
     private void setApprovedByValue(PaymentRegisterDetailStatusEnum value) {
         paymentRegistersDetailTable.getLookupSelectedItems().forEach(e -> e.setApproved(value));
+        commitChanges();
     }
 
     @Subscribe("paymentRegistersDetailTable.approve")
@@ -197,29 +221,39 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         setApprovedByValue(PaymentRegisterDetailStatusEnum.REJECTED);
     }
 
-    @Subscribe("paymentRegistersDetailTable.determinate")
-    public void onPaymentRegistersDetailTableDeterminate(Action.ActionPerformedEvent event) {
-        dialogs.createInputDialog(this)
-                .withCaption(messages.getMessage(PaymentRegisterEdit.class, "inputDialogDeterminate.caption"))
-                .withParameter(
-                        InputParameter.dateParameter("planDate")
-                                .withCaption(messages.getMessage(PaymentRegisterEdit.class, "inputDialogDeterminate.planDate.caption"))
-                                .withRequired(true)
-                )
-                .withActions(DialogActions.OK_CANCEL)
-                .withCloseListener(closeEvent -> {
-                    if (closeEvent.closedWith(DialogOutcome.OK)) {
-                        List<PaymentClaim> paymentClaimList = new ArrayList<>();
-                        paymentRegistersDetailTable.getLookupSelectedItems().forEach(e -> {
-                            e.getPaymentClaim().setPlanPaymentDate(closeEvent.getValue("planDate"));
-                            paymentClaimList.add(e.getPaymentClaim());
-                        });
-//                        dataContext.merge(paymentClaimList);
-                        dataManager.commit(new CommitContext(paymentClaimList));
-                        paymentRegisterDl.load();
-                        setApprovedByValue(PaymentRegisterDetailStatusEnum.TERMINATED);
+    @SuppressWarnings("all")
+    @Subscribe
+    public void onInit(InitEvent event) {
+        paymentRegistersDetailTable.setStyleProvider(new GroupTable.GroupStyleProvider<PaymentRegisterDetail>() {
+            @SuppressWarnings("all")
+            @Nullable
+            @Override
+            public String getStyleName(PaymentRegisterDetail entity, @Nullable String property) {
+                if (!Objects.isNull(entity)) {
+                    switch (entity.getApproved()) {
+                        case REJECTED:
+                            return "rejected";
+                        case TERMINATED:
+                            return "terminated";
                     }
-                }).show();
+                }
+                return null;
+            }
+
+            @SuppressWarnings("all")
+            @Nullable
+            @Override
+            public String getStyleName(GroupInfo info) {
+                PaymentRegisterDetailStatusEnum detailStatusEnum = (PaymentRegisterDetailStatusEnum) info.getPropertyValue(info.getProperty());
+                switch (detailStatusEnum) {
+                    case REJECTED:
+                        return "rejected";
+                    case TERMINATED:
+                        return "terminated";
+                }
+                return null;
+            }
+        });
     }
 
     @Subscribe
@@ -266,7 +300,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                             .withType(Notifications.NotificationType.HUMANIZED)
                             .show();
                     /*refresh the procActionsFragment to display complete tasks buttons (if a process task appears for the current user after the process is started)*/
-                    procPropertyService.updateStateRegister(getEditedEntity().getId(), procPropertyService.getStartStatus().getCode());
+//                    procPropertyService.updateStateRegister(getEditedEntity().getId(), procPropertyService.getStartStatus().getCode());
                     paymentRegisterDl.load();
                     getEditedEntity().setProcInstance((ExtProcInstance) procInstance);
                     closeWithCommit();
@@ -294,6 +328,43 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         }
         cap = cap + "Сумма строк: " + getEditedEntity().calcSummaPaymentClaim(paymentRegisterDetails);
         totalMessage.setValue(cap);
+    }
+
+    @Subscribe("paymentRegistersDetailTable.comment")
+    public void onPaymentRegistersDetailTableCommentClick(Table.Column.ClickEvent<PaymentRegisterDetail> event) {
+        if (!popupView.isPopupVisible()) {
+            paymentRegisterDetailPopupElement = event.getItem();
+            popupView.setPopupPosition(PopupView.PopupPosition.MIDDLE_CENTER);
+            comment.setValue(paymentRegisterDetailPopupElement.getComment());
+            popupView.setPopupVisible(true);
+        }
+    }
+
+    @Subscribe("popupView")
+    public void onPopupViewPopupVisibility(PopupView.PopupVisibilityEvent event) {
+        if (!event.isPopupVisible()) {
+            paymentRegistersDetailTable.setSelected(paymentRegisterDetailPopupElement);
+            paymentRegisterDetailPopupElement.setComment(comment.getRawValue());
+        }
+    }
+
+    @Subscribe("commentBtn")
+    public void onCommentBtnClick(Button.ClickEvent event) {
+        popupView.setPopupVisible(false);
+    }
+
+    @Subscribe("businessField")
+    public void onBusinessFieldValueChange(HasValue.ValueChangeEvent<Business> event) {
+        if (event.isUserOriginated()) {
+            onPaymentRegistersDetailTableFillPaymentClaims(null);
+        }
+    }
+
+    @Subscribe("registerTypeField")
+    public void onRegisterTypeFieldValueChange(HasValue.ValueChangeEvent<RegisterType> event) {
+        if (event.isUserOriginated()) {
+            onPaymentRegistersDetailTableFillPaymentClaims(null);
+        }
     }
 
 }

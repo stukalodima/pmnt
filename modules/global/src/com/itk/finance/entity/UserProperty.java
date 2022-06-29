@@ -45,6 +45,17 @@ public class UserProperty extends StandardEntity {
     @Column(name = "DONT_SEND_EMAIL_BY_APPROVAL_RESULT")
     private Boolean dontSendEmailByApprovalResult;
 
+    @Column(name = "SEND_NOTIFICATION_TASK")
+    private Boolean sendNotificationTask;
+
+    public Boolean getSendNotificationTask() {
+        return sendNotificationTask;
+    }
+
+    public void setSendNotificationTask(Boolean sendNotificationTask) {
+        this.sendNotificationTask = sendNotificationTask;
+    }
+
     public Boolean getDontSendEmailByApprovalResult() {
         return dontSendEmailByApprovalResult;
     }

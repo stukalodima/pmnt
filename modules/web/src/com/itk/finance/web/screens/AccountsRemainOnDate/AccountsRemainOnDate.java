@@ -1,9 +1,8 @@
-package com.itk.finance.web.screens;
+package com.itk.finance.web.screens.AccountsRemainOnDate;
 
+import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.core.global.TimeSource;
-import com.haulmont.cuba.gui.components.DateField;
-import com.haulmont.cuba.gui.components.HasValue;
-import com.haulmont.cuba.gui.components.LookupField;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.screen.Subscribe;
@@ -15,6 +14,9 @@ import com.itk.finance.entity.Company;
 import com.itk.finance.entity.Currency;
 
 import javax.inject.Inject;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
@@ -39,10 +41,15 @@ public class AccountsRemainOnDate extends Screen {
     private CollectionLoader<Company> companiesDl;
     @Inject
     private CollectionLoader<Currency> currenciesDl;
+    @Inject
+    private GroupTable<AccountRemains> accountRemainsesTable;
+    @Inject
+    private Messages messages;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
         onDate.setValue(timeSource.currentTimestamp());
+        setColumnName(onDate.getValue());
         reloadData(business.getValue(), company.getValue(), currency.getValue(), null);
     }
 
@@ -75,6 +82,7 @@ public class AccountsRemainOnDate extends Screen {
 
     @Subscribe("onDate")
     public void onOnDateValueChange(HasValue.ValueChangeEvent<Date> event) {
+        setColumnName(event.getValue());
         reloadData(business.getValue(), company.getValue(), currency.getValue(), event.getValue());
     }
 
@@ -96,5 +104,42 @@ public class AccountsRemainOnDate extends Screen {
     @Subscribe("currency")
     public void onCurrencyValueChange(HasValue.ValueChangeEvent<Currency> event) {
         reloadData(business.getValue(), company.getValue(), event.getValue(), onDate.getValue());
+    }
+
+    private void setColumnName(Date columnDate) {
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        Date beforColumnDate = addDays(columnDate, -1);
+        accountRemainsesTable.getColumn("summBefor")
+                .setCaption("<div style=\"text-align: center\">" +
+                        messages.getMessage(AccountsRemainOnDate.class, "summBefor.caption") +
+                        "<br>" + dateFormat.format(beforColumnDate) + " (UAH)" + "</div"
+                );
+        accountRemainsesTable.getColumn("summEqualsUAH")
+                .setCaption("<div style=\"text-align: center\">" +
+                        messages.getMessage(AccountsRemainOnDate.class, "summEqualsUAH.caption") +
+                        "<br>" + dateFormat.format(columnDate) + " (UAH)" + "</div"
+                );
+        accountRemainsesTable.getColumn("summInUAH")
+                .setCaption("<div style=\"text-align: center\">" +
+                        messages.getMessage(AccountsRemainOnDate.class, "summInUAH.caption") +
+                        "<br>" + dateFormat.format(columnDate) + " (UAH)" + "</div"
+                );
+        accountRemainsesTable.getColumn("summInUSD")
+                .setCaption("<div style=\"text-align: center\">" +
+                        messages.getMessage(AccountsRemainOnDate.class, "summInUSD.caption") +
+                        "<br>" + dateFormat.format(columnDate) + " (USD)" + "</div"
+                );
+        accountRemainsesTable.getColumn("summInEUR")
+                .setCaption("<div style=\"text-align: center\">" +
+                        messages.getMessage(AccountsRemainOnDate.class, "summInEUR.caption") +
+                        "<br>" + dateFormat.format(columnDate) + " (EUR)" + "</div"
+                );
+    }
+
+    public static Date addDays(Date date, Integer days) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.DAY_OF_MONTH, days);
+        return cal.getTime();
     }
 }
