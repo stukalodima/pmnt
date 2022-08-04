@@ -45,6 +45,11 @@ public class Business extends StandardEntity {
     @OneToMany(mappedBy = "business")
     private List<BusinessControllers> controllerList;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PARENT_ID")
+    private Business parent;
+
     public List<BusinessControllers> getControllerList() {
         return controllerList;
     }
@@ -83,5 +88,13 @@ public class Business extends StandardEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Business getParent() {
+        return parent;
+    }
+
+    public void setParent(Business parent) {
+        this.parent = parent;
     }
 }

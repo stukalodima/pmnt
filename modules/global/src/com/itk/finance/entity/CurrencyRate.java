@@ -1,5 +1,6 @@
 package com.itk.finance.entity;
 
+import com.haulmont.chile.core.annotations.NumberFormat;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
@@ -24,7 +25,8 @@ public class CurrencyRate extends StandardEntity {
     @Column(name = "MULTIPLICITY")
     private Integer multiplicity;
 
-    @Column(name = "RATE")
+    @Column(name = "RATE",precision = 19, scale = 4)
+    @NumberFormat(pattern = "0.0000")
     private Double rate;
 
     public Double getRate() {

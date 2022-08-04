@@ -81,7 +81,7 @@ public class AccountsServiceBean implements AccountsService {
                 .parameter("onDate", onDate)
                 .view("currencyRate-all-property")
                 .one();
-        return currencyRate.getRate();
+        return currencyRate.getRate()/(!Objects.isNull(currencyRate.getMultiplicity()) && currencyRate.getMultiplicity()!=0 ? currencyRate.getMultiplicity(): 1);
     }
 
     @Override

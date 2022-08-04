@@ -4,8 +4,9 @@ import com.haulmont.bpm.BpmConstants;
 import com.haulmont.bpm.entity.ProcInstance;
 import com.haulmont.bpm.entity.ProcTask;
 import com.haulmont.bpm.form.ProcFormDefinition;
+import com.haulmont.bpm.gui.action.ClaimProcTaskAction;
 import com.haulmont.bpm.gui.action.CompleteProcTaskAction;
-import com.haulmont.bpm.gui.proctask.ProcTasksFrame;
+import com.haulmont.bpm.gui.action.ProcAction;
 import com.haulmont.bpm.service.BpmEntitiesService;
 import com.haulmont.bpm.service.ProcessFormService;
 import com.haulmont.bpm.service.ProcessMessagesService;
@@ -16,6 +17,7 @@ import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.data.GroupInfo;
+import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.model.CollectionPropertyContainer;
 import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.model.InstanceLoader;
@@ -68,8 +70,6 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     @Inject
     private ProcessFormService processFormService;
     @Inject
-    private ProcTasksFrame taskFrame;
-    @Inject
     private ScreenValidation screenValidation;
     @Inject
     private DataContext dataContext;
@@ -97,6 +97,26 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private PaymentRegisterDetail paymentRegisterDetailPopupElement;
     @Inject
     private Form formBody;
+    private boolean fullScreenStatus = false;
+    @Inject
+    private GroupBoxLayout groupBody;
+    @Inject
+    private HBoxLayout editActions;
+    @Inject
+    private TabSheet tabBody;
+    @Inject
+    private CollectionLoader<ProcTask> paymentRegisterTaskDl;
+
+    @Subscribe
+    public void onBeforeShow(BeforeShowEvent event) {
+        paymentRegisterDl.load();
+        if (Objects.isNull(getEditedEntity().getProcInstance())) {
+            paymentRegisterTaskDl.setParameter("procInstance", null);
+        } else {
+            paymentRegisterTaskDl.setParameter("procInstance", getEditedEntity().getProcInstance().getId());
+        }
+        paymentRegisterTaskDl.load();
+    }
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
@@ -110,10 +130,28 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
             procTask = procTasks.isEmpty() ? null : procTasks.get(0);
             if (procTask != null && procTask.getProcActor() != null) {
                 initCompleteTaskUI();
+            } else if (procTask != null && procTask.getProcActor() == null) {
+                initClaimTaskUI();
             }
-            taskFrame.setProcInstance(getEditedEntity().getProcInstance());
-            taskFrame.refresh();
+            paymentRegisterTaskDl.setParameter("procInstance", getEditedEntity().getProcInstance().getId());
+            paymentRegisterTaskDl.load();
         }
+    }
+
+    private void initClaimTaskUI() {
+        Button claimTaskBtn = uiComponents.create(Button.class);
+        claimTaskBtn.setWidth("100%");
+
+        ProcAction.AfterActionListener afterClaimTaskListener = () -> {
+            actionsBox.removeAll();
+            initProcAction();
+            updateVisible();
+        };
+
+        ClaimProcTaskAction claimProcTaskAction = new ClaimProcTaskAction(procTask);
+        claimTaskBtn.setAction(claimProcTaskAction);
+        claimProcTaskAction.addAfterActionListener(afterClaimTaskListener);
+        actionsBox.add(claimTaskBtn);
     }
 
     protected void initCompleteTaskUI() {
@@ -367,4 +405,20 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         }
     }
 
+    @Install(to = "tabBody", subject = "contextHelpIconClickHandler")
+    private void tabBodyContextHelpIconClickHandler(HasContextHelp.ContextHelpIconClickEvent contextHelpIconClickEvent) {
+        if (fullScreenStatus) {
+            contextHelpIconClickEvent.getSource().setContextHelpText(
+                    messages.getMessage(PaymentRegisterEdit.class, "paymentRegisterEdit.normalScreen")
+            );
+        } else {
+            contextHelpIconClickEvent.getSource().setContextHelpText(
+                    messages.getMessage(PaymentRegisterEdit.class, "paymentRegisterEdit.fullScreen")
+            );
+        }
+        groupBody.setVisible(fullScreenStatus);
+        editActions.setVisible(fullScreenStatus);
+        tabBody.setTabsVisible(fullScreenStatus);
+        fullScreenStatus = !fullScreenStatus;
+    }
 }

@@ -22,9 +22,6 @@ public interface ExternalSystemConnectConfig extends Config {
     @Default("http://localhost:7080/pmnt/VAADIN/cashFlowItems.json")
     String getCashFlowListUrl();
 
-    @Property("finance.clientListUrl")
-    @Default("http://localhost:7080/pmnt/VAADIN/CLIENT_EDR_UO.xml")
-    String getClientListUrl();
     @Property("finance.companyAccounts")
     @Default("http://localhost:7080/pmnt/VAADIN/accounts.json")
     String getCompanyAccounts();

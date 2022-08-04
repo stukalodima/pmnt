@@ -126,13 +126,13 @@ public class AccountRemains extends StandardEntity {
             summInUSD = summ;
             summInEUR = 0.;
             summInUAH = 0.;
-            summEqualsUAH = summ * accountsService.getCurrentRate(onDate, currency.getShortName());
+            summEqualsUAH = Math.round(summ * accountsService.getCurrentRate(onDate, currency.getShortName())*100)/100.0;
         }
         if (currency.getShortName().equals("EUR")) {
             summInEUR = summ;
             summInUSD = 0.;
             summInUAH = 0.;
-            summEqualsUAH = summ * accountsService.getCurrentRate(onDate, currency.getShortName());
+            summEqualsUAH = Math.round(summ * accountsService.getCurrentRate(onDate, currency.getShortName())*100)/100.0;
         }
         if (currency.getShortName().equals("UAH")) {
             summInUAH = summ;

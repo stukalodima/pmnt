@@ -3,11 +3,13 @@ package com.itk.finance.service;
 import com.haulmont.cuba.core.global.DataManager;
 import com.itk.finance.entity.Client;
 import com.itk.finance.entity.ClientTypeEnum;
+import com.itk.finance.entity.xml.ClientXml;
 import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
-import javax.xml.stream.XMLStreamException;
-import java.util.HashMap;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -21,8 +23,8 @@ public class ClientServiceBean implements ClientService {
     private XmlReaderService xmlReaderService;
 
     @Override
-    public void getClientListfromExternal() throws XMLStreamException {
-        xmlReaderService.getClientFromEdr();
+    public void getClientListfromExternal() throws ParserConfigurationException, IOException, SAXException {
+        xmlReaderService.getClientFromEdrSax();
     }
 
     @Override
@@ -58,22 +60,22 @@ public class ClientServiceBean implements ClientService {
     }
 
     @Override
-    public void fillClientEntity(HashMap<String, String> clientMap) {
-        Client client = getClientByEDRPOU(clientMap.get("EDRPOU"));
+    public void fillClientEntity(ClientXml clientXml) {
+        Client client = getClientByEDRPOU(clientXml.getEdrpou());
         if (Objects.isNull(client)) {
             client = dataManager.create(Client.class);
         }
-        client.setName(clientMap.get("NAME"));
-        if (clientMap.get("SHORT_NAME").equals("")) {
-            client.setShortName(client.getName());
+        client.setName(clientXml.getName());
+        if (Objects.equals(clientXml.getShortName(), "")) {
+            client.setShortName(clientXml.getName());
         } else {
-            client.setShortName(clientMap.get("SHORT_NAME"));
+            client.setShortName(clientXml.getShortName());
         }
-        client.setEdrpou(clientMap.get("EDRPOU"));
-        client.setAddress(clientMap.get("ADDRESS"));
-        client.setKved(clientMap.get("KVED"));
-        client.setBoss(clientMap.get("BOSS"));
-        client.setStan(clientMap.get("STAN"));
+        client.setEdrpou(clientXml.getEdrpou());
+        client.setAddress(clientXml.getAddress());
+        client.setKved(clientXml.getKved());
+        client.setBoss(clientXml.getBoss());
+        client.setStan(clientXml.getStan());
         client.setClientType(ClientTypeEnum.JUR_OSOBA);
 
         dataManager.commit(client);

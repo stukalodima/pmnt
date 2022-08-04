@@ -75,7 +75,7 @@ public class UserPropertyServiceBean implements UserPropertyService {
     @Override
     public boolean dontSendEmailByApprovalResult(User user) {
         if (!Objects.isNull(user) && !Objects.isNull(getUserProperty(user)) && !Objects.isNull(getUserProperty(user).getDontSendEmailByApprovalResult())) {
-            return getUserProperty().getDontSendEmailByApprovalResult();
+            return getUserProperty(user).getDontSendEmailByApprovalResult();
         }
         return false;
     }

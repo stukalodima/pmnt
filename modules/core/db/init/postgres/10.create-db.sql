@@ -1,23 +1,22 @@
 -- begin FINANCE_CLIENT
-create table FINANCE_CLIENT
-(
-    ID          uuid,
-    VERSION     integer      not null,
-    CREATE_TS   timestamp,
-    CREATED_BY  varchar(50),
-    UPDATE_TS   timestamp,
-    UPDATED_BY  varchar(50),
-    DELETE_TS   timestamp,
-    DELETED_BY  varchar(50),
+create table FINANCE_CLIENT (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
     --
-    SHORT_NAME  varchar(255) not null,
-    NAME        text         not null,
-    CLIENT_TYPE varchar(50)  not null,
-    EDRPOU      varchar(20)  not null,
-    ADDRESS     text,
-    KVED        text,
-    BOSS        varchar(255),
-    STAN        varchar(255),
+    SHORT_NAME text not null,
+    NAME text not null,
+    CLIENT_TYPE varchar(50) not null,
+    EDRPOU varchar(20) not null,
+    ADDRESS text,
+    KVED text,
+    BOSS text,
+    STAN varchar(255),
     --
     primary key (ID)
 );
@@ -85,20 +84,20 @@ create table FINANCE_COMPANY
 );
 -- end FINANCE_COMPANY
 -- begin FINANCE_BUSINESS
-create table FINANCE_BUSINESS
-(
-    ID                    uuid,
-    VERSION               integer      not null,
-    CREATE_TS             timestamp,
-    CREATED_BY            varchar(50),
-    UPDATE_TS             timestamp,
-    UPDATED_BY            varchar(50),
-    DELETE_TS             timestamp,
-    DELETED_BY            varchar(50),
+create table FINANCE_BUSINESS (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
     --
-    NAME                  varchar(255) not null,
-    FIN_DIRECTOR_ID       uuid,
-    MANAGEMENT_COMPANY_ID uuid         not null,
+    NAME varchar(255) not null,
+    FIN_DIRECTOR_ID uuid,
+    MANAGEMENT_COMPANY_ID uuid not null,
+    PARENT_ID uuid,
     --
     primary key (ID)
 );
@@ -121,7 +120,7 @@ create table FINANCE_PAYMENT_REGISTER_DETAIL (
     COMMENT_ text,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PAYMENT_REGISTER_DETAIL
 -- begin FINANCE_USER_PROPERTY
 create table FINANCE_USER_PROPERTY (
@@ -143,7 +142,7 @@ create table FINANCE_USER_PROPERTY (
     SEND_NOTIFICATION_TASK boolean,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_USER_PROPERTY
 -- begin FINANCE_CASH_FLOW_ITEM
 create table FINANCE_CASH_FLOW_ITEM
@@ -194,7 +193,7 @@ create table FINANCE_PAYMENT_CLAIM (
     BUDGET_ANALITIC text,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PAYMENT_CLAIM
 -- begin FINANCE_MANAGEMENT_COMPANY
 create table FINANCE_MANAGEMENT_COMPANY
@@ -237,21 +236,21 @@ create table FINANCE_CASH_FLOW_ITEM_BUSINESS
 );
 -- end FINANCE_CASH_FLOW_ITEM_BUSINESS
 -- begin FINANCE_BANK
-create table FINANCE_BANK
-(
-    ID         uuid,
-    VERSION    integer      not null,
-    CREATE_TS  timestamp,
+create table FINANCE_BANK (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
     CREATED_BY varchar(50),
-    UPDATE_TS  timestamp,
+    UPDATE_TS timestamp,
     UPDATED_BY varchar(50),
-    DELETE_TS  timestamp,
+    DELETE_TS timestamp,
     DELETED_BY varchar(50),
     --
-    NAME       varchar(255) not null,
-    FULL_NAME  text,
-    MFO        varchar(6)   not null,
-    STAN       varchar(255),
+    NAME varchar(255) not null,
+    FULL_NAME text,
+    MFO varchar(6) not null,
+    STAN varchar(255),
+    PARENT_BANK_ID uuid,
     --
     primary key (ID)
 );

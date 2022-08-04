@@ -16,6 +16,7 @@ public class Client extends StandardEntity {
     private static final long serialVersionUID = 7519661033370406506L;
 
     @NotNull
+    @Lob
     @Column(name = "SHORT_NAME", nullable = false)
     private String shortName;
 
@@ -41,6 +42,7 @@ public class Client extends StandardEntity {
     private String kved;
 
     @Column(name = "BOSS")
+    @Lob
     private String boss;
 
     @Column(name = "STAN")

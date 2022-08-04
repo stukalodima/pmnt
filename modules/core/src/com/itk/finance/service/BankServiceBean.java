@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service(BankService.NAME)
 public class BankServiceBean implements BankService {
@@ -40,6 +41,7 @@ public class BankServiceBean implements BankService {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             if (jsonObject.getAsJsonPrimitive("TYP").getAsString().equals("0")
                     || jsonObject.getAsJsonPrimitive("TYP").getAsString().equals("1")) {
+                bankMap.put("parentBank", jsonObject.getAsJsonPrimitive("GLMFO").getAsString());
                 bankMap.put("name", jsonObject.getAsJsonPrimitive("SHORTNAME").getAsString());
                 bankMap.put("mfo", jsonObject.getAsJsonPrimitive("MFO").getAsString());
                 bankMap.put("fullName", jsonObject.getAsJsonPrimitive("FULLNAME").getAsString());
@@ -55,7 +57,12 @@ public class BankServiceBean implements BankService {
         if (Objects.isNull(bank)) {
             bank = dataManager.create(Bank.class);
         }
-
+        if (bankMap.get("parentBank").equals(bankMap.get("mfo"))) {
+            bank.setParentBank(bank);
+        } else {
+            Bank parentBank = getBankByMfo(bankMap.get("parentBank"));
+            bank.setParentBank(parentBank);
+        }
         bank.setName(bankMap.get("name"));
         bank.setMfo(bankMap.get("mfo"));
         bank.setFullName(bankMap.get("fullName"));
@@ -69,6 +76,7 @@ public class BankServiceBean implements BankService {
         List<Bank> bankList = dataManager.load(Bank.class)
                 .query("select e from finance_Bank e where e.mfo = :mfo")
                 .parameter("mfo", mfo)
+                .view("bank-full")
                 .list();
         Bank bank = null;
         if (bankList.size() > 0) {
