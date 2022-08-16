@@ -52,4 +52,8 @@ public class AppLoginScreen extends LoginScreen {
         logoImage.setSource(RelativePathResource.class)
                 .setPath("VAADIN/brand-login-screen/smartholding_logo.png");
     }
+
+    @Override
+    protected void onAfterShow(AfterShowEvent event) {
+    }
 }

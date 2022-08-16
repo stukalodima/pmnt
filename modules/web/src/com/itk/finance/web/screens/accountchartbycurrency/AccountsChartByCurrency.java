@@ -1,5 +1,6 @@
 package com.itk.finance.web.screens.accountchartbycurrency;
 
+import com.haulmont.charts.gui.components.charts.Chart;
 import com.haulmont.charts.gui.components.charts.PieChart;
 import com.haulmont.charts.gui.data.ListDataProvider;
 import com.haulmont.charts.gui.data.MapDataItem;
@@ -77,6 +78,7 @@ public class AccountsChartByCurrency extends Screen {
         accountsRemainsByBankDl.load();
         accountsRemainsByBankDc.getMutableItems().forEach(e->{
             e.setValue("today", Math.round((Double)e.getValue("today")));
+            e.setValue("summ", Math.round((Double)e.getValue("summ")));
         });
         setColumnName(onDate.getValue());
     }
@@ -115,6 +117,13 @@ public class AccountsChartByCurrency extends Screen {
                         "<br>" + dateFormat.format(columnDate) + " (EUR)" + "</div"
                 );
     }
+
+    @Subscribe("pie3dChart")
+    public void onPie3dChartLegendItemShow(Chart.LegendItemShowEvent event) {
+
+    }
+
+
 
     public static Date addDays(Date date, Integer days) {
         Calendar cal = Calendar.getInstance();
