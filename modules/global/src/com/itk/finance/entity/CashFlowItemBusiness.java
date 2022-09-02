@@ -20,7 +20,12 @@ public class CashFlowItemBusiness extends StandardEntity {
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BUSINESS_ID")
+    private Business business;
+
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMPANY_ID")
     private Company company;
 
@@ -51,5 +56,13 @@ public class CashFlowItemBusiness extends StandardEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Business getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(Business business) {
+        this.business = business;
     }
 }

@@ -217,23 +217,23 @@ create table FINANCE_MANAGEMENT_COMPANY
 -- end FINANCE_MANAGEMENT_COMPANY
 
 -- begin FINANCE_CASH_FLOW_ITEM_BUSINESS
-create table FINANCE_CASH_FLOW_ITEM_BUSINESS
-(
-    ID                uuid,
-    VERSION           integer      not null,
-    CREATE_TS         timestamp,
-    CREATED_BY        varchar(50),
-    UPDATE_TS         timestamp,
-    UPDATED_BY        varchar(50),
-    DELETE_TS         timestamp,
-    DELETED_BY        varchar(50),
+create table FINANCE_CASH_FLOW_ITEM_BUSINESS (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
     --
-    NAME              varchar(255) not null,
-    COMPANY_ID        uuid         not null,
+    NAME varchar(255) not null,
+    BUSINESS_ID uuid,
+    COMPANY_ID uuid,
     CASH_FLOW_ITEM_ID uuid,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_CASH_FLOW_ITEM_BUSINESS
 -- begin FINANCE_BANK
 create table FINANCE_BANK (
