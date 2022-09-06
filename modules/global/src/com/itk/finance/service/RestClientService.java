@@ -6,4 +6,5 @@ public interface RestClientService {
     String NAME = "finance_RestClientService";
 
     String callGetMethod(String restServiceUrl) throws IOException;
+    String callGetMethod(String restServiceUrl, boolean withAuth) throws IOException;
 }

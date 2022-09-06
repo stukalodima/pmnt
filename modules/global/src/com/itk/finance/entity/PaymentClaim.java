@@ -28,56 +28,64 @@ public class PaymentClaim extends StandardEntity {
     @Column(name = "NUMBER_")
     private Long number;
 
+    @Column(name = "DOC_NUMBER")
+    private String docNumber;
+
+    @Column(name = "CLIENT_ACCOUNT")
+    private String clientAccount;
+
     @Temporal(TemporalType.DATE)
     @NotNull
-    @Column(name = "ON_DATE", nullable = false)
+    @Column(name = "ON_DATE")
     private Date onDate;
 
+    @NotNull
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BUSINESS_ID")
     private Business business;
 
+    @NotNull
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMPANY_ID")
     private Company company;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CLIENT_ID")
     private Client client;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACCOUNT_ID")
     private Account account;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CURRENCY_ID")
     private Currency currency;
 
-    @Column(name = "SUMM", nullable = false)
+    @Column(name = "SUMM")
     @NotNull
     private Double summ;
 
     @Temporal(TemporalType.DATE)
     @NotNull
-    @Column(name = "PLAN_PAYMENT_DATE", nullable = false)
+    @Column(name = "PLAN_PAYMENT_DATE")
     private Date planPaymentDate;
 
     @NotNull
     @Lob
-    @Column(name = "PAYMENT_PURPOSE", nullable = false)
+    @Column(name = "PAYMENT_PURPOSE")
     private String paymentPurpose;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CASH_FLOW_ITEM_ID")
     @NotNull
     private CashFlowItem cashFlowItem;
@@ -88,7 +96,7 @@ public class PaymentClaim extends StandardEntity {
     private CashFlowItemBusiness cashFlowItemBusiness;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PAYMENT_TYPE_ID")
     @NotNull
     private PaymentType paymentType;
@@ -98,7 +106,7 @@ public class PaymentClaim extends StandardEntity {
     private String comment;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AUTHOR_ID")
     private User author;
 
@@ -270,5 +278,21 @@ public class PaymentClaim extends StandardEntity {
         status = procPropertyService.getNewStatus();
         onDate = timeSource.currentTimestamp();
         planPaymentDate = new Date(timeSource.currentTimeMillis() + 24 * 60 * 60 * 1000);
+    }
+
+    public String getDocNumber() {
+        return docNumber;
+    }
+
+    public void setDocNumber(String docNumber) {
+        this.docNumber = docNumber;
+    }
+
+    public String getClientAccount() {
+        return clientAccount;
+    }
+
+    public void setClientAccount(String clientAccount) {
+        this.clientAccount = clientAccount;
     }
 }

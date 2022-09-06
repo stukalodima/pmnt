@@ -8,7 +8,7 @@ import com.haulmont.cuba.core.app.UniqueNumbersAPI;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.FluentLoader;
 import com.haulmont.cuba.core.global.UserSessionSource;
-import com.itk.finance.config.ExternalSystemConnectConfig;
+import com.itk.finance.config.RestApiSmartPlatformConfig;
 import com.itk.finance.entity.*;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +26,6 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
             "and e.business = :business " +
             "and e.express = :express ";
     @Inject
-    private ExternalSystemConnectConfig externalSystemConnectConfig;
-    @Inject
     private DataManager dataManager;
     @Inject
     private CompanyService companyService;
@@ -43,11 +41,16 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
     private RestClientService restClientService;
     @Inject
     private ProcPropertyService procPropertyService;
+    @Inject
+    private RestApiSmartPlatformConfig restApiSmartPlatformConfig;
+    @Inject
+    private AccountsService accountsService;
+    @Inject
+    private CurrencyService currencyService;
 
     @Override
     public void getPaymentClaimListFromExternal() throws IOException, ParseException {
-        //"http://localhost:8080/pmnt/VAADIN/paymentClaim.json"
-        String jsonString = restClientService.callGetMethod(externalSystemConnectConfig.getPaymentClaimListUrl());
+        String jsonString = restClientService.callGetMethod(restApiSmartPlatformConfig.getPaymentClaimList(), true);
         if (!jsonString.isEmpty()) {
             parseJsonString(jsonString);
         }
@@ -73,38 +76,59 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
     }
 
     private void parseJsonString(String jsonString) throws ParseException {
-        JsonArray jsonArray = new JsonParser().parse(jsonString).getAsJsonArray();
+        JsonArray jsonArray = JsonParser.parseString(jsonString).getAsJsonArray();
         HashMap<String, Object> paymentClaimMap = new HashMap<>();
         for (JsonElement jsonElement : jsonArray) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             paymentClaimMap.put("id", jsonObject.getAsJsonPrimitive("id").getAsString());
+            paymentClaimMap.put("number", jsonObject.getAsJsonPrimitive("number").getAsString());
+            paymentClaimMap.put("numberRow", jsonObject.getAsJsonPrimitive("numberRow").getAsString());
             paymentClaimMap.put("onDate", jsonObject.getAsJsonPrimitive("onDate").getAsString());
             paymentClaimMap.put("planPaymentDate", jsonObject.getAsJsonPrimitive("planPaymentDate").getAsString());
             paymentClaimMap.put("companyId", jsonObject.getAsJsonPrimitive("company").getAsString());
+            paymentClaimMap.put("companyEdrpou", jsonObject.getAsJsonPrimitive("companyEdrpou").getAsString());
+            paymentClaimMap.put("companyIban", jsonObject.getAsJsonPrimitive("companyIban").getAsString());
             paymentClaimMap.put("clientEdrpou", jsonObject.getAsJsonPrimitive("clientEDRPOU").getAsString());
-            paymentClaimMap.put("clientName", jsonObject.getAsJsonPrimitive("clientname").getAsString());
-            paymentClaimMap.put("cashFlowItemsBusinessId", jsonObject.getAsJsonPrimitive("cashFlowItem").getAsString());
+            paymentClaimMap.put("clientShortName", jsonObject.getAsJsonPrimitive("clientShortName").getAsString());
+            paymentClaimMap.put("clientName", jsonObject.getAsJsonPrimitive("clientName").getAsString());
+            paymentClaimMap.put("clientType", jsonObject.getAsJsonPrimitive("clientType").getAsString());
+            paymentClaimMap.put("clientIban", jsonObject.getAsJsonPrimitive("clientIban").getAsString());
+            paymentClaimMap.put("currency", jsonObject.getAsJsonPrimitive("currency").getAsString());
             paymentClaimMap.put("summ", jsonObject.getAsJsonPrimitive("summ").getAsDouble());
             paymentClaimMap.put("paymentPurpose", jsonObject.getAsJsonPrimitive("paymentPurpose").getAsString());
+            paymentClaimMap.put("cashFlowItemsBusinessId", jsonObject.getAsJsonPrimitive("cashFlowItem").getAsString());
+            paymentClaimMap.put("cashFlowItemName", jsonObject.getAsJsonPrimitive("cashFlowItemName").getAsString());
+            paymentClaimMap.put("comment", jsonObject.getAsJsonPrimitive("comment").getAsString());
+            paymentClaimMap.put("paymentTypeCode", jsonObject.getAsJsonPrimitive("paymentTypeCode").getAsString());
+            paymentClaimMap.put("paymentType", jsonObject.getAsJsonPrimitive("paymentType").getAsString());
+            paymentClaimMap.put("addDate", jsonObject.getAsJsonPrimitive("addDate").getAsString());
 
             fillPaymentClaimEntity(paymentClaimMap);
         }
     }
 
     private void fillPaymentClaimEntity(HashMap<String, Object> paymentClaimMap) throws ParseException {
+        String format = "yyyy-MM-dd";
+        Date dateAdd = new SimpleDateFormat(format).parse(paymentClaimMap.get("addDate").toString());
+        Company company = companyService.getCompanyByEdrpou(paymentClaimMap.get("companyEdrpou").toString());
+        if (company == null
+                || company.getIntegrationEnable() == null
+                || !company.getIntegrationEnable()
+                || company.getDateStartIntegration() == null
+                || company.getDateStartIntegration().after(dateAdd)) {
+            return;
+        }
         PaymentClaim paymentClaim = getPaymentClaimById(paymentClaimMap.get("id").toString());
 
         if (Objects.isNull(paymentClaim)) {
             paymentClaim = dataManager.create(PaymentClaim.class);
         }
 
-        String format = "yyyy-MM-dd";
-        Company company = companyService.getCompanyById(paymentClaimMap.get("companyId").toString());
         Client client = clientService.getClientByEDRPOU(paymentClaimMap.get("clientEdrpou").toString());
         Date onDate = new SimpleDateFormat(format).parse(paymentClaimMap.get("onDate").toString());
         Date planPaymentDate = new SimpleDateFormat(format).parse(paymentClaimMap.get("planPaymentDate").toString());
-        CashFlowItemBusiness cashFlowItemBusiness = cashFlowItemsBusinessService.getCashFlowItemsItemsById(
-                paymentClaimMap.get("cashFlowItemsBusinessId").toString()
+        CashFlowItemBusiness cashFlowItemBusiness = cashFlowItemsBusinessService.getCashFlowItemsItemsByName(
+                paymentClaimMap.get("cashFlowItemName").toString(), company.getBusiness()
         );
 
         if (Objects.isNull(client)) {
@@ -113,15 +137,28 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
 
         paymentClaim.setId(UUID.fromString(paymentClaimMap.get("id").toString()));
         paymentClaim.setOnDate(onDate);
+        paymentClaim.setDocNumber(paymentClaimMap.get("number").toString() + "/" + paymentClaimMap.get("numberRow").toString());
         paymentClaim.setPlanPaymentDate(planPaymentDate);
         paymentClaim.setSumm((Double) paymentClaimMap.get("summ"));
         paymentClaim.setStatus(procPropertyService.getNewStatus());
         paymentClaim.setCompany(company);
         paymentClaim.setBusiness(company.getBusiness());
         paymentClaim.setClient(client);
+        paymentClaim.setClientAccount(paymentClaimMap.get("clientIban").toString());
         paymentClaim.setPaymentPurpose(paymentClaimMap.get("paymentPurpose").toString());
         paymentClaim.setCashFlowItemBusiness(cashFlowItemBusiness);
-        paymentClaim.setCashFlowItem(cashFlowItemBusiness.getCashFlowItem());
+        Account account = accountsService.getCompanyAccountsByIban(paymentClaimMap.get("companyIban").toString(),
+                paymentClaimMap.get("currency").toString());
+        if (account != null) {
+            paymentClaim.setAccount(account);
+            paymentClaim.setCurrency(account.getCurrency());
+        } else {
+            paymentClaim.setCurrency(currencyService.getCurrencyByCode(paymentClaimMap.get("currency").toString()));
+        }
+
+        if (cashFlowItemBusiness != null) {
+            paymentClaim.setCashFlowItem(cashFlowItemBusiness.getCashFlowItem());
+        }
         paymentClaim.setPaymentType(dataManager.getReference(
                 PaymentType.class, UUID.fromString("a53b97e7-5604-cced-eff9-31e6d3c8babb"))
         );
@@ -138,8 +175,8 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
         Client client = dataManager.create(Client.class);
 
         client.setName(paymentClaimMap.get("clientName").toString());
-        client.setShortName(paymentClaimMap.get("clientName").toString());
-        client.setClientType(ClientTypeEnum.JUR_OSOBA);
+        client.setShortName(paymentClaimMap.get("clientShortName").toString());
+        client.setClientType(paymentClaimMap.get("clientType").toString().equals("1") ? ClientTypeEnum.JUR_OSOBA : ClientTypeEnum.FIZ_OSOBA);
         client.setEdrpou(paymentClaimMap.get("clientEdrpou").toString());
 
         dataManager.commit(client);

@@ -7,6 +7,7 @@ import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Table(name = "FINANCE_COMPANY")
 @Entity(name = "finance_Company")
@@ -32,6 +33,13 @@ public class Company extends StandardEntity {
     @JoinColumn(name = "BUSINESS_ID")
     @NotNull
     private Business business;
+
+    @Column(name = "INTEGRATION_ENABLE")
+    private Boolean integrationEnable;
+
+    @Column(name = "DATE_START_INTEGRATION")
+    @Temporal(TemporalType.DATE)
+    private Date dateStartIntegration;
 
     public String getEdrpou() {
         return edrpou;
@@ -63,5 +71,21 @@ public class Company extends StandardEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Date getDateStartIntegration() {
+        return dateStartIntegration;
+    }
+
+    public void setDateStartIntegration(Date dateStartIntegration) {
+        this.dateStartIntegration = dateStartIntegration;
+    }
+
+    public Boolean getIntegrationEnable() {
+        return integrationEnable;
+    }
+
+    public void setIntegrationEnable(Boolean integrationEnable) {
+        this.integrationEnable = integrationEnable;
     }
 }

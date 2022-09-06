@@ -59,9 +59,12 @@ public class AccountsServiceBean implements AccountsService {
     }
 
     @Override
-    public Account getCompanyAccountsByIban(String iban, String currencyName) {
+    public Account getCompanyAccountsByIban(String iban, String currencyString) {
         Account account = null;
-        Currency currency = currencyService.getCurrencyByShortName(currencyName);
+        Currency currency = currencyService.getCurrencyByCode(currencyString);
+        if (currency == null) {
+            currency = currencyService.getCurrencyByShortName(currencyString);
+        }
         if (!Objects.isNull(currency)) {
             account = getCompanyAccountsByIban(iban, currency);
         }
