@@ -3,7 +3,10 @@ package com.itk.finance.entity;
 import com.haulmont.chile.core.annotations.Composition;
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
-import com.haulmont.cuba.core.entity.annotation.*;
+import com.haulmont.cuba.core.entity.annotation.Listeners;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.cuba.core.entity.annotation.OnDelete;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.DeletePolicy;
@@ -43,6 +46,9 @@ public class PaymentRegister extends StandardEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     private ProcStatus status;
+
+    @Column(name = "PAYED_STATUS")
+    private String payedStatus;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
@@ -153,6 +159,7 @@ public class PaymentRegister extends StandardEntity {
         business = userPropertyService.getDefaultBusiness();
         author = userSession.getUser();
         status = procPropertyService.getNewStatus();
+        payedStatus = PayStatusEnum.NOT_PAYED.getId();
     }
 
     public String calcSummaPaymentClaim(Set<PaymentRegisterDetail> paymentRegisterDetails) {
@@ -183,5 +190,13 @@ public class PaymentRegister extends StandardEntity {
                 }
         );
         return text.toString();
+    }
+
+    public PayStatusEnum getPayedStatus() {
+        return payedStatus == null ? null : PayStatusEnum.fromId(payedStatus);
+    }
+
+    public void setPayedStatus(PayStatusEnum payedStatus) {
+        this.payedStatus = payedStatus == null ? null : payedStatus.getId();
     }
 }

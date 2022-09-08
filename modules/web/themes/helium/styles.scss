@@ -1,10 +1,13 @@
+//noinspection CssUnknownTarget
 @import "helium-defaults";
 @import "com.itk.finance/helium-ext-defaults";
+//noinspection CssUnknownTarget
 @import "app-components";
 @import "com.itk.finance/helium-ext";
 
 .helium {
   // include auto-generated app components SCSS
+  //noinspection SassScssUnresolvedMixin
   @include app_components;
 
   @include com_itk_finance-helium-ext;
@@ -27,6 +30,45 @@
       font-weight: bold;
       .c-grouptable-group-cell-expander:before {
         color: #ffc90e !important;
+      }
+    }
+  }
+
+  .v-table-row,
+  .v-table-row-odd {
+    &.startProc1 {
+      background-color: #FFFFD5 !important;
+      //font-weight: bold;
+      color: black !important;
+      .c-grouptable-group-cell-expander:before {
+        background-color: #FFFFD5 !important;
+        color: black !important;
+      }
+    }
+  }
+
+  .v-table-row,
+  .v-table-row-odd {
+    &.terminated1 {
+      background-color: #FFE0E6 !important;
+      //font-weight: bold;
+      color: black !important;
+      .c-grouptable-group-cell-expander:before {
+        background-color: #FFE0E6 !important;
+        color: black !important;
+      }
+    }
+  }
+
+  .v-table-row,
+  .v-table-row-odd {
+    &.approved1 {
+      background-color: #E6FFE6 !important;
+      //font-weight: bold;
+      color: black !important;
+      .c-grouptable-group-cell-expander:before {
+        background-color: #E6FFE6 !important;
+        color: black !important;
       }
     }
   }

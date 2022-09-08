@@ -22,25 +22,25 @@ create table FINANCE_CLIENT (
 );
 -- end FINANCE_CLIENT
 -- begin FINANCE_PAYMENT_REGISTER
-create table FINANCE_PAYMENT_REGISTER
-(
-    ID               uuid,
-    VERSION          integer not null,
-    CREATE_TS        timestamp,
-    CREATED_BY       varchar(50),
-    UPDATE_TS        timestamp,
-    UPDATED_BY       varchar(50),
-    DELETE_TS        timestamp,
-    DELETED_BY       varchar(50),
+create table FINANCE_PAYMENT_REGISTER (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
     --
-    NUMBER_          bigint,
-    ON_DATE          date    not null,
-    BUSINESS_ID      uuid    not null,
-    STATUS_ID        uuid,
-    AUTHOR_ID        uuid,
+    NUMBER_ bigint,
+    ON_DATE date not null,
+    BUSINESS_ID uuid not null,
+    STATUS_ID uuid,
+    PAYED_STATUS varchar(50),
+    AUTHOR_ID uuid,
     REGISTER_TYPE_ID uuid,
     PROC_INSTANCE_ID uuid,
-    SUMMA            varchar(255),
+    SUMMA varchar(255),
     --
     primary key (ID)
 );
@@ -82,7 +82,7 @@ create table FINANCE_COMPANY (
     DATE_START_INTEGRATION date,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_COMPANY
 -- begin FINANCE_BUSINESS
 create table FINANCE_BUSINESS (
@@ -115,9 +115,12 @@ create table FINANCE_PAYMENT_REGISTER_DETAIL (
     DELETED_BY varchar(50),
     --
     APPROVED varchar(50),
+    PAYED varchar(50),
+    SUMA_TO_PAY double precision,
+    PAYED_DATE timestamp,
+    PAYED_SUMA double precision,
     PAYMENT_CLAIM_ID uuid,
     PAYMENT_REGISTER_ID uuid not null,
-    PAYMENT_STATUS_ROW varchar(50),
     COMMENT_ text,
     --
     primary key (ID)
@@ -196,7 +199,7 @@ create table FINANCE_PAYMENT_CLAIM (
     BUDGET_ANALITIC text,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PAYMENT_CLAIM
 -- begin FINANCE_MANAGEMENT_COMPANY
 create table FINANCE_MANAGEMENT_COMPANY
@@ -236,7 +239,7 @@ create table FINANCE_CASH_FLOW_ITEM_BUSINESS (
     CASH_FLOW_ITEM_ID uuid,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_CASH_FLOW_ITEM_BUSINESS
 -- begin FINANCE_BANK
 create table FINANCE_BANK (

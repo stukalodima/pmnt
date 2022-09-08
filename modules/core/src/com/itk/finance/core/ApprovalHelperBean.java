@@ -2,7 +2,10 @@ package com.itk.finance.core;
 
 import com.haulmont.cuba.core.Persistence;
 import com.haulmont.cuba.core.Transaction;
-import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.core.global.EmailAttachment;
+import com.haulmont.cuba.core.global.EmailException;
+import com.haulmont.cuba.core.global.GlobalConfig;
+import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.security.entity.User;
 import com.itk.finance.entity.PaymentRegister;
 import com.itk.finance.entity.PaymentRegisterDetail;
@@ -23,14 +26,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("all")
+@SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
 @Component(ApprovalHelperBean.NAME)
 public class ApprovalHelperBean {
     public static final String NAME = "finance_ApprovalHelperBean";
@@ -48,16 +50,16 @@ public class ApprovalHelperBean {
     @Inject
     private EmailService emailService;
     @Inject
-    private TimeSource timeSource;
-    @Inject
     private GlobalConfig globalConfig;
     @Inject
     private UserPropertyService userPropertyService;
 
+    @SuppressWarnings("unused")
     public void updateStateRegister(UUID entityId, String state) {
         procPropertyService.updateStateRegister(entityId, state);
     }
 
+    @SuppressWarnings("unused")
     public void rejectPaymentRegister(UUID entityId, String state) throws IOException, EmailException {
         PaymentRegister paymentRegister = persistence.getEntityManager().find(PaymentRegister.class, entityId);
         if (Objects.isNull(paymentRegister)) {
@@ -68,6 +70,7 @@ public class ApprovalHelperBean {
         sendRejectedLater(paymentRegister);
     }
 
+    @SuppressWarnings("unused")
     public void updateStateRegisterAndSendFinishLater(UUID entityId, String state) throws IOException, EmailException {
         procPropertyService.updateStateRegister(entityId, state);
 
@@ -138,12 +141,8 @@ public class ApprovalHelperBean {
         int approvedIndex = 2;
         List<PaymentRegisterDetail> detailList = paymentRegister.getPaymentRegisters()
                 .stream()
-                .sorted((o1, o2) -> {
-                    return o1.getPaymentClaim().getCompany().getName().compareTo(o2.getPaymentClaim().getCompany().getName());
-                })
-                .sorted((ob1, ob2) -> {
-                    return ob1.getPaymentClaim().getAccount().getIban().compareTo(ob2.getPaymentClaim().getAccount().getIban());
-                })
+                .sorted(Comparator.comparing(o -> o.getPaymentClaim().getCompany().getName()))
+                .sorted(Comparator.comparing(ob -> ob.getPaymentClaim().getAccount().getIban()))
                 .collect(Collectors.toList());
 
         for (PaymentRegisterDetail e : detailList) {
@@ -167,6 +166,7 @@ public class ApprovalHelperBean {
 
         styleHeader.setFont(font);
         styleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        //noinspection deprecation
         styleHeader.setFillForegroundColor(new XSSFColor(COLOR_light_gray));
         styleHeader.setBorderBottom(BorderStyle.THIN);
         styleHeader.setBorderLeft(BorderStyle.THIN);
@@ -191,13 +191,11 @@ public class ApprovalHelperBean {
         DateFormat dateFormat = new SimpleDateFormat(DD_MM_YYYY);
 
         FileOutputStream out;
-        StringBuilder stringBuilder = new StringBuilder(sheetName);
-        stringBuilder.append(messages.getMessage(ApprovalHelperBean.class, "fileName.Register"))
-                .append(paymentRegister.getNumber())
-                .append(messages.getMessage(ApprovalHelperBean.class, "fileName.DateFrom"))
-                .append(dateFormat.format(paymentRegister.getOnDate()))
-                .append(messages.getMessage(ApprovalHelperBean.class, "fileName.extension"));
-        String fileName = stringBuilder.toString();
+        String fileName = sheetName + messages.getMessage(ApprovalHelperBean.class, "fileName.Register") +
+                paymentRegister.getNumber() +
+                messages.getMessage(ApprovalHelperBean.class, "fileName.DateFrom") +
+                dateFormat.format(paymentRegister.getOnDate()) +
+                messages.getMessage(ApprovalHelperBean.class, "fileName.extension");
         out = new FileOutputStream(globalConfig.getTempDir() + "/" + fileName);
         workbook.write(out);
         out.close();
@@ -207,29 +205,26 @@ public class ApprovalHelperBean {
 
     private void changeStatusToRejected(PaymentRegister paymentRegister) {
         try (Transaction transaction = persistence.getTransaction()) {
-            paymentRegister.getPaymentRegisters().forEach(e -> {
-                e.setApproved(PaymentRegisterDetailStatusEnum.REJECTED);
-            });
+            paymentRegister.getPaymentRegisters().forEach(e -> e.setApproved(PaymentRegisterDetailStatusEnum.REJECTED));
             transaction.commit();
         }
     }
 
     private String getRegisterNameForLater(PaymentRegister paymentRegister) {
         DateFormat dateFormat = new SimpleDateFormat(DD_MM_YYYY);
-        StringBuilder registerName = new StringBuilder(paymentRegister.getNumber().toString())
-                .append(" ")
-                .append(messages.getMessage(ApprovalHelperBean.class, "mail.captionFrom"))
-                .append(" ")
-                .append(dateFormat.format(paymentRegister.getOnDate()))
-                .append(" ")
-                .append(messages.getMessage(ApprovalHelperBean.class, "mail.captionBN"))
-                .append(" ")
-                .append(paymentRegister.getBusiness().getName())
-                .append(" ")
-                .append(messages.getMessage(ApprovalHelperBean.class, "mail.captionRegisterType"))
-                .append(" ")
-                .append(paymentRegister.getRegisterType().getName());
-        return registerName.toString();
+        return paymentRegister.getNumber().toString() +
+                " " +
+                messages.getMessage(ApprovalHelperBean.class, "mail.captionFrom") +
+                " " +
+                dateFormat.format(paymentRegister.getOnDate()) +
+                " " +
+                messages.getMessage(ApprovalHelperBean.class, "mail.captionBN") +
+                " " +
+                paymentRegister.getBusiness().getName() +
+                " " +
+                messages.getMessage(ApprovalHelperBean.class, "mail.captionRegisterType") +
+                " " +
+                paymentRegister.getRegisterType().getName();
     }
 
     private void sendFinishLater(PaymentRegister paymentRegister) throws IOException, EmailException {
@@ -247,11 +242,11 @@ public class ApprovalHelperBean {
                 tableDataTerminate
         );
 
-        Map<String, Object[]> tableDataRejecte = getTableDataByStatus(paymentRegister, PaymentRegisterDetailStatusEnum.REJECTED);
-        String attachmentFileNameRejecte = createExcelFile(
+        Map<String, Object[]> tableDataRejected = getTableDataByStatus(paymentRegister, PaymentRegisterDetailStatusEnum.REJECTED);
+        String attachmentFileNameRejected = createExcelFile(
                 messages.getMessage(ApprovalHelperBean.class, "file.Name.Rejected"),
                 paymentRegister,
-                tableDataRejecte
+                tableDataRejected
         );
 
         String addressList = getAddressListBase(paymentRegister).toString();
@@ -263,11 +258,11 @@ public class ApprovalHelperBean {
         if (tableDataTerminate.size() > 1) {
             stringList.add(attachmentFileNameTerminate);
         }
-        if (tableDataRejecte.size() > 1) {
-            stringList.add(attachmentFileNameRejecte);
+        if (tableDataRejected.size() > 1) {
+            stringList.add(attachmentFileNameRejected);
         }
 
-        sendEmailByStatus(paymentRegister, addressList.toString(), MAIL_FINISH_LATER_EMAIL_CAPTION,
+        sendEmailByStatus(paymentRegister, addressList, MAIL_FINISH_LATER_EMAIL_CAPTION,
                 MAIL_FINISH_LATER_EMAIL_BODY, stringList);
 
         StringBuilder addressListUser = new StringBuilder();
@@ -290,33 +285,6 @@ public class ApprovalHelperBean {
             }
         }
     }
-
-//    private void createEmailWithAttachment(PaymentRegister paymentRegister, String addressList, Map<String, Object[]> approvedData) throws IOException, EmailException {
-//        XSSFWorkbook workbook = new XSSFWorkbook();
-//
-//        XSSFFont font = new XSSFFont();
-//        font.setBold(true);
-//        XSSFCellStyle styleHeader = workbook.createCellStyle();
-//        styleHeader.setFont(font);
-//        // spreadsheet object
-//        XSSFSheet spreadsheetApproved
-//                = workbook.createSheet("Согласовано");
-//
-//        fillSpreadsheet(approvedData, spreadsheetApproved, styleHeader);
-//
-//        FileOutputStream out;
-//        String fileName = "Реестр_на_оплату" + paymentRegister.getNumber() + ".xlsx";
-//        out = new FileOutputStream(
-//                globalConfig.getTempDir() + "/" + fileName);
-//        workbook.write(out);
-//        out.close();
-//
-//        List<String> stringList = new ArrayList<>();
-//        stringList.add(fileName);
-//
-//        sendEmailByStatus(paymentRegister, addressList, MAIL_FINISH_LATER_EMAIL_CAPTION,
-//                MAIL_FINISH_LATER_EMAIL_BODY, stringList);
-//    }
 
     private void fillSpreadsheet(Map<String, Object[]> mapData, XSSFSheet spreadsheetData, XSSFCellStyle styleHeader, XSSFCellStyle cellStyle) {
         XSSFRow row;
@@ -354,7 +322,6 @@ public class ApprovalHelperBean {
         DateFormat dateFormat = new SimpleDateFormat(DD_MM_YYYY);
         DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
         symbols.setDecimalSeparator(',');
-        DecimalFormat formatter = new DecimalFormat("######.##", symbols);
         return new Object[]{
                 messages.getMessage(PaymentRegisterDetailStatusEnum.class, "PaymentRegisterDetailStatusEnum." + e.getApproved().toString()),
                 e.getPaymentClaim().getCompany().getShortName(),

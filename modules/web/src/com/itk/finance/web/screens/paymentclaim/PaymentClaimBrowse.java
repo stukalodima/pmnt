@@ -76,13 +76,14 @@ public class PaymentClaimBrowse extends StandardLookup<PaymentClaim> implements 
         paymentClaimsDl.load();
     }
 
-    @SuppressWarnings("all")
+    @SuppressWarnings("rawtypes")
     @Override
     public ListComponent getListComponent() {
         return paymentClaimsTable;
     }
 
-    @SuppressWarnings("all")
+
+    @SuppressWarnings("rawtypes")
     @Override
     public CollectionContainer getCollectionContainer() {
         return paymentClaimsDc;
@@ -133,10 +134,7 @@ public class PaymentClaimBrowse extends StandardLookup<PaymentClaim> implements 
 
     @Install(to = "paymentClaimsTable.copy", subject = "enabledRule")
     private boolean paymentClaimsTableCopyEnabledRule() {
-        if (!Objects.isNull(paymentClaimsTable.getSingleSelected())) {
-            return true;
-        }
-        return false;
+        return !Objects.isNull(paymentClaimsTable.getSingleSelected());
     }
 
 }

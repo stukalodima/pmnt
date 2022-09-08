@@ -5,16 +5,19 @@ import com.haulmont.chile.core.datatypes.impl.EnumClass;
 import javax.annotation.Nullable;
 
 
-public enum ClientTypeEnum implements EnumClass<String> {
+public enum PayStatusEnum implements EnumClass<String> {
 
-    JUR_OSOBA("JUR_OSOBA"),
-    FIZ_OSOBA("FIZ_OSOBA");
+    PAYED("PAYED"),
+    PRE_PAYED("PRE_PAYED"),
+    NOT_PAYED("NOT_PAYED"),
+    DISMISS("DISMISS");
 
     private final String id;
 
-    ClientTypeEnum(String value) {
+    PayStatusEnum(String value) {
         this.id = value;
     }
+
 
     @SuppressWarnings("NullableProblems")
     public String getId() {
@@ -22,8 +25,8 @@ public enum ClientTypeEnum implements EnumClass<String> {
     }
 
     @Nullable
-    public static ClientTypeEnum fromId(String id) {
-        for (ClientTypeEnum at : ClientTypeEnum.values()) {
+    public static PayStatusEnum fromId(String id) {
+        for (PayStatusEnum at : PayStatusEnum.values()) {
             if (at.getId().equals(id)) {
                 return at;
             }

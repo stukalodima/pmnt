@@ -9,13 +9,14 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Map;
 
+@SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
 @Service(EmailService.NAME)
 public class EmailServiceBean implements EmailService {
 
     @Inject
     private com.haulmont.cuba.core.app.EmailService emailService;
 
-    @SuppressWarnings("all")
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void sendEmail(String address, String caption, String templateName, Map<String, Serializable> templateParameters) {
         EmailInfo emailInfo = EmailInfoBuilder.create()

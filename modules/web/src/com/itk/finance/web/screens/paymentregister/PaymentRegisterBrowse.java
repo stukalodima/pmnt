@@ -6,12 +6,11 @@ import com.haulmont.cuba.core.global.CommitContext;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.Dialogs;
-import com.haulmont.cuba.gui.ScreenBuilders;
-import com.haulmont.cuba.gui.Screens;
 import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog;
 import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
 import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.GroupTable;
+import com.haulmont.cuba.gui.data.GroupInfo;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.Business;
@@ -21,6 +20,7 @@ import com.itk.finance.entity.RegisterType;
 import com.itk.finance.service.PaymentClaimService;
 import com.itk.finance.service.PaymentRegisterService;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +48,6 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
     private Dialogs dialogs;
     @Inject
     private Messages messages;
-    @Inject
-    private ScreenBuilders screenBuilders;
 
     @SuppressWarnings("unused")
     @Install(to = "paymentRegistersTable.edit", subject = "afterCommitHandler")
@@ -62,7 +60,7 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
         boolean enable = true;
         Set<PaymentRegister> paymentRegisterList = paymentRegistersTable.getSelected();
         for (PaymentRegister paymentRegister : paymentRegisterList) {
-            paymentRegister = dataManager.reload(paymentRegister,"paymentRegister-all-property");
+            paymentRegister = dataManager.reload(paymentRegister, "paymentRegister-all-property");
             ProcInstance procInstance = paymentRegister.getProcInstance();
             if (!Objects.isNull(procInstance)) {
                 procInstance = dataManager.reload(paymentRegister.getProcInstance(), "procInstance-full");
@@ -74,7 +72,6 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
         return enable;
     }
 
-    @SuppressWarnings("all")
     @Subscribe("paymentRegistersTable.createAllRegisterByType")
     public void onPaymentRegistersTableCreateAllRegisterByType(Action.ActionPerformedEvent event) {
         List<Business> businessList = dataManager.load(Business.class)
@@ -85,7 +82,7 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
             return;
         }
         if (businessList.size() > 1) {
-            InputParameter parameter = InputParameter.entityParameter("business",Business.class);
+            InputParameter parameter = InputParameter.entityParameter("business", Business.class);
             InputDialog inputDialog = dialogs
                     .createInputDialog(this)
                     .withCaption(messages.getMessage(PaymentRegisterBrowse.class, "paymentRegisterBrowse.input.business.caption"))
@@ -98,7 +95,7 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
         }
     }
 
-    @SuppressWarnings("all")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void createRegisterByBusiness(Business business) {
         List<RegisterType> registerTypeList = dataManager.load(RegisterType.class)
                 .query("select e from finance_RegisterType e")
@@ -130,12 +127,31 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
         );
         CommitContext commitContext = new CommitContext(paymentRegisterList);
         dataManager.commit(commitContext);
-//        screenBuilders.screen(this)
-//                .withScreenClass(PaymentRegisterByTypesCreate.class)
-//                .withAfterCloseListener(e->paymentRegistersDl.load())
-//                .withLaunchMode(OpenMode.DIALOG)
-//                .build()
-//                .show();
         paymentRegistersDl.load();
+    }
+
+    @Subscribe
+    public void onInit(InitEvent event) {
+        paymentRegistersTable.setStyleProvider(new GroupTable.GroupStyleProvider<PaymentRegister>() {
+            @Nullable
+            @Override
+            public String getStyleName(@SuppressWarnings("NullableProblems") PaymentRegister entity, @Nullable String property) {
+                switch (entity.getPayedStatus()) {
+                    case PAYED:
+                        return "approved1";
+                    case PRE_PAYED:
+                        return "startProc1";
+                    case DISMISS:
+                        return "terminated1";
+                }
+                return null;
+            }
+
+            @Nullable
+            @Override
+            public String getStyleName(@SuppressWarnings("NullableProblems") GroupInfo info) {
+                return null;
+            }
+        });
     }
 }

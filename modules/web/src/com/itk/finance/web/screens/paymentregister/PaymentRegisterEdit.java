@@ -13,8 +13,12 @@ import com.haulmont.bpm.service.ProcessMessagesService;
 import com.haulmont.bpm.service.ProcessRuntimeService;
 import com.haulmont.cuba.core.app.UniqueNumbersService;
 import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.UiComponents;
+import com.haulmont.cuba.gui.app.core.inputdialog.DialogActions;
+import com.haulmont.cuba.gui.app.core.inputdialog.DialogOutcome;
+import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.data.GroupInfo;
 import com.haulmont.cuba.gui.model.CollectionLoader;
@@ -23,6 +27,7 @@ import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.model.InstanceLoader;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.util.OperationResult;
+import com.itk.finance.config.ConstantsConfig;
 import com.itk.finance.entity.*;
 import com.itk.finance.service.PaymentClaimService;
 import com.itk.finance.service.PaymentRegisterService;
@@ -36,10 +41,10 @@ import java.util.*;
 @EditedEntityContainer("paymentRegisterDc")
 @LoadDataBeforeShow
 public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
-    public static final String QUERY_STRING_ROLES_BY_BUSSINES =
+    public static final String QUERY_STRING_ROLES_BY_BUSINESS =
             "select e from finance_AddressingDetail e " +
                     "where " +
-                    "e.addressing.bussines = :bussines " +
+                    "e.addressing.bussines = :business " +
                     "and e.addressing.procDefinition = :procDefinition ";
     @Inject
     private EntityStates entityStates;
@@ -106,6 +111,28 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private TabSheet tabBody;
     @Inject
     private CollectionLoader<ProcTask> paymentRegisterTaskDl;
+    @Inject
+    private ConstantsConfig constantsConfig;
+    @Inject
+    private Dialogs dialogs;
+    @Inject
+    private Metadata metadata;
+    @Inject
+    private TimeSource timeSource;
+    @Inject
+    private Button paymentRegistersDetailTableApproveBtn;
+    @Inject
+    private Button paymentRegistersDetailTableDismissBtn;
+    @Inject
+    private Button paymentRegistersDetailTableNotPayedBtn;
+    @Inject
+    private Button paymentRegistersDetailTablePayedBtn;
+    @Inject
+    private Button paymentRegistersDetailTableRejectBtn;
+    @Inject
+    private Button paymentRegistersDetailTableFillPaymentClaimsBtn;
+    @Inject
+    private Button paymentRegistersDetailTableRemoveBtn;
 
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
@@ -120,8 +147,8 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
-        updateVisible();
         initProcAction();
+        updateVisible();
     }
 
     private void initProcAction() {
@@ -160,9 +187,9 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
             for (Map.Entry<String, ProcFormDefinition> entry : outcomesWithForms.entrySet()) {
                 CompleteProcTaskAction action = new CompleteProcTaskAction(procTask, entry.getKey(), entry.getValue());
                 action.setCaption(processMessagesService.getMessage(
-                        procTask.getProcInstance().getProcDefinition().getActId(),
-                        procTask.getActTaskDefinitionKey() + "." + entry.getKey(),
-                        getUserLocale()
+                                procTask.getProcInstance().getProcDefinition().getActId(),
+                                procTask.getActTaskDefinitionKey() + "." + entry.getKey(),
+                                getUserLocale()
                         )
                 );
                 completeProcTaskActions.add(action);
@@ -175,7 +202,27 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         }
 
         for (CompleteProcTaskAction completeProcTaskAction : completeProcTaskActions) {
-            completeProcTaskAction.addAfterActionListener(this::closeWithCommit);
+            completeProcTaskAction.addBeforeActionPredicate(() -> {
+                if (getEditedEntity().getStatus() != null
+                        && getEditedEntity().getStatus().getCode().equals(constantsConfig.getPaymentRegisterStatusInPay())) {
+                    boolean isNotPayed = getEditedEntity().getPaymentRegisters().stream()
+                            .anyMatch(e -> e.getPayed() == PayStatusEnum.NOT_PAYED);
+                    boolean isPrePayed = getEditedEntity().getPaymentRegisters().stream()
+                            .anyMatch(e -> e.getPayed() == PayStatusEnum.PRE_PAYED);
+                    if (isNotPayed || isPrePayed) {
+                        notifications.create()
+                                .withCaption(messageBundle.getMessage("notPayedDone.caption"))
+                                .withDescription(messageBundle.getMessage("notPayedDone.description"))
+                                .show();
+                        return false;
+                    }
+                }
+                return true;
+            });
+            completeProcTaskAction.addAfterActionListener(() -> {
+                getScreenData().loadAll();
+                closeWithCommit();
+            });
             Button actionBtn = uiComponents.create(Button.class);
             actionBtn.setWidth("100%");
             actionBtn.setAction(completeProcTaskAction);
@@ -192,33 +239,85 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private void updateVisible() {
         sendToApprove.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
         formBody.setEditable(Objects.isNull(getEditedEntity().getProcInstance()));
+        if (getEditedEntity().getProcInstance() != null
+                && procTask!=null
+                && procTask.getProcActor()!=null
+                && procTask.getProcActor().getUser().equals(userSessionSource.getUserSession().getUser())) {
+            paymentRegistersDetailTable.focus();
+            if (!paymentRegistersDc.getItems().isEmpty()) {
+                paymentRegistersDetailTable.setSelected(paymentRegistersDc.getItems().get(0));
+            }
+        }
     }
 
     @Install(to = "paymentRegistersDetailTable.fillPaymentClaims", subject = "enabledRule")
     private boolean paymentRegistersDetailTableFillPaymentClaimsEnabledRule() {
+        paymentRegistersDetailTableFillPaymentClaimsBtn.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
         return Objects.isNull(getEditedEntity().getProcInstance());
     }
 
     @Install(to = "paymentRegistersDetailTable.remove", subject = "enabledRule")
     private boolean paymentRegistersDetailTableRemoveEnabledRule() {
+        paymentRegistersDetailTableRemoveBtn.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
         return Objects.isNull(getEditedEntity().getProcInstance());
     }
 
     @Install(to = "paymentRegistersDetailTable.reject", subject = "enabledRule")
     private boolean paymentRegistersDetailTableRejectEnabledRule() {
-        return procInstanceIsActive();
+        paymentRegistersDetailTableRejectBtn.setVisible(getEnabledApproveAndRejectAction());
+        return getEnabledApproveAndRejectAction();
     }
 
     @Install(to = "paymentRegistersDetailTable.approve", subject = "enabledRule")
     private boolean paymentRegistersDetailTableApproveEnabledRule() {
-        return procInstanceIsActive();
+        paymentRegistersDetailTableApproveBtn.setVisible(getEnabledApproveAndRejectAction());
+        return getEnabledApproveAndRejectAction();
     }
+
+    private boolean getEnabledApproveAndRejectAction() {
+        return procInstanceIsActive()
+                && !paymentRegistersDetailTable.getSelected().isEmpty()
+                && procTask != null
+                && procTask.getProcActor() != null
+                && procTask.getProcActor().getUser() != null
+                && procTask.getProcActor().getUser().equals(userSessionSource.getUserSession().getUser())
+                && !getEditedEntity().getStatus().getCode().equals(constantsConfig.getPaymentRegisterStatusInPay());
+    }
+
+    private boolean getEnabledPayAction() {
+        return procInstanceIsActive()
+                && !paymentRegistersDetailTable.getSelected().isEmpty()
+                && procTask != null
+                && procTask.getProcActor() != null
+                && procTask.getProcActor().getUser() != null
+                && procTask.getProcActor().getUser().equals(userSessionSource.getUserSession().getUser())
+                && getEditedEntity().getStatus().getCode().equals(constantsConfig.getPaymentRegisterStatusInPay());
+    }
+
+    @Install(to = "paymentRegistersDetailTable.notPayedAct", subject = "enabledRule")
+    private boolean paymentRegistersDetailTableNotPayedActEnabledRule() {
+        paymentRegistersDetailTableNotPayedBtn.setVisible(getEnabledPayAction());
+        return getEnabledPayAction();
+    }
+
+    @Install(to = "paymentRegistersDetailTable.payedAct", subject = "enabledRule")
+    private boolean paymentRegistersDetailTablePayedActEnabledRule() {
+        paymentRegistersDetailTablePayedBtn.setVisible(getEnabledPayAction());
+        return getEnabledPayAction();
+    }
+
+    @Install(to = "paymentRegistersDetailTable.dismissAct", subject = "enabledRule")
+    private boolean paymentRegistersDetailTableDismissActEnabledRule() {
+        paymentRegistersDetailTableDismissBtn.setVisible(getEnabledPayAction());
+        return getEnabledPayAction();
+    }
+
 
     private boolean procInstanceIsActive() {
         return !Objects.isNull(getEditedEntity().getProcInstance()) && getEditedEntity().getProcInstance().getActive();
     }
 
-    @SuppressWarnings("all")
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Subscribe("paymentRegistersDetailTable.fillPaymentClaims")
     public void onPaymentRegistersDetailTableFillPaymentClaims(Action.ActionPerformedEvent event) {
         ValidationErrors errors = validateUiComponents();
@@ -245,7 +344,17 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     }
 
     private void setApprovedByValue(PaymentRegisterDetailStatusEnum value) {
-        paymentRegistersDetailTable.getLookupSelectedItems().forEach(e -> e.setApproved(value));
+        paymentRegistersDetailTable.getLookupSelectedItems().forEach(e -> {
+            e.setApproved(value);
+            if (value == PaymentRegisterDetailStatusEnum.REJECTED) {
+                e.setSumaToPay(0.);
+                e.setPayed(PayStatusEnum.DISMISS);
+            }
+            if (value == PaymentRegisterDetailStatusEnum.APPROVED) {
+                e.setSumaToPay(e.getPaymentClaim().getSumm());
+                e.setPayed(PayStatusEnum.NOT_PAYED);
+            }
+        });
         commitChanges();
     }
 
@@ -259,30 +368,44 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         setApprovedByValue(PaymentRegisterDetailStatusEnum.REJECTED);
     }
 
-    @SuppressWarnings("all")
+
     @Subscribe
     public void onInit(InitEvent event) {
         paymentRegistersDetailTable.setStyleProvider(new GroupTable.GroupStyleProvider<PaymentRegisterDetail>() {
-            @SuppressWarnings("all")
             @Nullable
             @Override
-            public String getStyleName(PaymentRegisterDetail entity, @Nullable String property) {
-                if (!Objects.isNull(entity)) {
-                    switch (entity.getApproved()) {
-                        case REJECTED:
-                            return "rejected";
-                        case TERMINATED:
-                            return "terminated";
-                    }
+            public String getStyleName(@SuppressWarnings("NullableProblems") PaymentRegisterDetail entity, @Nullable String property) {
+                switch (entity.getPayed()) {
+                    case PAYED:
+                        return "approved1";
+                    case PRE_PAYED:
+                        return "startProc1";
+                    case DISMISS:
+                        return "terminated1";
+                }
+                switch (entity.getApproved()) {
+                    case REJECTED:
+                        return "rejected";
+                    case TERMINATED:
+                        return "terminated";
                 }
                 return null;
             }
 
-            @SuppressWarnings("all")
+            @SuppressWarnings("unchecked")
             @Nullable
             @Override
-            public String getStyleName(GroupInfo info) {
+            public String getStyleName(@SuppressWarnings("NullableProblems") GroupInfo info) {
                 PaymentRegisterDetailStatusEnum detailStatusEnum = (PaymentRegisterDetailStatusEnum) info.getPropertyValue(info.getProperty());
+                PayStatusEnum detailPayedStatusEnum = (PayStatusEnum) info.getPropertyValue(info.getProperty());
+                switch (detailPayedStatusEnum) {
+                    case PAYED:
+                        return "approved1";
+                    case PRE_PAYED:
+                        return "startProc1";
+                    case DISMISS:
+                        return "terminated1";
+                }
                 switch (detailStatusEnum) {
                     case REJECTED:
                         return "rejected";
@@ -309,8 +432,8 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
             if (Objects.requireNonNull(paymentRegistersDetailTable.getItems()).size() > 0) {
                 if (commitChanges().getStatus() == OperationResult.Status.SUCCESS) {
                     List<AddressingDetail> listRoles = dataManager.load(AddressingDetail.class)
-                            .query(QUERY_STRING_ROLES_BY_BUSSINES)
-                            .parameter("bussines", getEditedEntity().getBusiness())
+                            .query(QUERY_STRING_ROLES_BY_BUSINESS)
+                            .parameter("business", getEditedEntity().getBusiness())
                             .parameter("procDefinition", dataManager.reload(getEditedEntity().getRegisterType(), "registerType-with-procDefinition").getProcDefinition())
                             .view("addressingDetail-all-property")
                             .list();
@@ -321,7 +444,17 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                                     .reload(getEditedEntity().getRegisterType(), "registerType-with-procDefinition")
                                     .getProcDefinition().getCode()
                     );
-                    listRoles.forEach(e -> procInstanceDetails.addProcActor(e.getProcRole(), e.getUser()));
+                    listRoles.forEach(e -> {
+                        if (constantsConfig.getPaymentRegisterControllerRole().equals(e.getProcRole().getCode())) {
+                            View view = new View(Business.class)
+                                    .addProperty("controllerList", new View(BusinessControllers.class)
+                                            .addProperty("user")
+                                    );
+                            Business business = dataManager.reload(getEditedEntity().getBusiness(), view);
+                            business.getControllerList().forEach(cont -> procInstanceDetails.addProcActor(e.getProcRole(), cont.getUser()));
+                        }
+                        procInstanceDetails.addProcActor(e.getProcRole(), e.getUser());
+                    });
                     procInstanceDetails.setEntity(getEditedEntity());
 
                     /*The created ProcInstance will have two proc actors. None of the entities is persisted yet.*/
@@ -420,5 +553,124 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         editActions.setVisible(fullScreenStatus);
         tabBody.setTabsVisible(fullScreenStatus);
         fullScreenStatus = !fullScreenStatus;
+    }
+
+    @Subscribe("paymentRegistersDetailTable.payedAct")
+    public void onPaymentRegistersDetailTablePayedAct(Action.ActionPerformedEvent event) {
+        getEditedEntity().setPayedStatus(null);
+        Set<PaymentRegisterDetail> paymentRegisterDetailSet = paymentRegistersDetailTable.getSelected();
+        if (paymentRegisterDetailSet.isEmpty()) {
+            return;
+        }
+        if (paymentRegisterDetailSet.size() == 1) {
+            PaymentRegisterDetail paymentRegisterDetail = paymentRegistersDetailTable.getSingleSelected();
+            if (paymentRegisterDetail == null) {
+                return;
+            }
+            dialogs.createInputDialog(this)
+                    .withCaption(messageBundle.getMessage("payedParameter.caption"))
+                    .withParameters(
+                            InputParameter.dateParameter("payedDate")
+                                    .withCaption(messageTools.getPropertyCaption(
+                                            Objects.requireNonNull(metadata.getClass(PaymentRegisterDetail.class)),
+                                            "payedDate")
+                                    )
+                                    .withDefaultValue(timeSource.currentTimestamp())
+                                    .withRequired(true),
+                            InputParameter.doubleParameter("payedSuma")
+                                    .withCaption(messageTools.getPropertyCaption(
+                                                    Objects.requireNonNull(metadata.getClass(PaymentRegisterDetail.class)),
+                                                    "payedSuma"
+                                            )
+                                    )
+                                    .withDefaultValue(
+                                            paymentRegisterDetail.getSumaToPay() == null ? 0 : paymentRegisterDetail.getSumaToPay()
+                                    )
+                                    .withRequired(true)
+                    )
+                    .withActions(DialogActions.OK_CANCEL)
+                    .withCloseListener(closeEvent -> {
+                                if (closeEvent.closedWith(DialogOutcome.OK)) {
+                                    if (paymentRegisterDetail.getApproved() == PaymentRegisterDetailStatusEnum.REJECTED) {
+                                        return;
+                                    }
+                                    paymentRegisterDetail.setPayedDate(closeEvent.getValue("payedDate"));
+                                    paymentRegisterDetail.setPayedSuma(closeEvent.getValue("payedSuma"));
+                                    paymentRegisterDetail.setSumaToPay(paymentRegisterDetail.getPaymentClaim().getSumm() - paymentRegisterDetail.getPayedSuma());
+                                    if (paymentRegisterDetail.getSumaToPay() == 0) {
+                                        paymentRegisterDetail.setPayed(PayStatusEnum.PAYED);
+                                    } else {
+                                        paymentRegisterDetail.setPayed(PayStatusEnum.PRE_PAYED);
+                                    }
+                                    commitChanges();
+                                }
+                            }
+                    )
+                    .show();
+        } else {
+            dialogs.createInputDialog(this)
+                    .withCaption(messageBundle.getMessage("payedParameter.caption"))
+                    .withParameter(
+                            InputParameter.dateParameter("payedDate")
+                                    .withCaption(messageTools.getPropertyCaption(
+                                            Objects.requireNonNull(metadata.getClass(PaymentRegisterDetail.class)),
+                                            "payedDate")
+                                    )
+                                    .withDefaultValue(timeSource.currentTimestamp())
+                                    .withRequired(true)
+                    )
+                    .withActions(DialogActions.OK_CANCEL)
+                    .withCloseListener(closeEvent -> {
+                                if (closeEvent.closedWith(DialogOutcome.OK)) {
+                                    paymentRegisterDetailSet.forEach(paymentRegisterDetail -> {
+                                        if (paymentRegisterDetail.getApproved() == PaymentRegisterDetailStatusEnum.REJECTED) {
+                                            return;
+                                        }
+                                        paymentRegisterDetail.setPayedDate(closeEvent.getValue("payedDate"));
+                                        paymentRegisterDetail.setPayedSuma(paymentRegisterDetail.getPaymentClaim().getSumm());
+                                        paymentRegisterDetail.setPayed(PayStatusEnum.PAYED);
+                                        paymentRegisterDetail.setSumaToPay(null);
+                                    });
+                                    commitChanges();
+                                }
+                            }
+                    )
+                    .show();
+        }
+    }
+
+    @Subscribe("paymentRegistersDetailTable.notPayedAct")
+    public void onPaymentRegistersDetailTableNotPayedAct(Action.ActionPerformedEvent event) {
+        getEditedEntity().setPayedStatus(null);
+        Set<PaymentRegisterDetail> paymentRegisterDetailSet = paymentRegistersDetailTable.getSelected();
+        if (paymentRegisterDetailSet.isEmpty()) {
+            return;
+        }
+        paymentRegisterDetailSet.forEach(paymentRegisterDetail -> {
+            if (paymentRegisterDetail.getApproved() == PaymentRegisterDetailStatusEnum.REJECTED) {
+                return;
+            }
+            paymentRegisterDetail.setPayedDate(null);
+            paymentRegisterDetail.setPayedSuma(0.);
+            paymentRegisterDetail.setPayed(PayStatusEnum.NOT_PAYED);
+            paymentRegisterDetail.setSumaToPay(paymentRegisterDetail.getPaymentClaim().getSumm());
+        });
+        commitChanges();
+    }
+
+    @Subscribe("paymentRegistersDetailTable.dismissAct")
+    public void onPaymentRegistersDetailTableDismissAct(Action.ActionPerformedEvent event) {
+        getEditedEntity().setPayedStatus(null);
+        Set<PaymentRegisterDetail> paymentRegisterDetailSet = paymentRegistersDetailTable.getSelected();
+        if (paymentRegisterDetailSet.isEmpty()) {
+            return;
+        }
+        paymentRegisterDetailSet.forEach(paymentRegisterDetail -> {
+            paymentRegisterDetail.setPayedDate(null);
+            paymentRegisterDetail.setPayedSuma(0.);
+            paymentRegisterDetail.setPayed(PayStatusEnum.DISMISS);
+            paymentRegisterDetail.setSumaToPay(0.);
+        });
+        commitChanges();
     }
 }

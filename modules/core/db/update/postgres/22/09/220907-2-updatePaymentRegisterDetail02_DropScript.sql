@@ -1,0 +1,1 @@
+alter table FINANCE_PAYMENT_REGISTER_DETAIL drop column PAYMENT_STATUS_ROW__U75939 cascade ;

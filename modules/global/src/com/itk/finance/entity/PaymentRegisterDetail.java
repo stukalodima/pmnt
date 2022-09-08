@@ -6,6 +6,7 @@ import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Table(name = "FINANCE_PAYMENT_REGISTER_DETAIL")
 @Entity(name = "finance_PaymentRegisterDetail")
@@ -16,6 +17,18 @@ public class PaymentRegisterDetail extends StandardEntity {
     @Column(name = "APPROVED")
     private String approved;
 
+    @Column(name = "PAYED")
+    private String payed;
+
+    @Column(name = "SUMA_TO_PAY")
+    private Double sumaToPay;
+
+    @Column(name = "PAYED_DATE")
+    private Date payedDate;
+
+    @Column(name = "PAYED_SUMA")
+    private Double payedSuma;
+
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PAYMENT_CLAIM_ID")
@@ -25,9 +38,6 @@ public class PaymentRegisterDetail extends StandardEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "PAYMENT_REGISTER_ID")
     private PaymentRegister paymentRegister;
-
-    @Column(name = "PAYMENT_STATUS_ROW")
-    private String paymentStatusRow;
 
     @Lob
     @Column(name = "COMMENT_")
@@ -65,11 +75,35 @@ public class PaymentRegisterDetail extends StandardEntity {
         this.paymentRegister = paymentRegister;
     }
 
-    public ClaimStatusEnum getPaymentStatusRow() {
-        return paymentStatusRow == null ? null : ClaimStatusEnum.fromId(paymentStatusRow);
+    public PayStatusEnum getPayed() {
+        return payed == null ? null : PayStatusEnum.fromId(payed);
     }
 
-    public void setPaymentStatusRow(ClaimStatusEnum paymentStatusRow) {
-        this.paymentStatusRow = paymentStatusRow == null ? null : paymentStatusRow.getId();
+    public void setPayed(PayStatusEnum payed) {
+        this.payed = payed == null ? null : payed.getId();
+    }
+
+    public Double getSumaToPay() {
+        return sumaToPay;
+    }
+
+    public void setSumaToPay(Double sumaToPay) {
+        this.sumaToPay = sumaToPay;
+    }
+
+    public Date getPayedDate() {
+        return payedDate;
+    }
+
+    public void setPayedDate(Date payedDate) {
+        this.payedDate = payedDate;
+    }
+
+    public Double getPayedSuma() {
+        return payedSuma;
+    }
+
+    public void setPayedSuma(Double payedSuma) {
+        this.payedSuma = payedSuma;
     }
 }

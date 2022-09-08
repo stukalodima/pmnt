@@ -18,6 +18,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
 @Service(PaymentClaimService.NAME)
 public class PaymentClaimServiceBean implements PaymentClaimService {
     private static final String QUERY_STRING_FILL_PAYMENTS_CLAIM = "select e from finance_PaymentClaim e " +
@@ -122,6 +123,10 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
 
         if (Objects.isNull(paymentClaim)) {
             paymentClaim = dataManager.create(PaymentClaim.class);
+        } else {
+            if (!paymentClaim.getStatus().equals(procPropertyService.getNewStatus())) {
+                return;
+            }
         }
 
         Client client = clientService.getClientByEDRPOU(paymentClaimMap.get("clientEdrpou").toString());
@@ -201,6 +206,7 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
             boolean conditionByRegisterType = getQueryStrByCondition(registerType, conditionStr, mapParam);
 
             byQuery = dataManager.load(PaymentClaim.class).query(conditionStr.toString());
+            //noinspection ConstantConditions
             byQuery
                     .parameter("status", procPropertyService.getNewStatus())
                     .parameter("business", business)
