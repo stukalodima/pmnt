@@ -3,14 +3,12 @@ package com.itk.finance;
 import com.haulmont.cuba.testsupport.TestContainer;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class FinanceTestContainer extends TestContainer {
 
     public FinanceTestContainer() {
         super();
-        //noinspection ArraysAsListWithZeroOrOneArgument
         appComponents = Arrays.asList(
                 "com.haulmont.cuba",
                 "com.haulmont.addon.helium",
@@ -18,7 +16,8 @@ public class FinanceTestContainer extends TestContainer {
                 "com.haulmont.bpm",
                 "de.diedavids.cuba.dataimport",
                 "com.haulmont.charts",
-                "com.haulmont.reports");
+                "com.haulmont.reports",
+                "com.haulmont.addon.dnd");
         appPropertiesFiles = Arrays.asList(
                 // List the files defined in your web.xml
                 // in appPropertiesConfig context parameter of the core module
