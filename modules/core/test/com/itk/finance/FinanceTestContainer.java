@@ -12,12 +12,9 @@ public class FinanceTestContainer extends TestContainer {
         appComponents = Arrays.asList(
                 "com.haulmont.cuba",
                 "com.haulmont.addon.helium",
-                "com.haulmont.addon.restapi",
                 "com.haulmont.bpm",
                 "de.diedavids.cuba.dataimport",
-                "com.haulmont.charts",
-                "com.haulmont.reports",
-                "com.haulmont.addon.dnd");
+                "com.haulmont.charts");
         appPropertiesFiles = Arrays.asList(
                 // List the files defined in your web.xml
                 // in appPropertiesConfig context parameter of the core module
