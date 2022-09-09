@@ -4,8 +4,11 @@ import com.haulmont.bpm.entity.ProcRole;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.components.Form;
+import com.haulmont.cuba.gui.components.HasValue;
+import com.haulmont.cuba.gui.components.LookupPickerField;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.*;
+import com.haulmont.cuba.security.entity.User;
 import com.itk.finance.entity.AddressingDetail;
 
 import javax.inject.Inject;
@@ -24,6 +27,8 @@ public class AddressingDetailEdit extends StandardEditor<AddressingDetail> {
     private Messages messages;
     @Inject
     private Form form;
+    @Inject
+    private LookupPickerField<User> userField;
 
     @Subscribe
     public void onBeforeShow(BeforeShowEvent event) {
@@ -38,4 +43,35 @@ public class AddressingDetailEdit extends StandardEditor<AddressingDetail> {
         procRolesDl.setParameter("procDefinition", getEditedEntity().getAddressing().getProcDefinition());
         procRolesDl.load();
     }
+
+    @Subscribe("autoField")
+    public void onAutoFieldValueChange(HasValue.ValueChangeEvent<Boolean> event) {
+        if(!Objects.isNull(getEditedEntity().getAuto())){
+            changeEditableUserField();
+        }
+    }
+
+    @Subscribe("autoDetectField")
+    public void onAutoDetectFieldValueChange(HasValue.ValueChangeEvent<Boolean> event) {
+        if(!Objects.isNull(getEditedEntity().getAutoDetect())){
+            changeEditableUserField();
+        }
+    }
+
+    private void changeEditableUserField() {
+        if(getEditedEntity().getAuto()||getEditedEntity().getAutoDetect()) {
+            userField.setEditable(false);
+            userField.setRequired(false);
+
+            if (getEditedEntity().getUser() != userField.getEmptyValue()) {
+                userField.setValue(userField.getEmptyValue());
+            }
+        }
+        else {
+            userField.setEditable(true);
+            userField.setRequired(true);
+        }
+    }
+
+
 }
