@@ -11,6 +11,7 @@ import com.haulmont.bpm.service.BpmEntitiesService;
 import com.haulmont.bpm.service.ProcessFormService;
 import com.haulmont.bpm.service.ProcessMessagesService;
 import com.haulmont.bpm.service.ProcessRuntimeService;
+import com.haulmont.chile.core.model.MetaPropertyPath;
 import com.haulmont.cuba.core.app.UniqueNumbersService;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Dialogs;
@@ -240,8 +241,8 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         sendToApprove.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
         formBody.setEditable(Objects.isNull(getEditedEntity().getProcInstance()));
         if (getEditedEntity().getProcInstance() != null
-                && procTask!=null
-                && procTask.getProcActor()!=null
+                && procTask != null
+                && procTask.getProcActor() != null
                 && procTask.getProcActor().getUser().equals(userSessionSource.getUserSession().getUser())) {
             paymentRegistersDetailTable.focus();
             if (!paymentRegistersDc.getItems().isEmpty()) {
@@ -375,42 +376,37 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
             @Nullable
             @Override
             public String getStyleName(@SuppressWarnings("NullableProblems") PaymentRegisterDetail entity, @Nullable String property) {
-                switch (entity.getPayed()) {
-                    case PAYED:
-                        return "approved1";
-                    case PRE_PAYED:
-                        return "startProc1";
-                    case DISMISS:
-                        return "terminated1";
-                }
-                switch (entity.getApproved()) {
-                    case REJECTED:
-                        return "rejected";
-                    case TERMINATED:
-                        return "terminated";
+                if (property == null) {
+                    if (entity.getPayed() == null) {
+                        return null;
+                    }
+                    switch (entity.getPayed()) {
+                        case PAYED:
+                            return "approved1";
+                        case PRE_PAYED:
+                            return "startProc1";
+                        case DISMISS:
+                            return "terminated1";
+                    }
+                    switch (entity.getApproved()) {
+                        case REJECTED:
+                            return "rejected";
+                        case TERMINATED:
+                            return "terminated";
+                    }
                 }
                 return null;
             }
 
-            @SuppressWarnings("unchecked")
             @Nullable
             @Override
             public String getStyleName(@SuppressWarnings("NullableProblems") GroupInfo info) {
-                PaymentRegisterDetailStatusEnum detailStatusEnum = (PaymentRegisterDetailStatusEnum) info.getPropertyValue(info.getProperty());
-                PayStatusEnum detailPayedStatusEnum = (PayStatusEnum) info.getPropertyValue(info.getProperty());
-                switch (detailPayedStatusEnum) {
-                    case PAYED:
-                        return "approved1";
-                    case PRE_PAYED:
-                        return "startProc1";
-                    case DISMISS:
-                        return "terminated1";
+                MetaPropertyPath metaPropertyPath = (MetaPropertyPath) info.getProperty();
+                if ("payed".equals(metaPropertyPath.toPathString())) {
+                    return PaymentRegisterHelper.getGroupTableStyleByPayedStatus(info);
                 }
-                switch (detailStatusEnum) {
-                    case REJECTED:
-                        return "rejected";
-                    case TERMINATED:
-                        return "terminated";
+                if ("approved".equals(metaPropertyPath.toPathString())) {
+                    return PaymentRegisterHelper.getGroupTableStyleByApproveStatus(info);
                 }
                 return null;
             }
@@ -594,9 +590,14 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                                     if (paymentRegisterDetail.getApproved() == PaymentRegisterDetailStatusEnum.REJECTED) {
                                         return;
                                     }
+                                    Double payedSumm = paymentRegisterDetail.getPayedSuma() == null ? 0.
+                                            : paymentRegisterDetail.getPayedSuma()
+                                            + (closeEvent.getValue("payedSuma") == null ? 0.
+                                            : (Double) Objects.requireNonNull(closeEvent.getValue("payedSuma")));
+                                    Double sumaToPay = paymentRegisterDetail.getPaymentClaim().getSumm() - paymentRegisterDetail.getPayedSuma();
                                     paymentRegisterDetail.setPayedDate(closeEvent.getValue("payedDate"));
-                                    paymentRegisterDetail.setPayedSuma(closeEvent.getValue("payedSuma"));
-                                    paymentRegisterDetail.setSumaToPay(paymentRegisterDetail.getPaymentClaim().getSumm() - paymentRegisterDetail.getPayedSuma());
+                                    paymentRegisterDetail.setPayedSuma(payedSumm);
+                                    paymentRegisterDetail.setSumaToPay(sumaToPay);
                                     if (paymentRegisterDetail.getSumaToPay() == 0) {
                                         paymentRegisterDetail.setPayed(PayStatusEnum.PAYED);
                                     } else {

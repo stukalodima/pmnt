@@ -1,6 +1,7 @@
 package com.itk.finance.web.screens.paymentregister;
 
 import com.haulmont.bpm.entity.ProcInstance;
+import com.haulmont.chile.core.model.MetaPropertyPath;
 import com.haulmont.cuba.core.app.UniqueNumbersService;
 import com.haulmont.cuba.core.global.CommitContext;
 import com.haulmont.cuba.core.global.DataManager;
@@ -13,10 +14,7 @@ import com.haulmont.cuba.gui.components.GroupTable;
 import com.haulmont.cuba.gui.data.GroupInfo;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.*;
-import com.itk.finance.entity.Business;
-import com.itk.finance.entity.PaymentClaim;
-import com.itk.finance.entity.PaymentRegister;
-import com.itk.finance.entity.RegisterType;
+import com.itk.finance.entity.*;
 import com.itk.finance.service.PaymentClaimService;
 import com.itk.finance.service.PaymentRegisterService;
 
@@ -136,13 +134,18 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
             @Nullable
             @Override
             public String getStyleName(@SuppressWarnings("NullableProblems") PaymentRegister entity, @Nullable String property) {
-                switch (entity.getPayedStatus()) {
-                    case PAYED:
-                        return "approved1";
-                    case PRE_PAYED:
-                        return "startProc1";
-                    case DISMISS:
-                        return "terminated1";
+                if (property == null) {
+                    if (entity.getPayedStatus() == null) {
+                        return null;
+                    }
+                    switch (entity.getPayedStatus()) {
+                        case PAYED:
+                            return "approved1";
+                        case PRE_PAYED:
+                            return "startProc1";
+                        case DISMISS:
+                            return "terminated1";
+                    }
                 }
                 return null;
             }
@@ -150,6 +153,10 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
             @Nullable
             @Override
             public String getStyleName(@SuppressWarnings("NullableProblems") GroupInfo info) {
+                MetaPropertyPath metaPropertyPath = (MetaPropertyPath) info.getProperty();
+                if ("payedStatus".equals(metaPropertyPath.toPathString())) {
+                    return PaymentRegisterHelper.getGroupTableStyleByPayedStatus(info);
+                }
                 return null;
             }
         });
