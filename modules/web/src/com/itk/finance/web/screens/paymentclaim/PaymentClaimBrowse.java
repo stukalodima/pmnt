@@ -74,6 +74,14 @@ public class PaymentClaimBrowse extends StandardLookup<PaymentClaim> implements 
                     .show();
         }
         paymentClaimsDl.load();
+        notifications.create()
+                .withCaption(messages.getMessage(PaymentClaimBrowse.class, "message.import.access.caption"))
+                .withContentMode(ContentMode.TEXT)
+                .withPosition(Notifications.Position.MIDDLE_CENTER)
+                .withType(Notifications.NotificationType.HUMANIZED)
+                .withDescription(
+                        messages.getMessage(PaymentClaimBrowse.class, "message.import.access.text"))
+                .show();
     }
 
     @SuppressWarnings("rawtypes")

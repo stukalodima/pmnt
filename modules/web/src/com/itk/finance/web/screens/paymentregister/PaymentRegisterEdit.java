@@ -40,7 +40,6 @@ import java.util.*;
 @UiController("finance_PaymentRegister.edit")
 @UiDescriptor("payment-register-edit.xml")
 @EditedEntityContainer("paymentRegisterDc")
-@LoadDataBeforeShow
 public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     public static final String QUERY_STRING_ROLES_BY_BUSINESS =
             "select e from finance_AddressingDetail e " +
@@ -134,9 +133,13 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private Button paymentRegistersDetailTableFillPaymentClaimsBtn;
     @Inject
     private Button paymentRegistersDetailTableRemoveBtn;
+    @Inject
+    private CollectionLoader<Business> businessesDl;
+    @Inject
+    private CollectionLoader<RegisterType> registerTypesDl;
 
     @Subscribe
-    public void onBeforeShow(BeforeShowEvent event) {
+    public void onAfterShow(AfterShowEvent event) {
         paymentRegisterDl.load();
         if (Objects.isNull(getEditedEntity().getProcInstance())) {
             paymentRegisterTaskDl.setParameter("procInstance", null);
@@ -144,12 +147,12 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
             paymentRegisterTaskDl.setParameter("procInstance", getEditedEntity().getProcInstance().getId());
         }
         paymentRegisterTaskDl.load();
-    }
-
-    @Subscribe
-    public void onAfterShow(AfterShowEvent event) {
         initProcAction();
         updateVisible();
+        if (formBody.isVisible()) {
+            businessesDl.load();
+            registerTypesDl.load();
+        }
     }
 
     private void initProcAction() {
