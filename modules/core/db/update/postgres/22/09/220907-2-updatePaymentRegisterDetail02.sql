@@ -1,1 +1,0 @@
-alter table FINANCE_PAYMENT_REGISTER_DETAIL rename column payment_status_row to payment_status_row__u75939 ;

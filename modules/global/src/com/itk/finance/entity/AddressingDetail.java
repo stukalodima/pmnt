@@ -24,7 +24,7 @@ public class AddressingDetail extends StandardEntity {
 
     @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private User user;
 
@@ -34,6 +34,9 @@ public class AddressingDetail extends StandardEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ADDRESSING_ID")
     private Addressing addressing;
+
+    @Column(name = "AUTODETECT")
+    private Boolean autoDetect;
 
     public Boolean getAuto() {
         return auto;
@@ -65,5 +68,13 @@ public class AddressingDetail extends StandardEntity {
 
     public void setProcRole(ProcRole procRole) {
         this.procRole = procRole;
+    }
+
+    public Boolean getAutoDetect() {
+        return autoDetect;
+    }
+
+    public void setAutoDetect(Boolean autoDetect) {
+        this.autoDetect = autoDetect;
     }
 }

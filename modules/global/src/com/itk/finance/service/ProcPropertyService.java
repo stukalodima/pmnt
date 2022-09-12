@@ -1,7 +1,10 @@
 package com.itk.finance.service;
 
+import com.haulmont.bpm.entity.ProcDefinition;
+import com.haulmont.bpm.entity.ProcRole;
 import com.itk.finance.entity.ProcStatus;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ProcPropertyService {
@@ -15,4 +18,6 @@ public interface ProcPropertyService {
 
     ProcStatus getStartStatus();
     void sendNotificationsTask();
+
+    List<ProcRole> getProcRolesOnDefinition(ProcDefinition procDefinition);
 }

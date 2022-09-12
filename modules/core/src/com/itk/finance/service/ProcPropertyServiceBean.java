@@ -1,5 +1,7 @@
 package com.itk.finance.service;
 
+import com.haulmont.bpm.entity.ProcDefinition;
+import com.haulmont.bpm.entity.ProcRole;
 import com.haulmont.bpm.entity.ProcTask;
 import com.haulmont.cuba.core.Persistence;
 import com.haulmont.cuba.core.Transaction;
@@ -101,6 +103,16 @@ public class ProcPropertyServiceBean implements ProcPropertyService {
                         mapParam);
             }
         });
+    }
+
+    @Override
+    public List<ProcRole> getProcRolesOnDefinition(ProcDefinition procDefinition) {
+
+        return dataManager.load(ProcRole.class)
+                .query("select e from bpm$ProcRole e where e.procDefinition = :procDefinition")
+                .parameter("procDefinition", procDefinition)
+                .view("_minimal")
+                .list();
     }
 
     private StringBuilder getTaskList(List<ProcTask> procTasks) {

@@ -32,21 +32,19 @@ cuba {
         isSnapshot = true
     }
     tomcat {
-        port = '7080'
-        ajpPort = '7009'
-        shutdownPort = '7005'
-        debugPort = '7787'
+        port = '5080'
+        ajpPort = '5009'
+        shutdownPort = '5005'
+        debugPort = '5787'
     }
 }
 
 dependencies {
     appComponent("com.haulmont.cuba:cuba-global:$cubaVersion")
     appComponent('com.haulmont.addon.helium:helium-global:0.4.0')
-    appComponent('com.haulmont.addon.restapi:restapi-global:7.2.4')
     appComponent("com.haulmont.bpm:bpm-global:$cubaVersion")
     appComponent('de.diedavids.cuba.dataimport:dataimport-global:0.14.1')
     appComponent("com.haulmont.charts:charts-global:$cubaVersion")
-    appComponent("com.haulmont.reports:reports-global:$cubaVersion")
 }
 
 def postgres = 'org.postgresql:postgresql:42.2.9'
@@ -236,15 +234,15 @@ restart.finalizedBy start
 task buildUberJar(type: CubaUberJarBuilding) {
     singleJar = true
     appProperties = ['cuba.automaticDatabaseUpdate': true,
+                     'cuba.dataSourceProvider'     : 'application',
                      'cuba.dataSource.username'    : 'postgres',
                      'cuba.dataSource.password'    : 'postgres',
-                     'cuba.dataSource.dbName'      : 'finance-pmnt',
+                     'cuba.dataSource.dbName'      : 'pmnt_test',
                      'cuba.dataSource.host'        : 'localhost',
-                     'cuba.dataSource.port'        : '',
-                     'cuba.dataSourceProvider'     : 'application']
+                     'cuba.dataSource.port'        : '']
+    //noinspection GrDeprecatedAPIUsage
     polymerBuildDir = '.'
     logbackConfigurationFile = 'etc/uber-jar-logback.xml'
-    coreJettyEnvPath = 'modules/core/web/META-INF/jetty-env.xml'
     webJettyConfPath = 'jetty.xml'
     webPort = 7080
 }

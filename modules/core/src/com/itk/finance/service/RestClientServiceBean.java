@@ -1,6 +1,5 @@
 package com.itk.finance.service;
 
-import com.haulmont.addon.restapi.api.config.RestApiConfig;
 import com.itk.finance.config.RestApiSmartPlatformConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Service;
@@ -13,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+@SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
 @Service(RestClientService.NAME)
 public class RestClientServiceBean implements RestClientService {
 

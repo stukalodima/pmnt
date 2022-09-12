@@ -515,3 +515,129 @@ create table FINANCE_BUSINESS_CONTROLLERS
     primary key (ID)
 );
 -- end FINANCE_BUSINESS_CONTROLLERS
+-- begin FINANCE_PARTITION
+create table FINANCE_PARTITION (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NAME varchar(255),
+    --
+    primary key (ID)
+);
+-- end FINANCE_PARTITION
+-- begin FINANCE_PROPERTY_TYPE
+create table FINANCE_PROPERTY_TYPE (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NAME varchar(255),
+    --
+    primary key (ID)
+);
+-- end FINANCE_PROPERTY_TYPE
+-- begin FINANCE_DOCUMENT_TYPE
+create table FINANCE_DOCUMENT_TYPE (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NAME varchar(255),
+    --
+    primary key (ID)
+);
+-- end FINANCE_DOCUMENT_TYPE
+-- begin FINANCE_REPARATION_FILE
+create table FINANCE_REPARATION_FILE (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    DOCUMENT uuid,
+    BUSINESS_ID uuid,
+    COMPANY_ID uuid,
+    PARTITION_ID uuid,
+    PROPERTY_TYPE_ID uuid,
+    DOCUMENT_TYPE_ID uuid,
+    REPARATION_OBJECT uuid,
+    --
+    primary key (ID)
+);
+-- end FINANCE_REPARATION_FILE
+-- begin FINANCE_REPARATION_FILES_STRUCTURE
+create table FINANCE_REPARATION_FILES_STRUCTURE (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NAME varchar(255),
+    PID uuid,
+    PARTITION_ID uuid,
+    PROPERTY_TYPE_ID uuid,
+    DOCUMENT_TYPE_ID uuid,
+    --
+    primary key (ID)
+);
+-- end FINANCE_REPARATION_FILES_STRUCTURE
+-- begin FINANCE_REPARATION_OBJECT
+create table FINANCE_REPARATION_OBJECT (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NAME varchar(255),
+    INV_NUMBER varchar(255),
+    DESCRIPTION text,
+    REPARATION_OBJECT_STATE_ID uuid,
+    PROPERTY_TYPE_ID uuid,
+    --
+    primary key (ID)
+);
+-- end FINANCE_REPARATION_OBJECT
+-- begin FINANCE_REPARATION_OBJECT_STATE
+create table FINANCE_REPARATION_OBJECT_STATE (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NAME varchar(255),
+    --
+    primary key (ID)
+);
+-- end FINANCE_REPARATION_OBJECT_STATE

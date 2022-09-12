@@ -12,6 +12,7 @@ import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.Addressing;
 import com.itk.finance.entity.AddressingDetail;
 import com.itk.finance.entity.Company;
+import com.itk.finance.service.ProcPropertyService;
 import com.itk.finance.service.UserPropertyService;
 
 import javax.inject.Inject;
@@ -42,6 +43,8 @@ public class AddressingEdit extends StandardEditor<Addressing> {
     private CollectionPropertyContainer<AddressingDetail> addressingDetailDc;
     @Inject
     private Table<AddressingDetail> addressingDetailTable;
+    @Inject
+    private ProcPropertyService procPropertyService;
 
     @Subscribe("useCompanyField")
     public void onUseCompanyFieldValueChange(HasValue.ValueChangeEvent<Boolean> event) {
@@ -65,23 +68,29 @@ public class AddressingEdit extends StandardEditor<Addressing> {
     }
 
     private void fillRoles() {
-        if (Objects.requireNonNull(addressingDetailTable.getItems()).size() > 0) {
-            clearRoles();
+        List<ProcRole> procRoles = procPropertyService.getProcRolesOnDefinition(getEditedEntity().getProcDefinition());
+
+        List<ProcRole> currentProcRoles = new ArrayList<>();
+        for(AddressingDetail currentAddressingDetail : addressingDetailDc.getMutableItems()){
+            if(procRoles.contains(currentAddressingDetail.getProcRole())){
+                currentProcRoles.add(currentAddressingDetail.getProcRole());
+            }
+            else {
+                dataContext.remove(currentAddressingDetail);
+                addressingDetailDc.getMutableItems().remove(currentAddressingDetail);
+            }
         }
-        List<ProcRole> procRoles = dataManager.load(ProcRole.class)
-                .query("select e from bpm$ProcRole e where e.procDefinition = :procDefinition")
-                .parameter("procDefinition", getEditedEntity().getProcDefinition())
-                .view("_minimal")
-                .list();
-        List<AddressingDetail> listDetail= new ArrayList<>();
+
         for (ProcRole procRole : procRoles) {
+            if (currentProcRoles.contains(procRole)){
+                continue;
+            }
             AddressingDetail addressingDetail = dataManager.create(AddressingDetail.class);
             addressingDetail.setAddressing(getEditedEntity());
             addressingDetail.setProcRole(procRole);
             addressingDetail = dataContext.merge(addressingDetail);
-            listDetail.add(addressingDetail);
+            addressingDetailDc.getMutableItems().add(addressingDetail);
         }
-        getEditedEntity().setAddressingDetail(listDetail);
     }
 
     private void clearRoles() {
@@ -140,7 +149,7 @@ public class AddressingEdit extends StandardEditor<Addressing> {
         boolean userNotFill = false;
         for (AddressingDetail addressingDetail :
                 getEditedEntity().getAddressingDetail()) {
-            if (Objects.isNull(addressingDetail.getUser())){
+            if (Objects.isNull(addressingDetail.getUser()) && !addressingDetail.getAutoDetect()){
                 userNotFill = true;
                 break;
             }

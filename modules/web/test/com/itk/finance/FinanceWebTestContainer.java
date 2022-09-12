@@ -2,20 +2,18 @@ package com.itk.finance;
 
 import com.haulmont.cuba.web.testsupport.TestContainer;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
+@SuppressWarnings("unused")
 public class FinanceWebTestContainer extends TestContainer {
 
     public FinanceWebTestContainer() {
         appComponents = Arrays.asList(
                 "com.haulmont.cuba",
                 "com.haulmont.addon.helium",
-                "com.haulmont.addon.restapi",
                 "com.haulmont.bpm",
                 "de.diedavids.cuba.dataimport",
-                "com.haulmont.charts",
-                "com.haulmont.reports");
+                "com.haulmont.charts");
         appPropertiesFiles = Arrays.asList(
                 // List the files defined in your web.xml
                 // in appPropertiesConfig context parameter of the web module
