@@ -3,15 +3,14 @@ package com.itk.finance.web.screens.reparationfile;
 import com.haulmont.cuba.core.entity.FileDescriptor;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Notifications;
-import com.haulmont.cuba.gui.components.FileMultiUploadField;
-import com.haulmont.cuba.gui.components.HasValue;
-import com.haulmont.cuba.gui.components.LookupPickerField;
-import com.haulmont.cuba.gui.components.Tree;
+import com.haulmont.cuba.gui.app.core.file.FileDownloadHelper;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.*;
+import com.haulmont.cuba.gui.screen.LookupComponent;
 import com.haulmont.cuba.gui.upload.FileUploadingAPI;
 import com.itk.finance.entity.Business;
 import com.itk.finance.entity.Company;
@@ -56,6 +55,13 @@ public class ReparationFileBrowse extends StandardLookup<ReparationFile> {
     private CollectionLoader<Company> companyDl;
     @Inject
     private Messages messages;
+    @Inject
+    private GroupTable<ReparationFile> reparationFilesTable;
+
+    @Subscribe
+    public void onBeforeShow(BeforeShowEvent event) {
+        FileDownloadHelper.initGeneratedColumn(reparationFilesTable, "document");
+    }
 
     @Subscribe
     public void onInit(InitEvent event) {

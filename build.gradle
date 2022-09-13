@@ -32,10 +32,10 @@ cuba {
         isSnapshot = true
     }
     tomcat {
-        port = '5080'
-        ajpPort = '5009'
-        shutdownPort = '5005'
-        debugPort = '5787'
+        port = '7080'
+        ajpPort = '7009'
+        shutdownPort = '7005'
+        debugPort = '7787'
     }
 }
 
@@ -237,7 +237,7 @@ task buildUberJar(type: CubaUberJarBuilding) {
                      'cuba.dataSourceProvider'     : 'application',
                      'cuba.dataSource.username'    : 'postgres',
                      'cuba.dataSource.password'    : 'postgres',
-                     'cuba.dataSource.dbName'      : 'pmnt_test',
+                     'cuba.dataSource.dbName'      : 'finance-pmnt',
                      'cuba.dataSource.host'        : 'localhost',
                      'cuba.dataSource.port'        : '']
     //noinspection GrDeprecatedAPIUsage

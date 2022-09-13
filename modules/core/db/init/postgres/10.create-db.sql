@@ -431,24 +431,24 @@ create table FINANCE_ADDRESSING
 );
 -- end FINANCE_ADDRESSING
 -- begin FINANCE_ADDRESSING_DETAIL
-create table FINANCE_ADDRESSING_DETAIL
-(
-    ID            uuid,
-    VERSION       integer not null,
-    CREATE_TS     timestamp,
-    CREATED_BY    varchar(50),
-    UPDATE_TS     timestamp,
-    UPDATED_BY    varchar(50),
-    DELETE_TS     timestamp,
-    DELETED_BY    varchar(50),
+create table FINANCE_ADDRESSING_DETAIL (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
     --
-    PROC_ROLE_ID  uuid    not null,
-    USER_ID       uuid    not null,
-    AUTO          boolean,
-    ADDRESSING_ID uuid    not null,
+    PROC_ROLE_ID uuid not null,
+    USER_ID uuid,
+    AUTO boolean,
+    ADDRESSING_ID uuid not null,
+    AUTODETECT boolean,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_ADDRESSING_DETAIL
 -- begin FINANCE_PROC_STATUS
 create table FINANCE_PROC_STATUS
@@ -529,7 +529,7 @@ create table FINANCE_PARTITION (
     NAME varchar(255),
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_PARTITION
 -- begin FINANCE_PROPERTY_TYPE
 create table FINANCE_PROPERTY_TYPE (
@@ -545,7 +545,7 @@ create table FINANCE_PROPERTY_TYPE (
     NAME varchar(255),
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_PROPERTY_TYPE
 -- begin FINANCE_DOCUMENT_TYPE
 create table FINANCE_DOCUMENT_TYPE (
@@ -561,7 +561,7 @@ create table FINANCE_DOCUMENT_TYPE (
     NAME varchar(255),
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_DOCUMENT_TYPE
 -- begin FINANCE_REPARATION_FILE
 create table FINANCE_REPARATION_FILE (
@@ -583,7 +583,7 @@ create table FINANCE_REPARATION_FILE (
     REPARATION_OBJECT uuid,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_REPARATION_FILE
 -- begin FINANCE_REPARATION_FILES_STRUCTURE
 create table FINANCE_REPARATION_FILES_STRUCTURE (
@@ -603,7 +603,7 @@ create table FINANCE_REPARATION_FILES_STRUCTURE (
     DOCUMENT_TYPE_ID uuid,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_REPARATION_FILES_STRUCTURE
 -- begin FINANCE_REPARATION_OBJECT
 create table FINANCE_REPARATION_OBJECT (
@@ -623,7 +623,7 @@ create table FINANCE_REPARATION_OBJECT (
     PROPERTY_TYPE_ID uuid,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_REPARATION_OBJECT
 -- begin FINANCE_REPARATION_OBJECT_STATE
 create table FINANCE_REPARATION_OBJECT_STATE (
@@ -639,5 +639,5 @@ create table FINANCE_REPARATION_OBJECT_STATE (
     NAME varchar(255),
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_REPARATION_OBJECT_STATE

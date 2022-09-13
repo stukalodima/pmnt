@@ -14,6 +14,7 @@ import com.itk.finance.entity.ReparationObject;
 import com.itk.finance.web.screens.reparationobject.ReparationObjectEdit;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 
 @UiController("finance_ReparationFile.edit")

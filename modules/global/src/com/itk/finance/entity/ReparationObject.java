@@ -9,7 +9,7 @@ import javax.persistence.*;
 
 @Table(name = "FINANCE_REPARATION_OBJECT")
 @Entity(name = "finance_ReparationObject")
-@NamePattern("%s (%s)|name,invNumber")
+@NamePattern("#getCaption|name,invNumber")
 public class ReparationObject extends StandardEntity {
     private static final long serialVersionUID = -340785044844517788L;
 
@@ -71,5 +71,9 @@ public class ReparationObject extends StandardEntity {
 
     public void setReparationObjectState(ReparationObjectState reparationObjectState) {
         this.reparationObjectState = reparationObjectState;
+    }
+
+    public String getCaption() {
+        return name + (invNumber == null ? "" : " (" + invNumber + ")");
     }
 }
