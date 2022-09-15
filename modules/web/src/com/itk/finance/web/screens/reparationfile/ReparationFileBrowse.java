@@ -1,16 +1,18 @@
 package com.itk.finance.web.screens.reparationfile;
 
+import com.haulmont.chile.core.model.MetaProperty;
 import com.haulmont.cuba.core.entity.FileDescriptor;
 import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.gui.BulkEditors;
 import com.haulmont.cuba.gui.Notifications;
-import com.haulmont.cuba.gui.components.FileMultiUploadField;
-import com.haulmont.cuba.gui.components.HasValue;
-import com.haulmont.cuba.gui.components.LookupPickerField;
-import com.haulmont.cuba.gui.components.Tree;
+import com.haulmont.cuba.gui.app.core.bulk.ColumnsMode;
+import com.haulmont.cuba.gui.app.core.file.FileDownloadHelper;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.CollectionLoader;
+import com.haulmont.cuba.gui.screen.LookupComponent;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.upload.FileUploadingAPI;
 import com.itk.finance.entity.Business;
@@ -20,13 +22,14 @@ import com.itk.finance.entity.ReparationFilesStructure;
 import com.itk.finance.service.UserPropertyService;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @UiController("finance_ReparationFile.browse")
 @UiDescriptor("reparation-file-browse.xml")
 @LookupComponent("reparationFilesTable")
-@LoadDataBeforeShow
 public class ReparationFileBrowse extends StandardLookup<ReparationFile> {
     @Inject
     private CollectionContainer<ReparationFilesStructure> reparationFilesStructureDc;
@@ -56,12 +59,50 @@ public class ReparationFileBrowse extends StandardLookup<ReparationFile> {
     private CollectionLoader<Company> companyDl;
     @Inject
     private Messages messages;
+    @Inject
+    private GroupTable<ReparationFile> reparationFilesTable;
+    @Inject
+    private CollectionLoader<ReparationFilesStructure> reparationFilesStructureDl;
+    @Inject
+    private CollectionLoader<Business> businessDl;
+    @Inject
+    private BulkEditors bulkEditors;
+
+    @Subscribe("reparationFilesTable.bulkEdit")
+    public void onReparationFilesTableBulkEdit(Action.ActionPerformedEvent event) {
+        bulkEditors.builder(metadata.getClassNN(ReparationFile.class), reparationFilesTable.getSelected(), this)
+                .withListComponent(reparationFilesTable)
+                .withColumnsMode(ColumnsMode.ONE_COLUMN)
+                .withIncludeProperties(Arrays.asList("business", "company"))
+                .withFieldSorter(properties -> {
+                    Map<MetaProperty, Integer> result = new HashMap<>();
+                    for (MetaProperty property : properties) {
+                        switch (property.getName()) {
+                            case "business": result.put(property, 0); break;
+                            case "company": result.put(property, 1); break;
+//                            case "reparationObject": result.put(property, 2); break;
+                            default:
+                        }
+                    }
+                    return result;
+                })
+                .create()
+                .show();
+    }
+
+    @Subscribe
+    public void onBeforeShow(BeforeShowEvent event) {
+        reparationFilesStructureDl.load();
+        FileDownloadHelper.initGeneratedColumn(reparationFilesTable, "document");
+    }
 
     @Subscribe
     public void onInit(InitEvent event) {
         reparationFilesStructureTree.setIconProvider(reparationFilesStructure -> icons.get(CubaIcon.FOLDER_O));
         initReparationFilesDc();
+        businessDl.load();
         refreshCompanyDc(true);
+
         multiUploadField.addQueueUploadCompleteListener(queueUploadCompleteEvent -> {
             CommitContext commitContext = new CommitContext();
             for (Map.Entry<UUID, String> entry : multiUploadField.getUploadsMap().entrySet()) {
@@ -136,12 +177,12 @@ public class ReparationFileBrowse extends StandardLookup<ReparationFile> {
         reparationFilesDl.load();
     }
 
-    @Install(to = "reparationFilesTable.create", subject = "newEntitySupplier")
-    private ReparationFile reparationFilesTableCreateNewEntitySupplier() {
-        ReparationFile reparationFile = metadata.create(ReparationFile.class);
-        initNewEntity(reparationFile, null);
-        return reparationFile;
-    }
+//    @Install(to = "reparationFilesTable.create", subject = "newEntitySupplier")
+//    private ReparationFile reparationFilesTableCreateNewEntitySupplier() {
+//        ReparationFile reparationFile = metadata.create(ReparationFile.class);
+//        initNewEntity(reparationFile, null);
+//        return reparationFile;
+//    }
 
     private void initNewEntity(ReparationFile reparationFile, FileDescriptor fileDescriptor) {
         ReparationFilesStructure structure = reparationFilesStructureTree.getSingleSelected();
@@ -184,8 +225,10 @@ public class ReparationFileBrowse extends StandardLookup<ReparationFile> {
             structureElement = dataManager.reload(structureElement, "reparationFilesStructure-all-property-exclude-pid");
             if (structureElement.getPartition() != null) {
                 reparationFilesDl.setParameter("partition", structureElement.getPartition());
+                multiUploadField.setEnabled(true);
             } else {
                 reparationFilesDl.removeParameter("partition");
+                multiUploadField.setEnabled(false);
             }
             if (structureElement.getPropertyType() != null) {
                 reparationFilesDl.setParameter("propertyType", structureElement.getPropertyType());

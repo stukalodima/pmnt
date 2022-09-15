@@ -1,12 +1,16 @@
 package com.itk.finance.entity;
 
+import com.haulmont.chile.core.annotations.Composition;
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.FileDescriptor;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.cuba.core.entity.annotation.OnDelete;
+import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Table(name = "FINANCE_REPARATION_FILE")
 @Entity(name = "finance_ReparationFile")
@@ -44,10 +48,13 @@ public class ReparationFile extends StandardEntity {
     @JoinColumn(name = "DOCUMENT_TYPE_ID")
     private DocumentType documentType;
 
-    @Lookup(type = LookupType.SCREEN, actions = {"lookup", "open", "clear"})
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "REPARATION_OBJECT")
-    private ReparationObject reparationObject;
+    @Composition
+    @OnDelete(DeletePolicy.CASCADE)
+    @OneToMany(mappedBy = "reparationFile")
+    private List<ReparationFileByReparationObject> reparationObjects;
+
+    @Column(name = "NAME_FOR_FILE")
+    private String fileName;
 
     public FileDescriptor getDocument() {
         return document;
@@ -97,11 +104,19 @@ public class ReparationFile extends StandardEntity {
         this.documentType = documentType;
     }
 
-    public ReparationObject getReparationObject() {
-        return reparationObject;
+    public List<ReparationFileByReparationObject> getReparationObjects() {
+        return reparationObjects;
     }
 
-    public void setReparationObject(ReparationObject reparationObject) {
-        this.reparationObject = reparationObject;
+    public void setReparationObjects(List<ReparationFileByReparationObject> reparationObjects) {
+        this.reparationObjects = reparationObjects;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

@@ -50,6 +50,9 @@ public class Business extends StandardEntity {
     @JoinColumn(name = "PARENT_ID")
     private Business parent;
 
+    @Column(name = "NAME_FOR_FILE")
+    private String nameForFile;
+
     public List<BusinessControllers> getControllerList() {
         return controllerList;
     }
@@ -96,5 +99,13 @@ public class Business extends StandardEntity {
 
     public void setParent(Business parent) {
         this.parent = parent;
+    }
+
+    public String getNameForFile() {
+        return nameForFile;
+    }
+
+    public void setNameForFile(String nameForFile) {
+        this.nameForFile = nameForFile;
     }
 }

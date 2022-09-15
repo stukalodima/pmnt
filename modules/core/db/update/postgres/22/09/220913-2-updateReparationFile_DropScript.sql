@@ -1,0 +1,1 @@
+alter table FINANCE_REPARATION_FILE drop column REPARATION_OBJECT__U21985 cascade ;

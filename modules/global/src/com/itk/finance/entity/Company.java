@@ -41,6 +41,9 @@ public class Company extends StandardEntity {
     @Temporal(TemporalType.DATE)
     private Date dateStartIntegration;
 
+    @Column(name = "NAME_FOR_FILE")
+    private String nameForFile;
+
     public String getEdrpou() {
         return edrpou;
     }
@@ -87,5 +90,13 @@ public class Company extends StandardEntity {
 
     public void setIntegrationEnable(Boolean integrationEnable) {
         this.integrationEnable = integrationEnable;
+    }
+
+    public String getNameForFile() {
+        return nameForFile;
+    }
+
+    public void setNameForFile(String nameForFile) {
+        this.nameForFile = nameForFile;
     }
 }

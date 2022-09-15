@@ -18,11 +18,22 @@ public class PropertyType extends StandardEntity {
     @Column(name = "NAME")
     private String name;
 
+    @Column(name = "NAME_FOR_FILE")
+    private String nameForFile;
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getNameForFile() {
+        return nameForFile;
+    }
+
+    public void setNameForFile(String nameForFile) {
+        this.nameForFile = nameForFile;
     }
 }

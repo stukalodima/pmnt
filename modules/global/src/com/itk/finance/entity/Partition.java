@@ -18,11 +18,33 @@ public class Partition extends StandardEntity {
     @Column(name = "NAME")
     private String name;
 
+    @Column(name = "NAME_FOR_FILE")
+    private String nameForFile;
+
+    @Column(name = "USE_OBJECT")
+    private Boolean useObject;
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Boolean getUseObject() {
+        return useObject;
+    }
+
+    public void setUseObject(Boolean useObject) {
+        this.useObject = useObject;
+    }
+
+    public String getNameForFile() {
+        return nameForFile;
+    }
+
+    public void setNameForFile(String nameForFile) {
+        this.nameForFile = nameForFile;
     }
 }

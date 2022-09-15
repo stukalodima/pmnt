@@ -1,0 +1,3 @@
+alter table FINANCE_REPARATION_FILE rename column reparation_object to reparation_object__u21985 ;
+alter table FINANCE_REPARATION_FILE drop constraint FK_FINANCE_REPARATION_FILE_ON_REPARATION_OBJECT ;
+drop index IDX_FINANCE_REPARATION_FILE_ON_REPARATION_OBJECT ;
