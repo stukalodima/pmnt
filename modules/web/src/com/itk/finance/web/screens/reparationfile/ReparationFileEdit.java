@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import java.util.Objects;
 
 import static java.util.Objects.isNull;
+
 @UiController("finance_ReparationFile.edit")
 @UiDescriptor("reparation-file-edit.xml")
 @EditedEntityContainer("reparationFileDc")
@@ -80,7 +81,7 @@ public class ReparationFileEdit extends StandardEditor<ReparationFile> {
         reparationObjectsDl.setParameter("reparationFile", getEditedEntity());
         reparationObjectsDl.load();
         if (PersistenceHelper.isNew(getEditedEntity())) {
-            documentField.setUploadButtonCaption(messages.getMessage(ReparationFileEdit.class,"documentField.newUpload.caption"));
+            documentField.setUploadButtonCaption(messages.getMessage(ReparationFileEdit.class, "documentField.newUpload.caption"));
         } else {
             documentField.setUploadButtonCaption(messages.getMessage(ReparationFileEdit.class, "documentField.editUpload.caption"));
         }
@@ -107,7 +108,7 @@ public class ReparationFileEdit extends StandardEditor<ReparationFile> {
             notifications.create()
                     .withContentMode(ContentMode.TEXT)
                     .withType(Notifications.NotificationType.ERROR)
-                    .withCaption(messages.getMessage(ReparationFileEdit.class,"notifications.nullReparationObject.caption"))
+                    .withCaption(messages.getMessage(ReparationFileEdit.class, "notifications.nullReparationObject.caption"))
                     .withDescription(messages.getMessage(ReparationFileEdit.class, "notifications.nullReparationObject.text"))
                     .show();
             return;
@@ -176,29 +177,55 @@ public class ReparationFileEdit extends StandardEditor<ReparationFile> {
                 }).build();
         screen.setBusiness(getEditedEntity().getBusiness());
         screen.setCompany(getEditedEntity().getCompany());
+        screen.setPartition(getEditedEntity().getPartition());
+        screen.setDocumentType(getEditedEntity().getDocumentType());
         screen.setPropertyType(getEditedEntity().getPropertyType());
         screen.show();
     }
 
     @Subscribe("fileNameField")
     public void onFileNameFieldValueChange(HasValue.ValueChangeEvent<String> event) {
-        if (event.isUserOriginated()) {
-            getEditedEntity().getDocument().setName(
-                    reparationFileService.getFileName(
-                            getEditedEntity().getBusiness(),
-                            getEditedEntity().getCompany(),
-                            getEditedEntity().getPartition(),
-                            getEditedEntity().getPropertyType(),
-                            getEditedEntity().getDocumentType(),
-                            reparationObjectsDc.getItems().size() == 1
-                                    ? reparationObjectsDc.getItems().get(0).getReparationObject()
-                                    : null,
-                            getEditedEntity().getFileName(),
-                            getEditedEntity().getDocument().getExtension()
-                    )
-            );
-            getEditedEntity().setDocument(dataContext.merge(getEditedEntity().getDocument()));
-        }
+//        if (event.isUserOriginated()) {
+//            getEditedEntity().getDocument().setName(
+//                    reparationFileService.getFileName(
+//                            getEditedEntity().getBusiness(),
+//                            getEditedEntity().getCompany(),
+//                            getEditedEntity().getPartition(),
+//                            getEditedEntity().getPropertyType(),
+//                            getEditedEntity().getDocumentType(),
+//                            reparationObjectsDc.getItems().size() == 1
+//                                    ? reparationObjectsDc.getItems().get(0).getReparationObject()
+//                                    : null,
+//                            getEditedEntity().getFileName(),
+//                            getEditedEntity().getDocument().getExtension()
+//                    )
+//            );
+//            getEditedEntity().setDocument(dataContext.merge(getEditedEntity().getDocument()));
+//        }
+    }
+
+    @Subscribe
+    public void onBeforeCommitChanges(BeforeCommitChangesEvent event) {
+        getEditedEntity().getDocument().setName(
+                reparationFileService.getFileName(
+                        getEditedEntity().getBusiness(),
+                        getEditedEntity().getCompany(),
+                        getEditedEntity().getPartition(),
+                        getEditedEntity().getPropertyType(),
+                        getEditedEntity().getDocumentType(),
+                        reparationObjectsDc.getItems().size() == 1
+                                ? reparationObjectsDc.getItems().get(0).getReparationObject()
+                                : null,
+                        getEditedEntity().getFileName(),
+                        getEditedEntity().getDocument().getExtension()
+                )
+        );
+        getEditedEntity().setDocument(dataContext.merge(getEditedEntity().getDocument()));
+    }
+
+    @Subscribe
+    public void onBeforeClose(BeforeCloseEvent event) {
+
     }
 
 }

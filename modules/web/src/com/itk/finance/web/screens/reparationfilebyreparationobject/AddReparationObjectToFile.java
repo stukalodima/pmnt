@@ -3,14 +3,12 @@ package com.itk.finance.web.screens.reparationfilebyreparationobject;
 import com.haulmont.cuba.core.global.MessageTools;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.components.Button;
+import com.haulmont.cuba.gui.components.Filter;
 import com.haulmont.cuba.gui.components.GroupTable;
 import com.haulmont.cuba.gui.components.Label;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.*;
-import com.itk.finance.entity.Business;
-import com.itk.finance.entity.Company;
-import com.itk.finance.entity.PropertyType;
-import com.itk.finance.entity.ReparationObject;
+import com.itk.finance.entity.*;
 import com.itk.finance.web.screens.reparationfilebyreparationobject.action.AddReparationObjectsAction;
 
 import javax.inject.Inject;
@@ -26,14 +24,16 @@ public class AddReparationObjectToFile extends Screen {
 
     private Company company;
 
+    private Partition partition;
+
+    private DocumentType documentType;
+
     private PropertyType propertyType;
 
     @Inject
     private CollectionLoader<ReparationObject> reparationObjectsDl;
     @Inject
     private Label<String> businessLabel;
-    @Inject
-    private Messages messages;
     @Inject
     private MessageTools messageTools;
     @Inject
@@ -46,10 +46,52 @@ public class AddReparationObjectToFile extends Screen {
     private Label<String> propertyTypeLabel;
     @Inject
     private Label<String> propertyTypeValue;
+    @Inject
+    private Messages messages;
+    @Inject
+    private Label<String> partitionLabel;
+    @Inject
+    private Label<String> partitionValue;
+    @Inject
+    private Label<String> documentLabel;
+    @Inject
+    private Label<String> documentValue;
+    @Inject
+    private Filter filter;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
         refreshReparationObjectDl();
+        businessLabel.setValue(messageTools.getEntityCaption(business.getMetaClass()));
+        if(business!=null) {
+            businessValue.setValue(business.getName());
+        } else {
+            businessValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
+        }
+        companyLabel.setValue(messageTools.getEntityCaption(company.getMetaClass()));
+        if (company != null) {
+            companyValue.setValue(company.getShortName());
+        } else {
+            companyValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
+        }
+        partitionLabel.setValue(messageTools.getEntityCaption(partition.getMetaClass()));
+        if (partition != null) {
+            partitionValue.setValue(partition.getName());
+        } else {
+            partitionValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
+        }
+        documentLabel.setValue(messageTools.getEntityCaption(documentType.getMetaClass()));
+        if (documentType != null) {
+            documentValue.setValue(documentType.getName());
+        } else {
+            documentValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
+        }
+        propertyTypeLabel.setValue(messageTools.getEntityCaption(propertyType.getMetaClass()));
+        if (propertyType != null) {
+            propertyTypeValue.setValue(propertyType.getName());
+        } else {
+            propertyTypeValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
+        }
     }
 
     @Install(to = "reparationObjectsTable.create", subject = "initializer")
@@ -92,19 +134,21 @@ public class AddReparationObjectToFile extends Screen {
 
     public void setBusiness(Business business) {
         this.business = business;
-        businessLabel.setValue(messageTools.getEntityCaption(business.getMetaClass()));
-        businessValue.setValue(business.getName());
     }
 
     public void setCompany(Company company) {
         this.company = company;
-        companyLabel.setValue(messageTools.getEntityCaption(company.getMetaClass()));
-        companyValue.setValue(company.getShortName());
     }
 
     public void setPropertyType(PropertyType propertyType) {
         this.propertyType = propertyType;
-        propertyTypeLabel.setValue(messageTools.getEntityCaption(propertyType.getMetaClass()));
-        propertyTypeValue.setValue(propertyType.getName());
+    }
+
+    public void setPartition(Partition partition) {
+        this.partition = partition;
+    }
+
+    public void setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
     }
 }

@@ -100,12 +100,17 @@ public class ReparationFileByReparationObjectBrowse extends StandardLookup<Repar
                                     .getReparationObjects();
                             if (reparationObjectList.isEmpty()) {
                                 multiUploadField.clearUploads();
+                                reparationFileList.forEach(entity -> {
+                                    ReparationFileByReparationObject reparationFileByReparationObject = dataManager.create(ReparationFileByReparationObject.class);
+                                    initNewEntityReparationFileByReparationObjects(reparationFileByReparationObject, entity, null, false);
+                                    commitContext.addInstanceToCommit(reparationFileByReparationObject);
+                                });
                                 return;
                             }
                             reparationObjectList
                                     .forEach(reparationObject -> reparationFileList.forEach(entity -> {
                                         ReparationFileByReparationObject reparationFileByReparationObject = dataManager.create(ReparationFileByReparationObject.class);
-                                        initNewEntityReparationFileByReparationObjects(reparationFileByReparationObject, entity, reparationObject, reparationObjectList.size()>0);
+                                        initNewEntityReparationFileByReparationObjects(reparationFileByReparationObject, entity, reparationObject, reparationObjectList.size() > 0);
                                         commitContext.addInstanceToCommit(reparationFileByReparationObject);
                                     }));
 
@@ -119,11 +124,11 @@ public class ReparationFileByReparationObjectBrowse extends StandardLookup<Repar
                     .build();
             screen.setBusiness(businessFilterField.getValue());
             screen.setCompany(companyFilterField.getValue());
+            screen.setPartition(structureElement.getPartition());
+            screen.setDocumentType(structureElement.getDocumentType());
             screen.setPropertyType(structureElement.getPropertyType());
             screen.show();
         });
-
-        multiUploadField.addFileUploadStartListener(fileUploadStartEvent -> notifications.create().withType(Notifications.NotificationType.ERROR).show());
 
         multiUploadField.addFileUploadErrorListener(queueFileUploadErrorEvent -> notifications.create()
                 .withCaption(messages.getMessage(ReparationFileBrowse.class, "reparationFileBrowse.errorUpload"))
@@ -192,7 +197,7 @@ public class ReparationFileByReparationObjectBrowse extends StandardLookup<Repar
                 multiObject
                         ? null
                         : reparationObject,
-        reparationFile.getFileName(),
+                reparationFile.getFileName(),
                 reparationFile.getDocument().getExtension()
         ));
     }
@@ -265,13 +270,18 @@ public class ReparationFileByReparationObjectBrowse extends StandardLookup<Repar
 
     @Subscribe("reparationFileByReparationObjectsTable.edit")
     public void onReparationFileByReparationObjectsTableEdit(Action.ActionPerformedEvent event) {
-        ReparationFile file = Objects.requireNonNull(reparationFileByReparationObjectsTable.getSingleSelected())
+        ReparationFileByReparationObject selectedRow = reparationFileByReparationObjectsTable.getSingleSelected();
+        ReparationFile file = Objects.requireNonNull(selectedRow)
                 .getReparationFile();
-        screenBuilders.editor(ReparationFile.class,this)
+        screenBuilders.editor(ReparationFile.class, this)
                 .editEntity(file)
                 .withLaunchMode(OpenMode.DIALOG)
                 .build()
-                .show();
+                .show().addAfterCloseListener(afterCloseEvent -> {
+                            refreshReparationFileDl();
+                            reparationFileByReparationObjectsTable.setSelected(selectedRow);
+                        }
+                );
     }
 
     @Subscribe("stateFilterField")
