@@ -15,12 +15,10 @@ import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
+import org.activiti.engine.task.IdentityLink;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class CreateTaskListener implements TaskListener {
 
@@ -46,48 +44,57 @@ public class CreateTaskListener implements TaskListener {
         PaymentRegister paymentRegister = entityManager.find(Objects.requireNonNull(metaClass).getJavaClass(), entityId);
 
         String userStrId = delegateTask.getAssignee();
+        List<UUID> users = new ArrayList<>();
 
-        UUID uuidUser = UUID.fromString(userStrId);
-
-        User user = (User) entityManager.createQuery(QUERY_STRING_GET_USER_BY_ID)
-                .setParameter("id", uuidUser)
-                .setView(User.class, "user.browse")
-                .getFirstResult();
-        if (Objects.isNull(user)) {
-            return;
+        if (userStrId == null) {
+            Set<IdentityLink> userStrIdSet = delegateTask.getCandidates();
+            userStrIdSet.forEach(identityLink -> users.add(UUID.fromString(identityLink.getUserId())));
+        } else {
+            users.add(UUID.fromString(userStrId));
         }
 
-        AddressingDetail addressingDetail = (AddressingDetail) entityManager.createQuery("select e from finance_AddressingDetail e " +
-                        "where e.addressing.bussines = :bussines " +
-                        "and e.addressing.procDefinition = :procDefinition " +
-                        "and e.user = :user")
-                .setParameter("bussines", Objects.requireNonNull(paymentRegister).getBusiness())
-                .setParameter("procDefinition", Objects.requireNonNull(paymentRegister).getRegisterType().getProcDefinition())
-                .setParameter("user", user)
-                .getFirstResult();
-        if (!Objects.isNull(addressingDetail) && !Objects.isNull(addressingDetail.getAuto()) && addressingDetail.getAuto()) {
-            TaskService taskService = delegateTask.getExecution().getEngineServices().getTaskService();
-            taskService.complete(delegateTask.getId());
-        }
+        users.forEach(uuidUser -> {
 
-        if (!Objects.isNull(user.getEmail()) && !userPropertyService.dontSendEmailByTask(user)) {
+            User user = (User) entityManager.createQuery(QUERY_STRING_GET_USER_BY_ID)
+                    .setParameter("id", uuidUser)
+                    .setView(User.class, "user.browse")
+                    .getFirstResult();
+            if (Objects.isNull(user)) {
+                return;
+            }
+
+            AddressingDetail addressingDetail = (AddressingDetail) entityManager.createQuery("select e from finance_AddressingDetail e " +
+                            "where e.addressing.bussines = :bussines " +
+                            "and e.addressing.procDefinition = :procDefinition " +
+                            "and e.user = :user")
+                    .setParameter("bussines", Objects.requireNonNull(paymentRegister).getBusiness())
+                    .setParameter("procDefinition", Objects.requireNonNull(paymentRegister).getRegisterType().getProcDefinition())
+                    .setParameter("user", user)
+                    .getFirstResult();
+            if (!Objects.isNull(addressingDetail) && !Objects.isNull(addressingDetail.getAuto()) && addressingDetail.getAuto()) {
+                TaskService taskService = delegateTask.getExecution().getEngineServices().getTaskService();
+                taskService.complete(delegateTask.getId());
+            }
+
+            if (!Objects.isNull(user.getEmail()) && !userPropertyService.dontSendEmailByTask(user)) {
 //                if (!Objects.isNull(user.getEmail())) {
 
-            Map<String, Serializable> mapParam = new HashMap<>();
+                Map<String, Serializable> mapParam = new HashMap<>();
 
-            mapParam.put("systemName", messages.getMessage(CreateTaskListener.class, "mail.systemName"));
-            mapParam.put("welcome", messages.getMessage(CreateTaskListener.class, "mail.welcome"));
-            mapParam.put("newTask", messages.getMessage(CreateTaskListener.class, "mail.newTask"));
-            mapParam.put("inSystem", messages.getMessage(CreateTaskListener.class, "mail.inSystem"));
-            mapParam.put("goToSystem", messages.getMessage(CreateTaskListener.class, "mail.goToSystem"));
-            mapParam.put("userName", user.getName());
-            mapParam.put("taskName", delegateTask.getName());
+                mapParam.put("systemName", messages.getMessage(CreateTaskListener.class, "mail.systemName"));
+                mapParam.put("welcome", messages.getMessage(CreateTaskListener.class, "mail.welcome"));
+                mapParam.put("newTask", messages.getMessage(CreateTaskListener.class, "mail.newTask"));
+                mapParam.put("inSystem", messages.getMessage(CreateTaskListener.class, "mail.inSystem"));
+                mapParam.put("goToSystem", messages.getMessage(CreateTaskListener.class, "mail.goToSystem"));
+                mapParam.put("userName", user.getName());
+                mapParam.put("taskName", delegateTask.getName());
 
-            emailService.sendEmail(user.getEmail(),
-                    messages.getMessage(CreateTaskListener.class, "mail.createTaskListenerEmailCaption"),
-                    messages.getMessage(CreateTaskListener.class, "mail.createTaskListenerEmailTemplate"),
-                    mapParam);
+                emailService.sendEmail(user.getEmail(),
+                        messages.getMessage(CreateTaskListener.class, "mail.createTaskListenerEmailCaption"),
+                        messages.getMessage(CreateTaskListener.class, "mail.createTaskListenerEmailTemplate"),
+                        mapParam);
 //                }
-        }
+            }
+        });
     }
 }

@@ -243,6 +243,13 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private void updateVisible() {
         sendToApprove.setVisible(Objects.isNull(getEditedEntity().getProcInstance()));
         formBody.setEditable(Objects.isNull(getEditedEntity().getProcInstance()));
+        if (getEditedEntity().getStatus().getCode().equals(constantsConfig.getPaymentRegisterStatusInPay())) {
+            paymentRegistersDetailTable.getColumn("payed").setCollapsed(false);
+            paymentRegistersDetailTable.getColumn("sumaToPay").setCollapsed(false);
+            paymentRegistersDetailTable.getColumn("payedDate").setCollapsed(false);
+            paymentRegistersDetailTable.getColumn("payedSuma").setCollapsed(false);
+
+        }
         if (getEditedEntity().getProcInstance() != null
                 && procTask != null
                 && procTask.getProcActor() != null
@@ -444,15 +451,18 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                                     .getProcDefinition().getCode()
                     );
                     listRoles.forEach(e -> {
-                        if (constantsConfig.getPaymentRegisterControllerRole().equals(e.getProcRole().getCode())) {
+                        if (Boolean.TRUE.equals(e.getAutoDetect()) &&
+                                constantsConfig.getPaymentRegisterControllerRole().equals(e.getProcRole().getCode())
+                        ) {
                             View view = new View(Business.class)
                                     .addProperty("controllerList", new View(BusinessControllers.class)
                                             .addProperty("user")
                                     );
                             Business business = dataManager.reload(getEditedEntity().getBusiness(), view);
                             business.getControllerList().forEach(cont -> procInstanceDetails.addProcActor(e.getProcRole(), cont.getUser()));
+                        } else {
+                            procInstanceDetails.addProcActor(e.getProcRole(), e.getUser());
                         }
-                        procInstanceDetails.addProcActor(e.getProcRole(), e.getUser());
                     });
                     procInstanceDetails.setEntity(getEditedEntity());
 
@@ -597,7 +607,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                                             : paymentRegisterDetail.getPayedSuma()
                                             + (closeEvent.getValue("payedSuma") == null ? 0.
                                             : (Double) Objects.requireNonNull(closeEvent.getValue("payedSuma")));
-                                    Double sumaToPay = paymentRegisterDetail.getPaymentClaim().getSumm() - paymentRegisterDetail.getPayedSuma();
+                                    Double sumaToPay = paymentRegisterDetail.getPaymentClaim().getSumm() - payedSumm;
                                     paymentRegisterDetail.setPayedDate(closeEvent.getValue("payedDate"));
                                     paymentRegisterDetail.setPayedSuma(payedSumm);
                                     paymentRegisterDetail.setSumaToPay(sumaToPay);

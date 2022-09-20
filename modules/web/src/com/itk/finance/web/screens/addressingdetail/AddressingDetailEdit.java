@@ -59,7 +59,7 @@ public class AddressingDetailEdit extends StandardEditor<AddressingDetail> {
     }
 
     private void changeEditableUserField() {
-        if(getEditedEntity().getAuto()||getEditedEntity().getAutoDetect()) {
+        if(Boolean.TRUE.equals(getEditedEntity().getAuto())||Boolean.TRUE.equals(getEditedEntity().getAutoDetect())) {
             userField.setEditable(false);
             userField.setRequired(false);
 

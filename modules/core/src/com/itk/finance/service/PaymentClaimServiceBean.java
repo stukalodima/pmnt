@@ -59,15 +59,26 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
 
     @Override
     public PaymentClaim getPaymentClaimById(String id) {
-        return getPaymentClaimById(UUID.fromString(id));
+        return getPaymentClaimById(UUID.fromString(id), true);
+    }
+
+    @Override
+    public PaymentClaim getPaymentClaimById(String id, boolean softDeletion) {
+        return getPaymentClaimById(UUID.fromString(id), softDeletion);
     }
 
     @Override
     public PaymentClaim getPaymentClaimById(UUID id) {
+        return getPaymentClaimById(id, true);
+    }
+
+    @Override
+    public PaymentClaim getPaymentClaimById(UUID id, boolean softDeletion) {
         List<PaymentClaim> paymentClaimList = dataManager.load(PaymentClaim.class)
                 .query("select e from finance_PaymentClaim e where e.id = :id")
                 .parameter("id", id)
                 .view("paymentClaim.getEdit")
+                .softDeletion(softDeletion)
                 .list();
         PaymentClaim paymentClaim = null;
         if (paymentClaimList.size() > 0) {
@@ -119,12 +130,15 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
                 || company.getDateStartIntegration().after(dateAdd)) {
             return;
         }
-        PaymentClaim paymentClaim = getPaymentClaimById(paymentClaimMap.get("id").toString());
+        PaymentClaim paymentClaim = getPaymentClaimById(paymentClaimMap.get("id").toString(), false);
 
         if (Objects.isNull(paymentClaim)) {
             paymentClaim = dataManager.create(PaymentClaim.class);
         } else {
             if (!paymentClaim.getStatus().equals(procPropertyService.getNewStatus())) {
+                return;
+            }
+            if (paymentClaim.getDeletedBy() != null) {
                 return;
             }
         }
