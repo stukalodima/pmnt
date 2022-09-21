@@ -56,37 +56,35 @@ public class AddReparationObjectToFile extends Screen {
     private Label<String> documentLabel;
     @Inject
     private Label<String> documentValue;
-    @Inject
-    private Filter filter;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
         refreshReparationObjectDl();
-        businessLabel.setValue(messageTools.getEntityCaption(business.getMetaClass()));
+        businessLabel.setValue(messages.getMainMessage("ReparationFile.business"));
         if(business!=null) {
             businessValue.setValue(business.getName());
         } else {
             businessValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
         }
-        companyLabel.setValue(messageTools.getEntityCaption(company.getMetaClass()));
+        companyLabel.setValue(messages.getMainMessage("ReparationFile.company"));
         if (company != null) {
             companyValue.setValue(company.getShortName());
         } else {
             companyValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
         }
-        partitionLabel.setValue(messageTools.getEntityCaption(partition.getMetaClass()));
+        partitionLabel.setValue(messages.getMainMessage("ReparationFile.partition"));
         if (partition != null) {
             partitionValue.setValue(partition.getName());
         } else {
             partitionValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
         }
-        documentLabel.setValue(messageTools.getEntityCaption(documentType.getMetaClass()));
+        documentLabel.setValue(messages.getMainMessage("ReparationFile.documentType"));
         if (documentType != null) {
             documentValue.setValue(documentType.getName());
         } else {
             documentValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
         }
-        propertyTypeLabel.setValue(messageTools.getEntityCaption(propertyType.getMetaClass()));
+        propertyTypeLabel.setValue(messages.getMainMessage("ReparationFile.propertyType"));
         if (propertyType != null) {
             propertyTypeValue.setValue(propertyType.getName());
         } else {

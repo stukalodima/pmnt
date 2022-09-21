@@ -1,9 +1,6 @@
 package com.itk.finance.web.screens.reparationfile;
 
-import com.haulmont.cuba.core.global.DataManager;
-import com.haulmont.cuba.core.global.Messages;
-import com.haulmont.cuba.core.global.PersistenceHelper;
-import com.haulmont.cuba.core.global.View;
+import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.ScreenBuilders;
 import com.haulmont.cuba.gui.components.*;
@@ -62,8 +59,8 @@ public class ReparationFileEdit extends StandardEditor<ReparationFile> {
                         "       c.name like :name " +
                         "       or c.invNumber like :name " +
                         "   )" +
-                        "order by c.name")
-                .parameter("name", "%" + searchString + "%")
+                        "order by c.name escape '\\'")
+                .parameter("name", "%" + QueryUtils.escapeForLike(searchString) + "%")
                 .parameter("propertyType", getEditedEntity().getPropertyType())
                 .view("_local")
                 .list());
