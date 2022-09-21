@@ -1,9 +1,7 @@
 package com.itk.finance.web.screens.reparationfilebyreparationobject;
 
-import com.haulmont.cuba.core.global.MessageTools;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.components.Button;
-import com.haulmont.cuba.gui.components.Filter;
 import com.haulmont.cuba.gui.components.GroupTable;
 import com.haulmont.cuba.gui.components.Label;
 import com.haulmont.cuba.gui.model.CollectionLoader;
@@ -35,8 +33,6 @@ public class AddReparationObjectToFile extends Screen {
     @Inject
     private Label<String> businessLabel;
     @Inject
-    private MessageTools messageTools;
-    @Inject
     private Label<String> businessValue;
     @Inject
     private Label<String> companyLabel;
@@ -60,31 +56,31 @@ public class AddReparationObjectToFile extends Screen {
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
         refreshReparationObjectDl();
-        businessLabel.setValue(messages.getMainMessage("ReparationFile.business"));
-        if(business!=null) {
+        businessLabel.setValue(messages.getMessage(ReparationFile.class, "ReparationFile.business"));
+        if (business != null) {
             businessValue.setValue(business.getName());
         } else {
             businessValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
         }
-        companyLabel.setValue(messages.getMainMessage("ReparationFile.company"));
+        companyLabel.setValue(messages.getMessage(ReparationFile.class, "ReparationFile.company"));
         if (company != null) {
             companyValue.setValue(company.getShortName());
         } else {
             companyValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
         }
-        partitionLabel.setValue(messages.getMainMessage("ReparationFile.partition"));
+        partitionLabel.setValue(messages.getMessage(ReparationFile.class, "ReparationFile.partition"));
         if (partition != null) {
             partitionValue.setValue(partition.getName());
         } else {
             partitionValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
         }
-        documentLabel.setValue(messages.getMainMessage("ReparationFile.documentType"));
+        documentLabel.setValue(messages.getMessage(ReparationFile.class, "ReparationFile.documentType"));
         if (documentType != null) {
             documentValue.setValue(documentType.getName());
         } else {
             documentValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
         }
-        propertyTypeLabel.setValue(messages.getMainMessage("ReparationFile.propertyType"));
+        propertyTypeLabel.setValue(messages.getMessage(ReparationFile.class, "ReparationFile.propertyType"));
         if (propertyType != null) {
             propertyTypeValue.setValue(propertyType.getName());
         } else {
