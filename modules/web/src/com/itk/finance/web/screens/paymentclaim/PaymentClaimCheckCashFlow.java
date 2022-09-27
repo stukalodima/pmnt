@@ -10,7 +10,9 @@ import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.*;
 
 import javax.inject.Inject;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @UiController("finance_PaymentClaim.checkCashFlow")
 @UiDescriptor("payment-claim-check-cash-flow.xml")
@@ -44,6 +46,12 @@ public class PaymentClaimCheckCashFlow extends Screen {
                         .parameter("cashFlowItemBusiness", entity.getCashFlowItemBusiness())
                         .view("_local")
                         .list();
+                CashFlowItemBusiness cashFlowItemBusiness = dataManager.reload(entity.getCashFlowItemBusiness(), "cashFlowItemBusiness-all-property");
+                if (!Objects.isNull(cashFlowItemBusiness.getCashFlowItem())
+                        && !cashFlowItemList.contains(cashFlowItemBusiness.getCashFlowItem())) {
+                    cashFlowItemList.add(cashFlowItemBusiness.getCashFlowItem());
+                }
+                cashFlowItemList.sort(Comparator.comparing(CashFlowItem::getName));
                 field.setOptionsList(cashFlowItemList);
                 field.setValueSource(new ContainerValueSource<>(paymentClaimsTable.getInstanceContainer(entity), "cashFlowItem"));
                 return field;
