@@ -100,32 +100,32 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
                 .view("registerType-all-property")
                 .list();
         List paymentRegisterList = new ArrayList<>();
-        registerTypeList.forEach(e -> {
-                    PaymentRegister paymentRegister = dataManager.create(PaymentRegister.class);
-                    paymentRegister.setRegisterType(e);
-                    if (!Objects.isNull(business)) {
-                        paymentRegister.setBusiness(business);
-                    }
-                    List<PaymentClaim> paymentClaimList = paymentClaimService.getPaymentClaimsListByRegister(
-                            paymentRegister.getBusiness(), paymentRegister.getRegisterType()
-                    );
-                    if (paymentClaimList.size() > 0) {
-                        paymentRegister.setNumber(uniqueNumbersService.getNextNumber(PaymentRegister.class.getSimpleName()));
-                        paymentRegister.setPaymentRegisters(
-                                paymentRegisterService.getPaymentRegisterDetailsByPaymentClaimList(
-                                        paymentRegister, paymentClaimList
-                                )
-                        );
-                        paymentRegister.setSumma(null);
+        for (RegisterType e : registerTypeList) {
+            PaymentRegister paymentRegister = dataManager.create(PaymentRegister.class);
+            paymentRegister.setRegisterType(e);
+            if (!Objects.isNull(business)) {
+                paymentRegister.setBusiness(business);
+            }
+            List<PaymentClaim> paymentClaimList = paymentClaimService.getPaymentClaimsListByRegister(
+                    paymentRegister.getBusiness(), paymentRegister.getRegisterType()
+            );
+            if (paymentClaimList.size() > 0) {
+                paymentRegister.setNumber(uniqueNumbersService.getNextNumber(PaymentRegister.class.getSimpleName()));
+                paymentRegister.setPaymentRegisters(
+                        paymentRegisterService.getPaymentRegisterDetailsByPaymentClaimList(
+                                paymentRegister, paymentClaimList
+                        )
+                );
+                paymentRegister.setSumma(null);
 
-                        paymentRegisterList.add(paymentRegister);
-                        paymentRegisterList.addAll(paymentRegister.getPaymentRegisters());
-                    }
-                }
-        );
+                paymentRegisterList.add(paymentRegister);
+                paymentRegisterList.addAll(paymentRegister.getPaymentRegisters());
+            }
+        }
         CommitContext commitContext = new CommitContext(paymentRegisterList);
         dataManager.commit(commitContext);
         paymentRegistersDl.load();
+        paymentRegisterList.clear();
     }
 
     @Subscribe

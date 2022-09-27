@@ -14,6 +14,7 @@ import com.itk.finance.service.UserPropertyService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.delegate.DelegateTask;
+import org.activiti.engine.delegate.Expression;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.task.IdentityLink;
 
@@ -23,6 +24,8 @@ import java.util.*;
 public class CreateTaskListener implements TaskListener {
 
     public static final String QUERY_STRING_GET_USER_BY_ID = "select e from sec$User e where e.id = :id";
+
+    private Expression autoApproveExpress;
 
     @Override
     public void notify(DelegateTask delegateTask) {
@@ -46,6 +49,20 @@ public class CreateTaskListener implements TaskListener {
         String userStrId = delegateTask.getAssignee();
         List<UUID> users = new ArrayList<>();
 
+        String isAutoApproveExpress;
+
+        try {
+            isAutoApproveExpress = (String) autoApproveExpress.getValue(delegateTask);
+        }
+        catch (Exception e) {
+            isAutoApproveExpress = "false";
+        }
+
+        if ("true".equals(isAutoApproveExpress) && paymentRegister != null && Boolean.TRUE.equals(paymentRegister.getExpress())) {
+            TaskService taskService = delegateTask.getExecution().getEngineServices().getTaskService();
+            taskService.complete(delegateTask.getId());
+        }
+
         if (userStrId == null) {
             Set<IdentityLink> userStrIdSet = delegateTask.getCandidates();
             userStrIdSet.forEach(identityLink -> users.add(UUID.fromString(identityLink.getUserId())));
@@ -53,14 +70,13 @@ public class CreateTaskListener implements TaskListener {
             users.add(UUID.fromString(userStrId));
         }
 
-        users.forEach(uuidUser -> {
-
+        for (UUID uuidUser : users) {
             User user = (User) entityManager.createQuery(QUERY_STRING_GET_USER_BY_ID)
                     .setParameter("id", uuidUser)
                     .setView(User.class, "user.browse")
                     .getFirstResult();
             if (Objects.isNull(user)) {
-                return;
+                continue;
             }
 
             AddressingDetail addressingDetail = (AddressingDetail) entityManager.createQuery("select e from finance_AddressingDetail e " +
@@ -95,6 +111,7 @@ public class CreateTaskListener implements TaskListener {
                         mapParam);
 //                }
             }
-        });
+        }
+        users.clear();
     }
 }

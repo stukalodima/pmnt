@@ -98,6 +98,7 @@ public class ApprovalHelperBean {
 
         sendEmailByStatus(paymentRegister, addressList, MAIL_REJECTED_LATER_EMAIL_CAPTION,
                 MAIL_REJECTED_LATER_EMAIL_BODY, attachmentList);
+        attachmentList.clear();
     }
 
     private void sendEmailByStatus(PaymentRegister paymentRegister, String addressList, String keyCaption, String keyEmailBody, List<String> attachmentFileName) throws IOException, EmailException {

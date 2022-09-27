@@ -137,6 +137,8 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private CollectionLoader<Business> businessesDl;
     @Inject
     private CollectionLoader<RegisterType> registerTypesDl;
+    @Inject
+    private CheckBox expressField;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
@@ -221,7 +223,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                         return false;
                     }
                 }
-                return true;
+                return commitChanges() == OperationResult.success();
             });
             completeProcTaskAction.addAfterActionListener(() -> {
                 getScreenData().loadAll();
@@ -257,6 +259,9 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
             paymentRegistersDetailTable.focus();
             if (!paymentRegistersDc.getItems().isEmpty()) {
                 paymentRegistersDetailTable.setSelected(paymentRegistersDc.getItems().get(0));
+            }
+            if (Boolean.TRUE.equals(getEditedEntity().getSetExpressField())) {
+                expressField.setVisible(true);
             }
         }
     }
@@ -349,13 +354,15 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
 
     private void clearPaymentRegisters() {
         if (Objects.requireNonNull(paymentRegistersDetailTable.getItems()).size() > 0) {
-            paymentRegistersDc.getItems().forEach(e -> dataContext.remove(e));
+            for (PaymentRegisterDetail e : paymentRegistersDc.getItems()) {
+                dataContext.remove(e);
+            }
             paymentRegistersDc.getMutableItems().clear();
         }
     }
 
     private void setApprovedByValue(PaymentRegisterDetailStatusEnum value) {
-        paymentRegistersDetailTable.getLookupSelectedItems().forEach(e -> {
+        for (PaymentRegisterDetail e : paymentRegistersDetailTable.getLookupSelectedItems()) {
             e.setApproved(value);
             if (value == PaymentRegisterDetailStatusEnum.REJECTED) {
                 e.setSumaToPay(0.);
@@ -365,7 +372,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                 e.setSumaToPay(e.getPaymentClaim().getSumm());
                 e.setPayed(PayStatusEnum.NOT_PAYED);
             }
-        });
+        }
         commitChanges();
     }
 
@@ -450,7 +457,7 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                                     .reload(getEditedEntity().getRegisterType(), "registerType-with-procDefinition")
                                     .getProcDefinition().getCode()
                     );
-                    listRoles.forEach(e -> {
+                    for (AddressingDetail e : listRoles) {
                         if (Boolean.TRUE.equals(e.getAutoDetect()) &&
                                 constantsConfig.getPaymentRegisterControllerRole().equals(e.getProcRole().getCode())
                         ) {
@@ -459,11 +466,13 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                                             .addProperty("user")
                                     );
                             Business business = dataManager.reload(getEditedEntity().getBusiness(), view);
-                            business.getControllerList().forEach(cont -> procInstanceDetails.addProcActor(e.getProcRole(), cont.getUser()));
+                            for (BusinessControllers cont : business.getControllerList()) {
+                                procInstanceDetails.addProcActor(e.getProcRole(), cont.getUser());
+                            }
                         } else {
                             procInstanceDetails.addProcActor(e.getProcRole(), e.getUser());
                         }
-                    });
+                    }
                     procInstanceDetails.setEntity(getEditedEntity());
 
                     /*The created ProcInstance will have two proc actors. None of the entities is persisted yet.*/
@@ -636,15 +645,15 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                     .withActions(DialogActions.OK_CANCEL)
                     .withCloseListener(closeEvent -> {
                                 if (closeEvent.closedWith(DialogOutcome.OK)) {
-                                    paymentRegisterDetailSet.forEach(paymentRegisterDetail -> {
+                                    for (PaymentRegisterDetail paymentRegisterDetail : paymentRegisterDetailSet) {
                                         if (paymentRegisterDetail.getApproved() == PaymentRegisterDetailStatusEnum.REJECTED) {
-                                            return;
+                                            continue;
                                         }
                                         paymentRegisterDetail.setPayedDate(closeEvent.getValue("payedDate"));
                                         paymentRegisterDetail.setPayedSuma(paymentRegisterDetail.getPaymentClaim().getSumm());
                                         paymentRegisterDetail.setPayed(PayStatusEnum.PAYED);
                                         paymentRegisterDetail.setSumaToPay(null);
-                                    });
+                                    }
                                     commitChanges();
                                 }
                             }
@@ -660,15 +669,15 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         if (paymentRegisterDetailSet.isEmpty()) {
             return;
         }
-        paymentRegisterDetailSet.forEach(paymentRegisterDetail -> {
+        for (PaymentRegisterDetail paymentRegisterDetail : paymentRegisterDetailSet) {
             if (paymentRegisterDetail.getApproved() == PaymentRegisterDetailStatusEnum.REJECTED) {
-                return;
+                continue;
             }
             paymentRegisterDetail.setPayedDate(null);
             paymentRegisterDetail.setPayedSuma(0.);
             paymentRegisterDetail.setPayed(PayStatusEnum.NOT_PAYED);
             paymentRegisterDetail.setSumaToPay(paymentRegisterDetail.getPaymentClaim().getSumm());
-        });
+        }
         commitChanges();
     }
 
@@ -679,12 +688,12 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         if (paymentRegisterDetailSet.isEmpty()) {
             return;
         }
-        paymentRegisterDetailSet.forEach(paymentRegisterDetail -> {
+        for (PaymentRegisterDetail paymentRegisterDetail : paymentRegisterDetailSet) {
             paymentRegisterDetail.setPayedDate(null);
             paymentRegisterDetail.setPayedSuma(0.);
             paymentRegisterDetail.setPayed(PayStatusEnum.DISMISS);
             paymentRegisterDetail.setSumaToPay(0.);
-        });
+        }
         commitChanges();
     }
 }

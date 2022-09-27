@@ -31,6 +31,12 @@ public class PaymentRegister extends StandardEntity {
     @Column(name = "NUMBER_")
     private Long number;
 
+    @Column(name = "SET_EXPRESS_FIELD")
+    private Boolean setExpressField;
+
+    @Column(name = "EXPRESS")
+    private Boolean express;
+
     @Temporal(TemporalType.DATE)
     @NotNull
     @Column(name = "ON_DATE", nullable = false)
@@ -72,6 +78,22 @@ public class PaymentRegister extends StandardEntity {
 
     @Column(name = "SUMMA")
     private String summa;
+
+    public Boolean getExpress() {
+        return express;
+    }
+
+    public void setExpress(Boolean express) {
+        this.express = express;
+    }
+
+    public Boolean getSetExpressField() {
+        return setExpressField;
+    }
+
+    public void setSetExpressField(Boolean setExpressField) {
+        this.setExpressField = setExpressField;
+    }
 
     public String getSumma() {
         return summa;

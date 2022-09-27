@@ -33,6 +33,8 @@ create table FINANCE_PAYMENT_REGISTER (
     DELETED_BY varchar(50),
     --
     NUMBER_ bigint,
+    SET_EXPRESS_FIELD boolean,
+    EXPRESS boolean,
     ON_DATE date not null,
     BUSINESS_ID uuid not null,
     STATUS_ID uuid,
@@ -43,7 +45,7 @@ create table FINANCE_PAYMENT_REGISTER (
     SUMMA varchar(255),
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_PAYMENT_REGISTER
 -- begin FINANCE_PAYMENT_TYPE
 create table FINANCE_PAYMENT_TYPE
