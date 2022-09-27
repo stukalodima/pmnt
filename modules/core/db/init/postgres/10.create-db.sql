@@ -196,6 +196,7 @@ create table FINANCE_PAYMENT_CLAIM (
     AUTHOR_ID uuid,
     STATUS_ID uuid,
     EXPRESS boolean,
+    FROM_EXTERNAL_SYSTEM boolean,
     BUDGET_ANALITIC text,
     --
     primary key (ID)
@@ -237,6 +238,7 @@ create table FINANCE_CASH_FLOW_ITEM_BUSINESS (
     BUSINESS_ID uuid,
     COMPANY_ID uuid,
     CASH_FLOW_ITEM_ID uuid,
+    CHECK_CASH_FLOW_ITEM boolean,
     --
     primary key (ID)
 );
@@ -433,19 +435,20 @@ create table FINANCE_ADDRESSING
 -- begin FINANCE_ADDRESSING_DETAIL
 create table FINANCE_ADDRESSING_DETAIL
 (
-    ID            uuid,
-    VERSION       integer not null,
-    CREATE_TS     timestamp,
-    CREATED_BY    varchar(50),
-    UPDATE_TS     timestamp,
-    UPDATED_BY    varchar(50),
-    DELETE_TS     timestamp,
-    DELETED_BY    varchar(50),
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
     --
-    PROC_ROLE_ID  uuid    not null,
-    USER_ID       uuid    not null,
-    AUTO          boolean,
-    ADDRESSING_ID uuid    not null,
+    PROC_ROLE_ID uuid not null,
+    USER_ID uuid,
+    AUTO boolean,
+    ADDRESSING_ID uuid not null,
+    AUTODETECT boolean,
     --
     primary key (ID)
 );
@@ -641,3 +644,20 @@ create table FINANCE_REPARATION_OBJECT_STATE (
     primary key (ID)
 );
 -- end FINANCE_REPARATION_OBJECT_STATE
+-- begin FINANCE_CASH_FLOW_ITEM_BUSINESS_ALTERNATIVE_VALUES
+create table FINANCE_CASH_FLOW_ITEM_BUSINESS_ALTERNATIVE_VALUES (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    CASH_FLOW_ITEM_BUSINESS_ID uuid,
+    CASH_FLOW_ITEM_ID uuid,
+    --
+    primary key (ID)
+)^
+-- end FINANCE_CASH_FLOW_ITEM_BUSINESS_ALTERNATIVE_VALUES

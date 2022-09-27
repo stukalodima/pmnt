@@ -7,6 +7,7 @@ import com.haulmont.cuba.core.global.CommitContext;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.gui.ScreenBuilders;
 import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog;
 import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
 import com.haulmont.cuba.gui.components.Action;
@@ -17,6 +18,7 @@ import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.*;
 import com.itk.finance.service.PaymentClaimService;
 import com.itk.finance.service.PaymentRegisterService;
+import com.itk.finance.web.screens.paymentclaim.PaymentClaimCheckCashFlow;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -46,6 +48,8 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
     private Dialogs dialogs;
     @Inject
     private Messages messages;
+    @Inject
+    private ScreenBuilders screenBuilders;
 
     @SuppressWarnings("unused")
     @Install(to = "paymentRegistersTable.edit", subject = "afterCommitHandler")
@@ -86,10 +90,12 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
                     .withCaption(messages.getMessage(PaymentRegisterBrowse.class, "paymentRegisterBrowse.input.business.caption"))
                     .withParameter(parameter)
                     .build();
-            inputDialog.setResultHandler(inputDialogResult -> createRegisterByBusiness(inputDialogResult.getValue("business")));
+//            inputDialog.setResultHandler(inputDialogResult -> createRegisterByBusiness(inputDialogResult.getValue("business")));
+            inputDialog.setResultHandler(inputDialogResult -> checkPaymentClaimByBusiness(inputDialogResult.getValue("business")));
             inputDialog.show();
         } else {
-            createRegisterByBusiness(null);
+//            createRegisterByBusiness(null);
+            checkPaymentClaimByBusiness(null);
         }
     }
 
@@ -160,5 +166,42 @@ public class PaymentRegisterBrowse extends StandardLookup<PaymentRegister> {
                 return null;
             }
         });
+    }
+
+    private void checkPaymentClaimByBusiness(Business business) {
+        List<PaymentClaim> paymentClaimsForCheckList = new ArrayList<>();
+        List<RegisterType> registerTypeList = dataManager.load(RegisterType.class)
+                .query("select e from finance_RegisterType e")
+                .view("registerType-all-property")
+                .list();
+        registerTypeList.forEach(e -> {
+                    List<PaymentClaim> paymentClaimList = paymentClaimService.getPaymentClaimsListByRegister(business, e);
+                    if (paymentClaimList.size() > 0) {
+                        paymentClaimList.forEach(ee->{
+                            if (Boolean.TRUE.equals(ee.getFromExternalSystem())
+                                    && (Objects.isNull(ee.getCashFlowItem()) || Boolean.TRUE.equals(ee.getCashFlowItemBusiness().getCheckCashFlowItem()))){
+                                paymentClaimsForCheckList.add(ee);
+                            }
+                        });
+                    }
+                }
+        );
+
+       if (paymentClaimsForCheckList.size() > 0) {
+        PaymentClaimCheckCashFlow screen = screenBuilders.screen(this)
+                   .withScreenClass(PaymentClaimCheckCashFlow.class)
+                    .withAfterCloseListener(afterCloseEvent -> {
+//                        PaymentClaimCheckCashFlow otherScreen = afterCloseEvent.getScreen();
+                        if (afterCloseEvent.closedWith(StandardOutcome.COMMIT)) {
+                            createRegisterByBusiness(business);
+                    }
+                })
+                   .build();
+           screen.setPaymentClaimForCheckList(paymentClaimsForCheckList);
+           screen.show();
+       }
+       else {
+           createRegisterByBusiness(business);
+       }
     }
 }

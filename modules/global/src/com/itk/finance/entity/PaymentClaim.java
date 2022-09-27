@@ -118,6 +118,9 @@ public class PaymentClaim extends StandardEntity {
     @Column(name = "EXPRESS")
     private Boolean express;
 
+    @Column(name = "FROM_EXTERNAL_SYSTEM")
+    private Boolean fromExternalSystem;
+
     @Lob
     @Column(name = "BUDGET_ANALITIC")
     private String budgetAnalitic;
@@ -294,5 +297,13 @@ public class PaymentClaim extends StandardEntity {
 
     public void setClientAccount(String clientAccount) {
         this.clientAccount = clientAccount;
+    }
+
+    public Boolean getFromExternalSystem() {
+        return fromExternalSystem;
+    }
+
+    public void setFromExternalSystem(Boolean fromExternalSystem) {
+        this.fromExternalSystem = fromExternalSystem;
     }
 }

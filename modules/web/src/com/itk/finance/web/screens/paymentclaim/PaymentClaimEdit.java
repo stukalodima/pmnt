@@ -9,8 +9,11 @@ import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.model.InstanceLoader;
 import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.*;
+import com.itk.finance.entity.Currency;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -93,6 +96,17 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
         }
     }
 
+    @Subscribe("cashFlowItemBusinessField")
+    public void onCashFlowItemBusinessFieldValueChange(HasValue.ValueChangeEvent<CashFlowItemBusiness> event) {
+        if (event.isUserOriginated()) {
+            if (!Objects.isNull(getEditedEntity().getCashFlowItemBusiness())
+                    && !Objects.isNull(getEditedEntity().getCashFlowItemBusiness().getCashFlowItem())){
+                getEditedEntity().setCashFlowItem(getEditedEntity().getCashFlowItemBusiness().getCashFlowItem());
+            }
+            refreshCashFlowItemDl();
+        }
+    }
+
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
         boolean enable = Objects.isNull(getEditedEntity().getStatus())
@@ -103,13 +117,8 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
             businessesDl.load();
             cashFlowItemsDl.load();
             paymentTypesDl.load();
-            cashFlowItemBusinessesDl.setParameter("business", getEditedEntity().getBusiness());
-            cashFlowItemBusinessesDl.setParameter("company", getEditedEntity().getCompany());
-            cashFlowItemBusinessesDl.load();
-            companiesDl.setParameter("business", getEditedEntity().getBusiness());
-            companiesDl.load();
-            accountsDl.setParameter("company", getEditedEntity().getCompany());
-            accountsDl.load();
+            refreshForm(getEditedEntity().getBusiness(), getEditedEntity().getCompany());
+            refreshCashFlowItemDl();
         }
     }
 
@@ -127,11 +136,33 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
         });
     }
 
-    private void refreshForm(Business thisBusiness, Company company) {
-        companiesDl.setParameter("business", thisBusiness);
+    private void refreshForm(Business business, Company company) {
+        companiesDl.setParameter("business", business);
         companiesDl.load();
         accountsDl.setParameter("company", company);
         accountsDl.load();
+        cashFlowItemBusinessesDl.setParameter("business", business);
+        cashFlowItemBusinessesDl.setParameter("company", company);
+        cashFlowItemBusinessesDl.load();
+    }
+
+    private void refreshCashFlowItemDl() {
+        if (!Objects.isNull(getEditedEntity().getCashFlowItemBusiness())){
+            List<CashFlowItem> cashFlowItems = new ArrayList<>();
+            if (!Objects.isNull(getEditedEntity().getCashFlowItemBusiness().getCashFlowItem())){
+                cashFlowItems.add(getEditedEntity().getCashFlowItemBusiness().getCashFlowItem());
+            }
+            if(Boolean.TRUE.equals(getEditedEntity().getCashFlowItemBusiness().getCheckCashFlowItem())) {
+                getEditedEntity().getCashFlowItemBusiness().getCashFlowItemBusinessAlternativeValues().forEach(
+                        e -> cashFlowItems.add(e.getCashFlowItem())
+                );
+            }
+            cashFlowItemsDl.setParameter("cashFlowItems", cashFlowItems);
+        }
+        else {
+            cashFlowItemsDl.removeParameter("cashFlowItems");
+        }
+        cashFlowItemsDl.load();
     }
 
     @Subscribe
