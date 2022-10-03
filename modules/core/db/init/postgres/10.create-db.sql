@@ -43,7 +43,7 @@ create table FINANCE_PAYMENT_REGISTER (
     SUMMA varchar(255),
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_PAYMENT_REGISTER
 -- begin FINANCE_PAYMENT_TYPE
 create table FINANCE_PAYMENT_TYPE
@@ -200,7 +200,7 @@ create table FINANCE_PAYMENT_CLAIM (
     BUDGET_ANALITIC text,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_PAYMENT_CLAIM
 -- begin FINANCE_MANAGEMENT_COMPANY
 create table FINANCE_MANAGEMENT_COMPANY
@@ -241,7 +241,7 @@ create table FINANCE_CASH_FLOW_ITEM_BUSINESS (
     CHECK_CASH_FLOW_ITEM boolean,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_CASH_FLOW_ITEM_BUSINESS
 -- begin FINANCE_BANK
 create table FINANCE_BANK (

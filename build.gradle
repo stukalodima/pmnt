@@ -246,3 +246,17 @@ task buildUberJar(type: CubaUberJarBuilding) {
     webJettyConfPath = 'jetty.xml'
     webPort = 7080
 }
+task buildWar(type: CubaWarBuilding) {
+    includeJdbcDriver = true
+    appProperties = ['cuba.automaticDatabaseUpdate': true,
+                     'cuba.dataSource.username'    : 'postgres',
+                     'cuba.dataSource.password'    : 'FireBase2022',
+                     'cuba.dataSource.dbName'      : 'pmnt-test',
+                     'cuba.dataSource.host'        : 'smart-platform-data-base.postgres.database.azure.com',
+                     'cuba.dataSource.port'        : '',
+                     'cuba.dataSourceProvider'     : 'application',
+                     'cuba.webPort': 5080,
+                     'cuba.connectionUrlList': 'http://localhost:5080/pmnt-core']
+    webXmlPath = 'modules/web/web/WEB-INF/single-war-web.xml'
+    logbackConfigurationFile = 'etc/war-logback.xml'
+}
