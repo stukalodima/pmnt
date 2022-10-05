@@ -241,7 +241,6 @@ task buildUberJar(type: CubaUberJarBuilding) {
                      'cuba.dataSource.host'        : 'localhost',
                      'cuba.dataSource.port'        : '']
     //noinspection GrDeprecatedAPIUsage
-    polymerBuildDir = '.'
     logbackConfigurationFile = 'etc/uber-jar-logback.xml'
     webJettyConfPath = 'jetty.xml'
     webPort = 7080

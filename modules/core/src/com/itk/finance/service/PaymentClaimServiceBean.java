@@ -186,7 +186,7 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
         if (Objects.isNull(paymentClaim.getNumber())) {
             paymentClaim.setNumber(uniqueNumbersAPI.getNextNumber(PaymentClaim.class.getSimpleName()));
         }
-
+        paymentClaim.setComment(paymentClaimMap.get("comment").toString());
         dataManager.commit(paymentClaim);
     }
 
