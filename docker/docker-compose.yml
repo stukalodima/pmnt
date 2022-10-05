@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  pmnt-core:
+    image: payment-factory-pmnt-core:0.9
+    networks:
+      - pmnt-network
+  pmnt-web:
+    image: payment-factory-pmnt-web:0.9
+    ports:
+      - "7080:7080"
+    networks:
+      - pmnt-network
+networks:
+  pmnt-network:

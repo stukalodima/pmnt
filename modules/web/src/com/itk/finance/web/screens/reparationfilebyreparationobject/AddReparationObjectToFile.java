@@ -2,6 +2,7 @@ package com.itk.finance.web.screens.reparationfilebyreparationobject;
 
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.components.Button;
+import com.haulmont.cuba.gui.components.Filter;
 import com.haulmont.cuba.gui.components.GroupTable;
 import com.haulmont.cuba.gui.components.Label;
 import com.haulmont.cuba.gui.model.CollectionLoader;
@@ -52,6 +53,8 @@ public class AddReparationObjectToFile extends Screen {
     private Label<String> documentLabel;
     @Inject
     private Label<String> documentValue;
+    @Inject
+    private Filter filter;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
@@ -86,6 +89,8 @@ public class AddReparationObjectToFile extends Screen {
         } else {
             propertyTypeValue.setValue(messages.getMessage(AddReparationObjectToFile.class, "emptyValue"));
         }
+        filter.setVisible(Boolean.TRUE.equals(partition.getUseObject()));
+        reparationObjectsTable.setVisible(Boolean.TRUE.equals(partition.getUseObject()));
     }
 
     @Install(to = "reparationObjectsTable.create", subject = "initializer")
