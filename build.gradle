@@ -28,8 +28,8 @@ apply(plugin: 'cuba')
 cuba {
     artifact {
         group = 'com.itk.finance'
-        version = '0.1'
-        isSnapshot = true
+        version = '0.9'
+        isSnapshot = false
     }
     tomcat {
         port = '7080'
