@@ -137,8 +137,6 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private CollectionLoader<Business> businessesDl;
     @Inject
     private CollectionLoader<RegisterType> registerTypesDl;
-    @Inject
-    private CheckBox expressField;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
@@ -259,9 +257,6 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
             paymentRegistersDetailTable.focus();
             if (!paymentRegistersDc.getItems().isEmpty()) {
                 paymentRegistersDetailTable.setSelected(paymentRegistersDc.getItems().get(0));
-            }
-            if (Boolean.TRUE.equals(getEditedEntity().getSetExpressField())) {
-                expressField.setVisible(true);
             }
         }
     }
