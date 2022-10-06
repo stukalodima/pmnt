@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pmnt-web-deploy
+  namespace: payment-factory
+  labels:
+    app: pmnt-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      project: pmnt-web
+  template:
+    metadata:
+      labels:
+        project: pmnt-web
+    spec:
+      containers:
+        - name: pmnt-web
+          image: smartregisterhub.azurecr.io/payment-factory-pmnt-web:0.9
+          ports:
+            - containerPort: 7080   # Port on Pod

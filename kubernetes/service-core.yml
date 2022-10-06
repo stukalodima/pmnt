@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pmnt-core-service
+  namespace: payment-factory
+  labels:
+    env: prod
+    owner: DimaStukalo
+spec:
+#  type: LoadBalancer
+  selector:
+    project: pmnt-core
+  ports:
+    - name: pmnt-core-app-listener
+      protocol: TCP
+      port: 7079
+#      targetPort: 80

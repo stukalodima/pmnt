@@ -236,15 +236,9 @@ task restart(dependsOn: ['stop', ":${modulePrefix}-core:deploy", ":${modulePrefi
 restart.finalizedBy start
 
 task buildUberJar(type: CubaUberJarBuilding) {
-    appProperties = ['cuba.automaticDatabaseUpdate': true,
-                     'cuba.dataSourceProvider'     : 'application',
-                     'cuba.dataSource.username'    : 'postgres',
-                     'cuba.dataSource.password'    : 'postgres',
-                     'cuba.dataSource.dbName'      : 'pmnt-test',
-                     'cuba.dataSource.host'        : 'localhost',
-                     'cuba.dataSource.port'        : '']
+    appProperties = ['cuba.automaticDatabaseUpdate': true]
     logbackConfigurationFile = 'etc/uber-jar-logback.xml'
-    webJettyConfPath = 'jetty.xml'
+//    webJettyConfPath = 'jetty.xml'
     webPort = 5080
     singleJar = true
 }
