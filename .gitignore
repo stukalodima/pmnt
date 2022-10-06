@@ -5,6 +5,7 @@
 *.iws
 build/*
 deploy/*
+docker/db/dump/*
 modules/*/build/*
 .idea/*
 out

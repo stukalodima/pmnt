@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  postgres:
+    image: postgres:13.8
+    environment:
+      - POSTGRES_DB=finance-pmnt
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./db/dump/pmnt.sql:/docker-entrypoint-initdb.d/dummy_dump.sql
+    ports:
+      - "5433:5432"
+  web:
+    depends_on:
+      - postgres
+    image: pmnt:0.9
+    volumes:
+      - /tmp/pmnt-home:/opt/pmnt-home
+    ports:
+      - "7080:7080"
