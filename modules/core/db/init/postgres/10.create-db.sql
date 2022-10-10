@@ -198,10 +198,11 @@ create table FINANCE_PAYMENT_CLAIM (
     AUTHOR_ID uuid,
     STATUS_ID uuid,
     EXPRESS boolean,
+    FROM_EXTERNAL_SYSTEM boolean,
     BUDGET_ANALITIC text,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_PAYMENT_CLAIM
 -- begin FINANCE_MANAGEMENT_COMPANY
 create table FINANCE_MANAGEMENT_COMPANY
@@ -239,9 +240,10 @@ create table FINANCE_CASH_FLOW_ITEM_BUSINESS (
     BUSINESS_ID uuid,
     COMPANY_ID uuid,
     CASH_FLOW_ITEM_ID uuid,
+    CHECK_CASH_FLOW_ITEM boolean,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_CASH_FLOW_ITEM_BUSINESS
 -- begin FINANCE_BANK
 create table FINANCE_BANK (
@@ -450,7 +452,7 @@ create table FINANCE_ADDRESSING_DETAIL (
     AUTODETECT boolean,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_ADDRESSING_DETAIL
 -- begin FINANCE_PROC_STATUS
 create table FINANCE_PROC_STATUS
@@ -531,7 +533,7 @@ create table FINANCE_PARTITION (
     NAME varchar(255),
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PARTITION
 -- begin FINANCE_PROPERTY_TYPE
 create table FINANCE_PROPERTY_TYPE (
@@ -547,7 +549,7 @@ create table FINANCE_PROPERTY_TYPE (
     NAME varchar(255),
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_PROPERTY_TYPE
 -- begin FINANCE_DOCUMENT_TYPE
 create table FINANCE_DOCUMENT_TYPE (
@@ -563,7 +565,7 @@ create table FINANCE_DOCUMENT_TYPE (
     NAME varchar(255),
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_DOCUMENT_TYPE
 -- begin FINANCE_REPARATION_FILE
 create table FINANCE_REPARATION_FILE (
@@ -585,7 +587,7 @@ create table FINANCE_REPARATION_FILE (
     REPARATION_OBJECT uuid,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_REPARATION_FILE
 -- begin FINANCE_REPARATION_FILES_STRUCTURE
 create table FINANCE_REPARATION_FILES_STRUCTURE (
@@ -605,7 +607,7 @@ create table FINANCE_REPARATION_FILES_STRUCTURE (
     DOCUMENT_TYPE_ID uuid,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_REPARATION_FILES_STRUCTURE
 -- begin FINANCE_REPARATION_OBJECT
 create table FINANCE_REPARATION_OBJECT (
@@ -625,7 +627,7 @@ create table FINANCE_REPARATION_OBJECT (
     PROPERTY_TYPE_ID uuid,
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_REPARATION_OBJECT
 -- begin FINANCE_REPARATION_OBJECT_STATE
 create table FINANCE_REPARATION_OBJECT_STATE (
@@ -641,5 +643,22 @@ create table FINANCE_REPARATION_OBJECT_STATE (
     NAME varchar(255),
     --
     primary key (ID)
-)^
+);
 -- end FINANCE_REPARATION_OBJECT_STATE
+-- begin FINANCE_CASH_FLOW_ITEM_BUSINESS_ALTERNATIVE_VALUES
+create table FINANCE_CASH_FLOW_ITEM_BUSINESS_ALTERNATIVE_VALUES (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    CASH_FLOW_ITEM_BUSINESS_ID uuid,
+    CASH_FLOW_ITEM_ID uuid,
+    --
+    primary key (ID)
+)^
+-- end FINANCE_CASH_FLOW_ITEM_BUSINESS_ALTERNATIVE_VALUES
