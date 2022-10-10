@@ -241,11 +241,11 @@ task buildUberJar(type: CubaUberJarBuilding) {
                      'cuba.dataSource.username'    : 'postgres',
                      'cuba.dataSource.password'    : 'postgres',
                      'cuba.dataSource.dbName'      : 'finance-pmnt',
-                     'cuba.dataSource.host'        : 'postgres',
+                     'cuba.dataSource.host'        : 'localhost',
                      'cuba.dataSource.port'        : '']
     //noinspection GrDeprecatedAPIUsage
     logbackConfigurationFile = 'etc/uber-jar-logback.xml'
-//    webJettyConfPath = 'jetty.xml'
+    webJettyConfPath = 'jetty.xml'
     webPort = 7080
 }
 
@@ -254,6 +254,5 @@ task buildDocker(type: Docker, dependsOn: buildUberJar) {
     tag = "pmnt"
     baseImage = 'openjdk:8'
     addFile("build/distributions/uberJar/pmnt.jar", "/usr/src/payment-factory/pmnt.jar")
-//    addFile("keystore/keystore.jks", "/usr/src/payment-factory/keystore.jks")
     defaultCommand(["java", "-Xms1024m", "-Xmn256m", "-Xmx1024m", "-Dapp.home=/usr/src/payment-factory/pmnt-home", "-jar", "/usr/src/payment-factory/pmnt.jar"])
 }

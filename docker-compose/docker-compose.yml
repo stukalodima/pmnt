@@ -8,7 +8,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./db/dump/pmnt.sql:/docker-entrypoint-initdb.d/dummy_dump.sql
+      - ./dump.sql:/docker-entrypoint-initdb.d/dummy_dump.sql
     ports:
       - "5433:5432"
   web:
