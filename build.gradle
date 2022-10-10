@@ -241,11 +241,11 @@ task buildUberJar(type: CubaUberJarBuilding) {
                      'cuba.dataSource.username'    : 'postgres',
                      'cuba.dataSource.password'    : 'postgres',
                      'cuba.dataSource.dbName'      : 'finance-pmnt',
-                     'cuba.dataSource.host'        : 'localhost',
+                     'cuba.dataSource.host'        : 'postgres',
                      'cuba.dataSource.port'        : '']
     //noinspection GrDeprecatedAPIUsage
     logbackConfigurationFile = 'etc/uber-jar-logback.xml'
-    webJettyConfPath = 'jetty.xml'
+//    webJettyConfPath = 'jetty.xml'
     webPort = 7080
 }
 
