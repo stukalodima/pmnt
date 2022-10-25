@@ -149,7 +149,7 @@ public class AddressingEdit extends StandardEditor<Addressing> {
         boolean userNotFill = false;
         for (AddressingDetail addressingDetail :
                 getEditedEntity().getAddressingDetail()) {
-            if (Objects.isNull(addressingDetail.getUser()) && !addressingDetail.getAutoDetect()){
+            if (Objects.isNull(addressingDetail.getUser()) && Boolean.FALSE.equals(addressingDetail.getAutoDetect())){
                 userNotFill = true;
                 break;
             }

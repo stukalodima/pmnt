@@ -4,6 +4,8 @@ import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
+import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -33,6 +35,20 @@ public class Bank extends StandardEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_BANK_ID")
     private Bank parentBank;
+
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
+    @OnDeleteInverse(DeletePolicy.DENY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BANK_GROUP_ID")
+    private BankGroup bankGroup;
+
+    public BankGroup getBankGroup() {
+        return bankGroup;
+    }
+
+    public void setBankGroup(BankGroup bankGroup) {
+        this.bankGroup = bankGroup;
+    }
 
     public String getStan() {
         return stan;

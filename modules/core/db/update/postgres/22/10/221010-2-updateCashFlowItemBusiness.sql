@@ -1,0 +1,1 @@
+alter table FINANCE_CASH_FLOW_ITEM_BUSINESS add column CHECK_CASH_FLOW_ITEM boolean ;

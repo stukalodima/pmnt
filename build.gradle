@@ -12,7 +12,6 @@ buildscript {
     }
     dependencies {
         classpath "com.haulmont.gradle:cuba-plugin:$cubaVersion"
-        classpath "se.transmode.gradle:gradle-docker:1.2"
     }
 }
 
@@ -26,7 +25,6 @@ def webToolkitModule = project(":${modulePrefix}-web-toolkit")
 def servletApi = 'javax.servlet:javax.servlet-api:3.1.0'
 
 apply(plugin: 'cuba')
-apply(plugin: 'docker')
 
 cuba {
     artifact {
@@ -48,6 +46,8 @@ dependencies {
     appComponent("com.haulmont.bpm:bpm-global:$cubaVersion")
     appComponent('de.diedavids.cuba.dataimport:dataimport-global:0.14.1')
     appComponent("com.haulmont.charts:charts-global:$cubaVersion")
+    appComponent("com.haulmont.reports:reports-global:$cubaVersion")
+    appComponent('gr.netmechanics.cuba.afs:cubaafs-global:1.1.0')
 }
 
 def postgres = 'org.postgresql:postgresql:42.2.9'
@@ -137,6 +137,7 @@ configure(webModule) {
             include "com/itk/finance/web/toolkit/ui/client/**"
         }
     }
+
 
     task webArchive(type: Zip) {
         from file("$buildDir/web")
@@ -241,18 +242,10 @@ task buildUberJar(type: CubaUberJarBuilding) {
                      'cuba.dataSource.username'    : 'postgres',
                      'cuba.dataSource.password'    : 'postgres',
                      'cuba.dataSource.dbName'      : 'finance-pmnt',
-                     'cuba.dataSource.host'        : 'postgres',
+                     'cuba.dataSource.host'        : 'localhost',
                      'cuba.dataSource.port'        : '']
     //noinspection GrDeprecatedAPIUsage
     logbackConfigurationFile = 'etc/uber-jar-logback.xml'
-//    webJettyConfPath = 'jetty.xml'
+    webJettyConfPath = 'jetty.xml'
     webPort = 7080
-}
-
-task buildDocker(type: Docker, dependsOn: buildUberJar) {
-    applicationName = 'payment-factory'
-    tag = "pmnt"
-    baseImage = 'openjdk:8'
-    addFile("build/distributions/uberJar/pmnt.jar", "/usr/src/payment-factory/pmnt.jar")
-    defaultCommand(["java", "-Xms1024m", "-Xmn256m", "-Xmx1024m", "-Dapp.home=/usr/src/payment-factory/pmnt-home", "-jar", "/usr/src/payment-factory/pmnt.jar"])
 }

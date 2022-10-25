@@ -261,9 +261,10 @@ create table FINANCE_BANK (
     MFO varchar(6) not null,
     STAN varchar(255),
     PARENT_BANK_ID uuid,
+    BANK_GROUP_ID uuid,
     --
     primary key (ID)
-);
+)^
 -- end FINANCE_BANK
 -- begin FINANCE_CURRENCY
 create table FINANCE_CURRENCY
@@ -662,3 +663,20 @@ create table FINANCE_CASH_FLOW_ITEM_BUSINESS_ALTERNATIVE_VALUES (
     primary key (ID)
 )^
 -- end FINANCE_CASH_FLOW_ITEM_BUSINESS_ALTERNATIVE_VALUES
+-- begin FINANCE_BANK_GROUP
+create table FINANCE_BANK_GROUP (
+    ID uuid,
+    VERSION integer not null,
+    CREATE_TS timestamp,
+    CREATED_BY varchar(50),
+    UPDATE_TS timestamp,
+    UPDATED_BY varchar(50),
+    DELETE_TS timestamp,
+    DELETED_BY varchar(50),
+    --
+    NAME varchar(255),
+    NUMBER_GROUP integer,
+    --
+    primary key (ID)
+)^
+-- end FINANCE_BANK_GROUP

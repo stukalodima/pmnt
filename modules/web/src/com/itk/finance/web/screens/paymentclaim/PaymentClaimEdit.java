@@ -142,7 +142,6 @@ public class PaymentClaimEdit extends StandardEditor<PaymentClaim> {
         accountsDl.setParameter("company", company);
         accountsDl.load();
         cashFlowItemBusinessesDl.setParameter("business", business);
-        cashFlowItemBusinessesDl.setParameter("company", company);
         cashFlowItemBusinessesDl.load();
     }
 

@@ -9,14 +9,6 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - ./dump.sql:/docker-entrypoint-initdb.d/dummy_dump.sql
-      - //c/Users/dimas/IdeaProjects/pmntDb:/var/lib/postgresql/data
+      - ./pmntDb:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
-  web:
-    depends_on:
-      - postgres
-    image: pmnt:0.9
-    volumes:
-      - /tmp/pmnt-home:/opt/pmnt-home
-    ports:
-      - "7080:7080"
+      - "5432:5432"
