@@ -5,8 +5,9 @@
 *.iws
 build/*
 deploy/*
-docker/db/dump/*
 modules/*/build/*
 .idea/*
 out
 test-run
+/docker-compose/pmntDb/
+/docker-compose/dump.sql
