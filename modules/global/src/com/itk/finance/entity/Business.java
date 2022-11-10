@@ -6,6 +6,7 @@ import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
 import com.haulmont.cuba.core.entity.annotation.OnDelete;
+import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
 import com.haulmont.cuba.core.global.DeletePolicy;
 import com.haulmont.cuba.security.entity.User;
 
@@ -33,6 +34,7 @@ public class Business extends StandardEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "MANAGEMENT_COMPANY_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private ManagementCompany managementCompany;
 
     @Composition
@@ -48,6 +50,7 @@ public class Business extends StandardEntity {
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PARENT_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Business parent;
 
     public List<BusinessControllers> getControllerList() {

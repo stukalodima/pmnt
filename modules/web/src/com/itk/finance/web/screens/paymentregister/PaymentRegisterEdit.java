@@ -12,6 +12,7 @@ import com.haulmont.bpm.service.ProcessFormService;
 import com.haulmont.bpm.service.ProcessMessagesService;
 import com.haulmont.bpm.service.ProcessRuntimeService;
 import com.haulmont.chile.core.model.MetaPropertyPath;
+import com.haulmont.cuba.client.sys.UsersRepository;
 import com.haulmont.cuba.core.app.UniqueNumbersService;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Dialogs;
@@ -28,6 +29,7 @@ import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.model.InstanceLoader;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.util.OperationResult;
+import com.haulmont.cuba.security.entity.User;
 import com.itk.finance.config.ConstantsConfig;
 import com.itk.finance.entity.*;
 import com.itk.finance.service.PaymentClaimService;
@@ -137,6 +139,10 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
     private CollectionLoader<Business> businessesDl;
     @Inject
     private CollectionLoader<RegisterType> registerTypesDl;
+    @Inject
+    private MetadataTools metadataTools;
+    @Inject
+    private UsersRepository usersRepository;
 
     @Subscribe
     public void onAfterShow(AfterShowEvent event) {
@@ -159,6 +165,10 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
         if (!Objects.isNull(getEditedEntity().getProcInstance())) {
             List<ProcTask> procTasks = bpmEntitiesService.findActiveProcTasksForCurrentUser(getEditedEntity().getProcInstance(), BpmConstants.Views.PROC_TASK_COMPLETE);
             procTask = procTasks.isEmpty() ? null : procTasks.get(0);
+            if (procTask == null && userSessionSource.getUserSession().getUser().getLogin().equals(constantsConfig.getUserToLogin())) {
+                procTasks = bpmEntitiesService.findActiveProcTasks(getEditedEntity().getProcInstance(), usersRepository.findUserByLogin(constantsConfig.getUserFromLogin()), BpmConstants.Views.PROC_TASK_COMPLETE);
+                procTask = procTasks.isEmpty() ? null : procTasks.get(0);
+            }
             if (procTask != null && procTask.getProcActor() != null) {
                 initCompleteTaskUI();
             } else if (procTask != null && procTask.getProcActor() == null) {
@@ -453,16 +463,26 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
                                     .getProcDefinition().getCode()
                     );
                     for (AddressingDetail e : listRoles) {
-                        if (Boolean.TRUE.equals(e.getAutoDetect()) &&
-                                constantsConfig.getPaymentRegisterControllerRole().equals(e.getProcRole().getCode())
-                        ) {
-                            View view = new View(Business.class)
-                                    .addProperty("controllerList", new View(BusinessControllers.class)
-                                            .addProperty("user")
+                        if (Boolean.TRUE.equals(e.getAutoDetect())) {
+                            if (constantsConfig.getPaymentRegisterControllerRole().equals(e.getProcRole().getCode())) {
+                                View view = new View(Business.class)
+                                        .addProperty("controllerList", new View(BusinessControllers.class)
+                                                .addProperty("user")
+                                        );
+                                Business business = dataManager.reload(getEditedEntity().getBusiness(), view);
+                                for (BusinessControllers cont : business.getControllerList()) {
+                                    procInstanceDetails.addProcActor(e.getProcRole(), cont.getUser());
+                                }
+                            } else {
+                                if (getEditedEntity().getBusiness() != null) {
+                                    Business business = dataManager.reload(
+                                            getEditedEntity().getBusiness(),
+                                            ViewBuilder.of(Business.class)
+                                                    .addAll("finDirector")
+                                                    .build()
                                     );
-                            Business business = dataManager.reload(getEditedEntity().getBusiness(), view);
-                            for (BusinessControllers cont : business.getControllerList()) {
-                                procInstanceDetails.addProcActor(e.getProcRole(), cont.getUser());
+                                    procInstanceDetails.addProcActor(e.getProcRole(), business.getFinDirector());
+                                }
                             }
                         } else {
                             procInstanceDetails.addProcActor(e.getProcRole(), e.getUser());
@@ -690,5 +710,39 @@ public class PaymentRegisterEdit extends StandardEditor<PaymentRegister> {
             paymentRegisterDetail.setSumaToPay(0.);
         }
         commitChanges();
+    }
+
+    public Component generateNameAllProcActors(ProcTask entity) {
+        String nameAllUsers;
+
+        Label<String> amountField = uiComponents.create(Label.TYPE_STRING);
+
+        if (Objects.isNull(entity.getProcActor())) {
+
+            entity = dataManager.reload(entity, ViewBuilder.of(ProcTask.class)
+                    .addAll("candidateUsers", "candidateUsers.name", "candidateUsers.login")
+                    .build());
+
+            nameAllUsers = "";
+            if (entity.getCandidateUsers() != null) {
+                Set<User> canditateUser = entity.getCandidateUsers();
+
+                int n = 0;
+                for (User cUser : canditateUser) {
+                    n++;
+                    nameAllUsers = nameAllUsers + metadataTools.getInstanceName(cUser) + (canditateUser.size() == n ? "" : ",\n");
+                }
+            }
+            amountField.setValue(nameAllUsers);
+
+        } else {
+            entity = dataManager.reload(entity, ViewBuilder.of(ProcTask.class)
+                    .addAll("candidateUsers", "candidateUsers.name", "candidateUsers.login", "procActor.user",
+                            "procActor.user.login", "procActor.user.name", "procActor.procRole", "procActor.procRole.name", "procActor")
+                    .build());
+            amountField.setValue(metadataTools.getInstanceName(entity.getProcActor()));
+        }
+
+        return amountField;
     }
 }

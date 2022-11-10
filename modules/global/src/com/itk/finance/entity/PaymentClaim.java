@@ -2,14 +2,10 @@ package com.itk.finance.entity;
 
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
-import com.haulmont.cuba.core.entity.annotation.Lookup;
-import com.haulmont.cuba.core.entity.annotation.LookupType;
-import com.haulmont.cuba.core.entity.annotation.PublishEntityChangedEvents;
-import com.haulmont.cuba.core.global.AppBeans;
-import com.haulmont.cuba.core.global.Metadata;
-import com.haulmont.cuba.core.global.TimeSource;
-import com.haulmont.cuba.core.global.UserSessionSource;
+import com.haulmont.cuba.core.entity.annotation.*;
+import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.security.entity.User;
+import com.itk.finance.service.CurrencyService;
 import com.itk.finance.service.ProcPropertyService;
 import com.itk.finance.service.UserPropertyService;
 
@@ -19,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @PublishEntityChangedEvents
+@Listeners("finance_PaymentClaimEntityListener")
 @Table(name = "FINANCE_PAYMENT_CLAIM")
 @Entity(name = "finance_PaymentClaim")
 @NamePattern("%s %s %s|onDate,client,summ")
@@ -43,6 +40,7 @@ public class PaymentClaim extends StandardEntity {
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BUSINESS_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Business business;
 
     @NotNull
@@ -50,29 +48,37 @@ public class PaymentClaim extends StandardEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMPANY_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Company company;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CLIENT_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Client client;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ACCOUNT_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Account account;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CURRENCY_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Currency currency;
 
     @Column(name = "SUMM")
     @NotNull
     private Double summ;
+
+    @Column(name = "SUMA_IN_UAH")
+    @NotNull
+    private Double sumaInUah;
 
     @Temporal(TemporalType.DATE)
     @NotNull
@@ -88,17 +94,20 @@ public class PaymentClaim extends StandardEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CASH_FLOW_ITEM_ID")
     @NotNull
+    @OnDeleteInverse(DeletePolicy.DENY)
     private CashFlowItem cashFlowItem;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CASH_FLOW_ITEM_BUSINESS_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private CashFlowItemBusiness cashFlowItemBusiness;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PAYMENT_TYPE_ID")
     @NotNull
+    @OnDeleteInverse(DeletePolicy.DENY)
     private PaymentType paymentType;
 
     @Lob
@@ -124,6 +133,14 @@ public class PaymentClaim extends StandardEntity {
     @Lob
     @Column(name = "BUDGET_ANALITIC")
     private String budgetAnalitic;
+
+    public Double getSumaInUah() {
+        return sumaInUah;
+    }
+
+    public void setSumaInUah(Double sumaInUah) {
+        this.sumaInUah = sumaInUah;
+    }
 
     public String getBudgetAnalitic() {
         return budgetAnalitic;

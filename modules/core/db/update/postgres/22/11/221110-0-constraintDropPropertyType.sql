@@ -1,0 +1,3 @@
+alter table finance_reparation_file drop constraint FK_FINANCE_REPARATION_FILE_ON_PROPERTY_TYPE ;
+alter table finance_reparation_files_structure drop constraint FK_FINANCE_REPARATION_FILES_STRUCTURE_ON_PROPERTY_TYPE ;
+alter table finance_reparation_object drop constraint FK_FINANCE_REPARATION_OBJECT_ON_PROPERTY_TYPE ;

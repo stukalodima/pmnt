@@ -1,0 +1,1 @@
+alter table finance_reparation_files_structure rename to FINANCE_REPARATION_FILES_STRUCTURE__U57167 ;

@@ -18,7 +18,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
 @Service(PaymentClaimService.NAME)
 public class PaymentClaimServiceBean implements PaymentClaimService {
     private static final String QUERY_STRING_FILL_PAYMENTS_CLAIM = "select e from finance_PaymentClaim e " +
@@ -237,13 +236,25 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
                 .list();
     }
 
+    @Override
+    public void fillSumaInUahByAllDocuments() {
+        List<PaymentClaim> paymentClaimList = dataManager.load(PaymentClaim.class)
+                .query("select e from finance_PaymentClaim e where e.currency.baseCurrency is null")
+                .view("paymentClaim.getEdit")
+                .list();
+        paymentClaimList.forEach(paymentClaim -> {
+            paymentClaim.setSumaInUah(currencyService.getSumaInUahByCurrency(paymentClaim.getCurrency(), paymentClaim.getOnDate(), paymentClaim.getSumm()));
+            dataManager.commit(paymentClaim);
+        });
+    }
+
     private boolean getQueryStrByCondition(RegisterType registerType, StringBuilder conditionStr, Map<String, Object> mapParam) {
         boolean conditionByRegisterType = !Objects.isNull(registerType.getUseCondition())
                 && registerType.getUseCondition();
         int colCondition = 0;
         if (conditionByRegisterType) {
             conditionStr
-                    .append(" and e.summ ")
+                    .append(" and e.sumaInUah ")
                     .append(registerType.getCondition())
                     .append(" :summ ")
                     .append("and e.cashFlowItem IN :cashFlowItems");
@@ -257,7 +268,7 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
                 mapParam.put("cashFlowItem" + colCondition, registerTypeDetail.getCashFlowItem());
                 if (!Objects.isNull(registerTypeDetail.getUseCondition()) && registerTypeDetail.getUseCondition()) {
                     conditionStr
-                            .append(" (e.summ ")
+                            .append(" (e.sumaInUah ")
                             .append(registerTypeDetail.getCondition())
                             .append(" :summ").append(colCondition)
                             .append(" and e.cashFlowItem = :cashFlowItem")

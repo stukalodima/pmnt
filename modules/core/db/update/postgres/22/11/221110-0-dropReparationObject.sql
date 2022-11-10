@@ -1,0 +1,1 @@
+alter table finance_reparation_object rename to FINANCE_REPARATION_OBJECT__U41582 ;

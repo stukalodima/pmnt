@@ -2,6 +2,8 @@ package com.itk.finance.entity;
 
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
+import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
+import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
 
@@ -13,10 +15,12 @@ public class CashFlowItemBusinessAlternativeValues extends StandardEntity {
 
     @JoinColumn(name = "CASH_FLOW_ITEM_BUSINESS_ID")
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDeleteInverse(DeletePolicy.DENY)
     private CashFlowItemBusiness cashFlowItemBusiness;
 
     @JoinColumn(name = "CASH_FLOW_ITEM_ID")
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDeleteInverse(DeletePolicy.DENY)
     private  CashFlowItem cashFlowItem;
 
     public CashFlowItemBusiness getCashFlowItemBusiness() {

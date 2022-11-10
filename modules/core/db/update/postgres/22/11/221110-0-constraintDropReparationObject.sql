@@ -1,0 +1,1 @@
+alter table finance_reparation_file drop constraint FK_FINANCE_REPARATION_FILE_ON_REPARATION_OBJECT ;

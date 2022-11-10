@@ -1,0 +1,1 @@
+drop table if exists FINANCE_REPARATION_FILE__U08433 cascade ;

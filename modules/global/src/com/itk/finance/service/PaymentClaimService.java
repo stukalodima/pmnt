@@ -21,4 +21,6 @@ public interface PaymentClaimService {
     PaymentClaim getPaymentClaimById(UUID id, boolean softDeletion);
 
     List<PaymentClaim> getPaymentClaimsListByRegister(Business business, RegisterType registerType);
+
+    void fillSumaInUahByAllDocuments();
 }

@@ -9,5 +9,5 @@ modules/*/build/*
 .idea/*
 out
 test-run
-/docker-compose/pmntDb/
-/docker-compose/dump.sql
+/docker-compose-pmnt/dump.sql
+/docker-compose-pmnt/db/

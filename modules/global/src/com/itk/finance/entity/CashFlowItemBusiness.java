@@ -6,6 +6,7 @@ import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
 import com.haulmont.cuba.core.entity.annotation.OnDelete;
+import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
 import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
@@ -26,16 +27,19 @@ public class CashFlowItemBusiness extends StandardEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BUSINESS_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Business business;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COMPANY_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Company company;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CASH_FLOW_ITEM_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private CashFlowItem cashFlowItem;
 
     @Column(name = "CHECK_CASH_FLOW_ITEM")

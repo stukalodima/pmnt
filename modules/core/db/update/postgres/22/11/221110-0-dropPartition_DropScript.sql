@@ -1,0 +1,1 @@
+drop table if exists FINANCE_PARTITION__U84609 cascade ;

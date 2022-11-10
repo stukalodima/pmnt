@@ -145,4 +145,9 @@ public class PaymentClaimBrowse extends StandardLookup<PaymentClaim> implements 
         return !Objects.isNull(paymentClaimsTable.getSingleSelected());
     }
 
+    @Subscribe("paymentClaimsTable.fillSumaInUah")
+    public void onPaymentClaimsTableFillSumaInUah(Action.ActionPerformedEvent event) {
+        paymentClaimService.fillSumaInUahByAllDocuments();
+    }
+
 }

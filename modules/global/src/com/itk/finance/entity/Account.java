@@ -4,6 +4,8 @@ import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.cuba.core.entity.annotation.OnDeleteInverse;
+import com.haulmont.cuba.core.global.DeletePolicy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,17 +21,20 @@ public class Account extends StandardEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "COMPANY_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Company company;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TYPE_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private AccountType type;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "CURRENCY_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Currency currency;
 
     @NotNull
@@ -40,6 +45,7 @@ public class Account extends StandardEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "BANK_ID")
     @NotNull
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Bank bank;
 
     @Temporal(TemporalType.DATE)

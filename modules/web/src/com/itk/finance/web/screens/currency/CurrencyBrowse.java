@@ -7,7 +7,6 @@ import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.screen.*;
 import com.itk.finance.entity.Currency;
 import com.itk.finance.service.CurrencyService;
-import com.itk.finance.web.screens.bank.BankBrowse;
 
 import javax.inject.Inject;
 import java.io.IOException;

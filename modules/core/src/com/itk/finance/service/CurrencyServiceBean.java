@@ -4,29 +4,24 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.DataManager;
 import com.itk.finance.config.ExternalSystemConnectConfig;
 import com.itk.finance.entity.Currency;
+import com.itk.finance.entity.CurrencyRate;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service(CurrencyService.NAME)
 public class CurrencyServiceBean implements CurrencyService {
-
-    @Inject
-    private RestClientService restClientService;
-    @Inject
-    private ExternalSystemConnectConfig externalSystemConnectConfig;
-    @Inject
-    private DataManager dataManager;
+//    private final DataManager dataManager = AppBeans.get(DataManager.class);
 
     @Override
     public void getCurrencyListFromExternal() throws IOException {
+        RestClientService restClientService = AppBeans.get(RestClientService.class);
+        ExternalSystemConnectConfig externalSystemConnectConfig = AppBeans.get(ExternalSystemConnectConfig.class);
         String jsonString = restClientService.callGetMethod(externalSystemConnectConfig.getCompanyAccounts());
         if (!jsonString.isEmpty()) {
             parseJsonString(jsonString);
@@ -34,7 +29,7 @@ public class CurrencyServiceBean implements CurrencyService {
     }
 
     private void parseJsonString(String jsonString) {
-        JsonArray jsonArray = new JsonParser().parse(jsonString).getAsJsonArray();
+        JsonArray jsonArray = JsonParser.parseString(jsonString).getAsJsonArray();
         HashMap<String, String> currencyMap = new HashMap<>();
         for (JsonElement jsonElement:jsonArray) {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -48,6 +43,7 @@ public class CurrencyServiceBean implements CurrencyService {
     }
 
     private void fillCurrencyEntity(HashMap<String, String> currencyMap) {
+        DataManager dataManager = AppBeans.get(DataManager.class);
         Currency currency = getCurrencyByCode(currencyMap.get("code"));
 
         if (Objects.isNull(currency)) {
@@ -67,6 +63,7 @@ public class CurrencyServiceBean implements CurrencyService {
     }
 
     private Currency getCurrencyByParam(String paramName, String paramValue) {
+        DataManager dataManager = AppBeans.get(DataManager.class);
         List<Currency> currencyList = dataManager.load(Currency.class)
                 .query("select e from finance_Currency e where e." + paramName + " = :paramValue")
                 .parameter("paramValue", paramValue)
@@ -81,5 +78,24 @@ public class CurrencyServiceBean implements CurrencyService {
     @Override
     public Currency getCurrencyByShortName(String shortName) {
         return getCurrencyByParam("shortName", shortName);
+    }
+
+    @Override
+    public Double getSumaInUahByCurrency(Currency currency, Date onDate, Double suma) {
+        double result = 0.;
+        DataManager dataManager = AppBeans.get(DataManager.class);
+        Optional<CurrencyRate> currencyRateOptional = dataManager.load(CurrencyRate.class)
+                .query("select e from finance_CurrencyRate e " +
+                        "where e.currency = :currency " +
+                        "and e.onDate = (select max(md.onDate) from finance_CurrencyRate md where md.onDate<= :onDate)")
+                .parameter("currency", currency)
+                .parameter("onDate", onDate)
+                .view("currencyRate-all-property")
+                .optional();
+        if (currencyRateOptional.isPresent()) {
+            CurrencyRate currencyRate = currencyRateOptional.get();
+            result = suma * currencyRate.getRate() / currencyRate.getMultiplicity();
+        }
+        return result;
     }
 }

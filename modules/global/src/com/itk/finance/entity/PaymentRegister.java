@@ -3,10 +3,7 @@ package com.itk.finance.entity;
 import com.haulmont.chile.core.annotations.Composition;
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.entity.StandardEntity;
-import com.haulmont.cuba.core.entity.annotation.Listeners;
-import com.haulmont.cuba.core.entity.annotation.Lookup;
-import com.haulmont.cuba.core.entity.annotation.LookupType;
-import com.haulmont.cuba.core.entity.annotation.OnDelete;
+import com.haulmont.cuba.core.entity.annotation.*;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.DeletePolicy;
@@ -46,6 +43,7 @@ public class PaymentRegister extends StandardEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "BUSINESS_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private Business business;
 
     @JoinColumn(name = "STATUS_ID")
@@ -64,6 +62,7 @@ public class PaymentRegister extends StandardEntity {
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "REGISTER_TYPE_ID")
+    @OnDeleteInverse(DeletePolicy.DENY)
     private RegisterType registerType;
 
     @Composition

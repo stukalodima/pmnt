@@ -1,0 +1,1 @@
+drop table if exists FINANCE_PROPERTY_TYPE__U99626 cascade ;

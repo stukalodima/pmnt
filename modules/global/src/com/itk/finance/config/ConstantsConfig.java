@@ -17,4 +17,12 @@ public interface ConstantsConfig extends Config {
     @Default("controller")
     String getPaymentRegisterControllerRole();
 
+    @Property("CONSTANTS.PAYMENT_REGISTER_USER_FROM_LOGIN")
+    @Default("Julia.Kiryanova")
+    String getUserFromLogin();
+
+    @Property("CONSTANTS.PAYMENT_REGISTER_USER_TO_LOGIN")
+    @Default("inna.nedostup")
+    String getUserToLogin();
+
 }
