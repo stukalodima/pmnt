@@ -15,8 +15,7 @@ public class FinanceTestContainer extends TestContainer {
                 "com.haulmont.bpm",
                 "de.diedavids.cuba.dataimport",
                 "com.haulmont.charts",
-                "com.haulmont.reports",
-                "gr.netmechanics.cuba.afs");
+                "com.haulmont.reports");
         appPropertiesFiles = Arrays.asList(
                 // List the files defined in your web.xml
                 // in appPropertiesConfig context parameter of the core module

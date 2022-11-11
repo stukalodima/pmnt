@@ -87,7 +87,7 @@ public class CurrencyServiceBean implements CurrencyService {
         Optional<CurrencyRate> currencyRateOptional = dataManager.load(CurrencyRate.class)
                 .query("select e from finance_CurrencyRate e " +
                         "where e.currency = :currency " +
-                        "and e.onDate = (select max(md.onDate) from finance_CurrencyRate md where md.onDate<= :onDate)")
+                        "and e.onDate = (select max(md.onDate) from finance_CurrencyRate md where md.onDate<= :onDate and md.currency = :currency)")
                 .parameter("currency", currency)
                 .parameter("onDate", onDate)
                 .view("currencyRate-all-property")

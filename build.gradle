@@ -47,7 +47,6 @@ dependencies {
     appComponent('de.diedavids.cuba.dataimport:dataimport-global:0.14.1')
     appComponent("com.haulmont.charts:charts-global:$cubaVersion")
     appComponent("com.haulmont.reports:reports-global:$cubaVersion")
-    appComponent('gr.netmechanics.cuba.afs:cubaafs-global:1.1.0')
 }
 
 def postgres = 'org.postgresql:postgresql:42.2.9'

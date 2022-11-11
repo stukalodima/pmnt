@@ -239,7 +239,7 @@ public class PaymentClaimServiceBean implements PaymentClaimService {
     @Override
     public void fillSumaInUahByAllDocuments() {
         List<PaymentClaim> paymentClaimList = dataManager.load(PaymentClaim.class)
-                .query("select e from finance_PaymentClaim e where e.currency.baseCurrency is null")
+                .query("select e from finance_PaymentClaim e where e.currency.baseCurrency <> TRUE")
                 .view("paymentClaim.getEdit")
                 .list();
         paymentClaimList.forEach(paymentClaim -> {

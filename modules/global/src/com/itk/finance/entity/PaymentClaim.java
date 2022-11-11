@@ -77,7 +77,6 @@ public class PaymentClaim extends StandardEntity {
     private Double summ;
 
     @Column(name = "SUMA_IN_UAH")
-    @NotNull
     private Double sumaInUah;
 
     @Temporal(TemporalType.DATE)
